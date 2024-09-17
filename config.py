@@ -19,10 +19,10 @@ STRING_SESSIONS = [
 ]
 
 # Chat ID of the Telegram storage channel where files will be stored
-STORAGE_CHANNEL = -1001698070354
+STORAGE_CHANNEL = -1002228842729
 
 # Message ID of a file in the storage channel used for storing database backups
-DATABASE_BACKUP_MSG_ID = 6 # Message ID for database backup
+DATABASE_BACKUP_MSG_ID = 2# Message ID for database backup
 
 # Password used to access the website's admin panel
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "anidl")  # Default to "admin" if not set
