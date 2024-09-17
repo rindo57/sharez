@@ -49,7 +49,7 @@ WEBSITE_URL = os.getenv("WEBSITE_URL", None)
 # For Using TG Drive's Bot Mode
 
 # Main Bot Token for TG Drive's Bot Mode
-MAIN_BOT_TOKEN = os.getenv("MAIN_BOT_TOKEN", "6769415354:AAHh7IfKn11PWuNxUo0qmoIuW7NclxaaFHQ")
+MAIN_BOT_TOKEN = os.getenv("MAIN_BOT_TOKEN", "7341876935:AAGA0OsJjpGgWHnGK_MKMWoWpKRfkDgushI")
 if MAIN_BOT_TOKEN.strip() == "":
     MAIN_BOT_TOKEN = None
 
