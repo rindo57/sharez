@@ -9,7 +9,7 @@ API_ID=10247139
 API_HASH="96b46175824223a33737657ab943fd6a"
 
 # List of Telegram bot tokens used for file upload/download operations
-BOT_TOKENS = os.getenv("BOT_TOKENS", "6769415354:AAHh7IfKn11PWuNxUo0qmoIuW7NclxaaFHQ").strip(", ").split(",")
+BOT_TOKENS = os.getenv("BOT_TOKENS", "7341876935:AAGA0OsJjpGgWHnGK_MKMWoWpKRfkDgushI").strip(", ").split(",")
 BOT_TOKENS = [token.strip() for token in BOT_TOKENS if token.strip() != ""]
 
 # List of Premium Telegram Account Pyrogram String Sessions used for file upload/download operations
