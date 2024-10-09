@@ -9,12 +9,17 @@
     -ms-user-select: none;
 }
 
-/* Main Container */
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+/* Container */
 .container {
     width: 100%;
     height: 100vh;
     display: grid;
-    background: #181818; /* Dark background */
+    background: #181818;
     grid-template-columns: auto 1fr;
 }
 
@@ -22,95 +27,186 @@
 .sidebar {
     width: 250px;
     height: 100%;
-    background-color: #202020; /* Darker sidebar */
+    background-color: #1f1f1f;
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: start;
     align-items: start;
+    border-right: 1px solid #333;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.sidebar-header img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
 }
 
 .sidebar-header span {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 500;
-    color: #f1f1f1; /* Lighter text */
+    color: #ffffff;
 }
 
 .sidebar .new-button {
     padding: 15px 20px;
-    background-color: #282828; /* Dark button background */
+    background-color: #333;
     border: none;
-    border-radius: 20px;
+    border-radius: 10px;
     margin-top: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     font-size: 0.9rem;
-    color: #ffffff; /* White text */
+    color: #ffffff;
+    font-weight: 500;
 }
 
 .sidebar .new-button:hover {
-    background-color: #343434; /* Darker hover effect */
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.5);
+    background-color: #444;
+}
+
+.sidebar-menu {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
 }
 
 .sidebar-menu a {
+    width: 100%;
     padding: 10px 20px;
-    color: #b3b3b3; /* Light gray text */
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    color: #e0e0e0;
     font-size: 0.9rem;
+    font-weight: 400;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 10px;
 }
 
 .sidebar-menu .selected-item {
-    background-color: #007bff; /* Cool blue accent */
+    background-color: #333;
 }
 
-.sidebar-menu .unselected-item:hover {
-    background-color: #3a3a3a; /* Darker hover effect */
+.sidebar-menu a:hover {
+    background-color: #444;
+}
+
+.sidebar-menu a img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
 }
 
 /* Main Content */
 .main-content {
-    background-color: #1c1c1c; /* Dark background for main content */
+    width: 100%;
+    height: 100%;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    background-color: #181818;
+}
+
+.header {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 40px;
 }
 
 .search-bar {
-    background-color: #333333; /* Darker search bar */
-    color: #ffffff; /* White text */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    background-color: #333;
+    border-radius: 20px;
+    padding: 10px 20px;
 }
 
-.directory {
-    background-color: #202020; /* Dark directory */
-    color: #e0e0e0; /* Light text */
-    border-radius: 10px;
+.search-bar img {
+    width: 20px;
+    height: 20px;
+    margin-right: 20px;
 }
 
-.directory table tr th,
-.directory table tr td {
-    color: #f1f1f1; /* Lighter text for table */
-}
-
-.directory .body-tr:hover {
-    background-color: #292929; /* Slightly lighter row hover */
-}
-
-.directory .more-btn:hover {
-    background-color: #007bff; /* Cool accent on hover */
-}
-
-/* Modals */
-.create-new-folder, .file-uploader {
-    background-color: #282828; /* Dark modal background */
-    color: #ffffff; /* White text */
-}
-
-.create-new-folder button, .file-uploader button {
-    background-color: #007bff; /* Cool accent button */
+.search-bar input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 1rem;
     color: #ffffff;
 }
 
-.create-new-folder button:hover, .file-uploader button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+.search-bar:focus-within {
+    background-color: #444;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Directory */
+.directory {
+    background-color: #1f1f1f;
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    margin-top: 20px;
+}
+
+.directory table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.directory table th,
+.directory table td {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #e0e0e0;
+    padding: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.directory .body-tr:hover {
+    background-color: #333;
+}
+
+.directory .td-align img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.directory .more-btn {
+    padding: 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #e0e0e0;
+}
+
+.directory .more-btn:hover {
+    background-color: #444;
 }
