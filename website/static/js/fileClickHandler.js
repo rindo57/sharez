@@ -188,7 +188,7 @@ async function shareFile() {
     if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
         link = `http://178.128.61.28:8000/file?path=${path}`
     } else {
-        link = `${root_url}/file?path=${path}`
+        link = 'http://178.128.61.28:8000/file?path=${path}'
 
     }
 
