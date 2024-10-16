@@ -455,6 +455,13 @@ body {
     border-bottom: 1px solid #3d405c;
 }
 
+.directory th{
+    padding: 15px;
+    text-align: left;
+    color: #fff;
+    border-bottom: 1px solid #3d405c;
+}
+
 .directory th {
     background-color: #ff79c6;
 }
