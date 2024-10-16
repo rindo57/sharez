@@ -357,8 +357,8 @@ body {
 }
 
 .file-uploader button:hover {
-    background-color: #ff79c6;
-    box-shadow: 0 0 10px 1px #ff1493; 
+    background-color: #edf1fa;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 /* File Uploader End */
