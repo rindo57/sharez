@@ -126,13 +126,15 @@ fileInput.addEventListener('change', async (e) => {
 
     // Start uploading files from the queue
     processUploadQueue();
-    alert('Upload Completed');
+    
 });
 
 function processUploadQueue() {
     if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
         const file = uploadQueue.shift(); // Get the next file from the queue
         uploadFile(file);
+    else if (activeUploads === 0 && uploadQueue.length === 0) {
+        alert('All uploads completed boss! 😎'); // Show alert when queue is fully processed
     }
 }
 
