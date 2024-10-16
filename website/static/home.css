@@ -90,7 +90,7 @@ body {
 
 .new-upload {
     position: absolute;
-    background-color: #ffffff;
+    background-color: #25293c;
     padding: 5px 0px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
@@ -112,7 +112,7 @@ body {
 }
 
 .new-upload div:hover {
-    background-color: #f1f1f1;
+    background-color: #25293c;
 }
 
 .new-upload div img {
