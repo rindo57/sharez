@@ -485,7 +485,7 @@ body {
 }
 
 .directory .td-align .download-btn:hover {
-    box-shadow: 0 0 30px 1px #ff1493;
+box-shadow: 0 0 10px 1px #FFFF00;
 }
 
 .directory .more-btn img {
