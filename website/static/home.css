@@ -467,13 +467,13 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.directory .download-btn img {
+.directory .td-align .download-btn img {
     width: 25px;
     height: 25px;
     margin: 0px;
 }
 
-.directory .download-btn {
+.directory .td-align .download-btn {
     padding: 8px;
     border-radius: 20px;
     display: flex;
@@ -484,7 +484,7 @@ body {
     
 }
 
-.directory .download-btn:hover {
+.directory .td-align .download-btn:hover {
     box-shadow: 0 0 30px 1px #ff1493;
 }
 
