@@ -533,6 +533,18 @@ box-shadow: 0 0 10px 1px #FFFF00;
 }
 
 .footer {
+width: 100%;
+height: 0px;
+border-top: 0px #ff79c6;
+color: white;
+position: absolute;
+bottom: 0px; 
+left: 0px; 
+text-align: center; 
+background-color:#25293c;
+}
+
+.footer {
     margin: 10px auto 0 auto;
     width: 100%;
     font-family: Verdana, Geneva, sans-serif;
@@ -541,8 +553,9 @@ box-shadow: 0 0 10px 1px #FFFF00;
     text-align: center;
     color: #ccbd92;
     border-top: 1px solid #ccbd92;
-    padding: 1px 1px; /* Add padding to the top and bottom */
+    padding: 2px 1px; /* Add padding to the top and bottom */
 }
+
 
 .footer-content {
     display: flex; /* Ensure the links are displayed in a row */
