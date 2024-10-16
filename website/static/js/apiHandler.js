@@ -110,7 +110,7 @@ const cancelButton = document.getElementById('cancel-file-upload');
 const uploadPercent = document.getElementById('upload-percent');
 let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
-const maxConcurrentUploads = 1; // Limit concurrent uploads
+const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
@@ -129,7 +129,7 @@ fileInput.addEventListener('change', async (e) => {
 });
 
 function processUploadQueue() {
-    while (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
+    if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
         const file = uploadQueue.shift(); // Get the next file from the queue
         uploadFile(file);
     }
@@ -169,14 +169,12 @@ async function uploadFile(file) {
 
     uploadRequest.upload.addEventListener('load', async () => {
         await updateSaveProgress(id);
-        activeUploads--; // Decrement active uploads counter
-        processUploadQueue(); // Process next in queue
     });
 
     uploadRequest.upload.addEventListener('error', () => {
         alert(`Upload of ${file.name} failed`);
-        activeUploads--; // Decrement active uploads counter
-        processUploadQueue(); // Process next in queue
+        activeUploads--;
+        processUploadQueue();
     });
 
     uploadRequest.send(formData);
@@ -207,10 +205,7 @@ async function updateSaveProgress(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            uploadPercent.innerText = 'Progress : 100%';
-            progressBar.style.width = '100%';
-
-            await handleUpload2(id);
+            await handleUpload2(id); // Proceed to the next phase after saving progress
         }
     }, 3000);
 }
@@ -243,11 +238,13 @@ async function handleUpload2(id) {
         else if (data[0] === 'completed') {
             clearInterval(interval);
             alert('Upload Completed');
-            window.location.reload();
+            activeUploads--; // Decrement active uploads counter after uploading to Telegram
+            processUploadQueue(); // Process next in queue
         }
     }, 3000);
 }
 // File Uploader End
+
 
 // URL Uploader Start
 
