@@ -30,8 +30,8 @@ body {
 /* Sidebar Style Start */
 
 .sidebar {
-    width: 250px;
-    height: 100%;
+    width: 500px;
+    height: 200%;
     background-color: #25293c;
     padding: 20px;
     display: flex;
