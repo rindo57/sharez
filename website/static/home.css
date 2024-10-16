@@ -531,3 +531,30 @@ box-shadow: 0 0 10px 1px #FFFF00;
 .create-new-folder, .file-uploader {
     animation: fadeIn 0.5s ease-in-out;
 }
+
+.footer {
+    margin: 10px auto 0 auto;
+    width: 100%;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    text-align: center;
+    color: #ccbd92;
+    border-top: 1px solid #ccbd92;
+    padding: 1px 1px; /* Add padding to the top and bottom */
+}
+
+.footer-content {
+    display: flex; /* Ensure the links are displayed in a row */
+    justify-content: center; /* Center the links */
+    align-items: center; /* Align vertically */
+    gap: 10px; /* Space between links */
+}
+
+.footer-content a {
+    color: #ff79c6; /* Use the same accent color */
+    text-decoration: none;
+        justify-content: center; /* Center the links */
+    align-items: center;
+    margin: 0; /* Remove margin for cleaner spacing */
+}
