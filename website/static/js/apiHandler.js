@@ -126,15 +126,15 @@ fileInput.addEventListener('change', async (e) => {
 
     // Start uploading files from the queue
     processUploadQueue();
-    
 });
 
 function processUploadQueue() {
     if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
         const file = uploadQueue.shift(); // Get the next file from the queue
         uploadFile(file);
+    }
     else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed boss! 😎'); // Show alert when queue is fully processed
+        alert('All uploads completed'); // Show alert when queue is fully processed
     }
 }
 
@@ -240,13 +240,13 @@ async function handleUpload2(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            
             activeUploads--; // Decrement active uploads counter after uploading to Telegram
-            processUploadQueue(); // Process next in queue
+            processUploadQueue(); // Process next in queue or show alert when done
         }
     }, 3000);
 }
 // File Uploader End
+
 
 
 // URL Uploader Start
