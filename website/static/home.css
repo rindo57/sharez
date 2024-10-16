@@ -455,7 +455,7 @@ body {
     border-bottom: 1px solid #3d405c;
 }
 
-.directory th {
+.directory td {
     padding: 15px;
     text-align: left;
     color: #fff;
@@ -481,7 +481,7 @@ body {
 }
 
 .directory .td-align .download-btn {
-    padding: 2px 1px;
+    padding: 8px 1px;
     border-radius: 20px;
     display: flex;
     align-items: center;
