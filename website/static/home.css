@@ -448,14 +448,14 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-.directory th, .directory td {
+.directory th {
     padding: 15px;
     text-align: center;
     color: #fff;
     border-bottom: 1px solid #3d405c;
 }
 
-.directory th{
+.directory th {
     padding: 15px;
     text-align: left;
     color: #fff;
