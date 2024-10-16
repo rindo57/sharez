@@ -237,7 +237,7 @@ async function handleUpload2(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            alert('Upload Completed');
+            //alert('Upload Completed');
             activeUploads--; // Decrement active uploads counter after uploading to Telegram
             processUploadQueue(); // Process next in queue
         }
