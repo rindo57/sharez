@@ -467,6 +467,27 @@ body {
     transition: background-color 0.2s ease;
 }
 
+.directory .download-btn img {
+    width: 25px;
+    height: 25px;
+    margin: 0px;
+}
+
+.directory .download-btn {
+    padding: 8px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+}
+
+.directory .download-btn:hover {
+    box-shadow: 0 0 30px 1px #ff1493;
+}
+
 .directory .more-btn img {
     width: 14px;
     height: 14px;
