@@ -110,7 +110,7 @@ const cancelButton = document.getElementById('cancel-file-upload');
 const uploadPercent = document.getElementById('upload-percent');
 let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
-const maxConcurrentUploads = 3; // Limit concurrent uploads
+const maxConcurrentUploads = 1; // Limit concurrent uploads
 
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
