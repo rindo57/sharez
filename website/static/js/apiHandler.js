@@ -134,7 +134,8 @@ function processUploadQueue() {
         uploadFile(file);
     }
     else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed'); // Show alert when queue is fully processed
+        alert('All uploads completed boss! 😎'); // Show alert when queue is fully processed
+        window.location.reload();
     }
 }
 
@@ -185,6 +186,7 @@ async function uploadFile(file) {
 
 cancelButton.addEventListener('click', () => {
     alert('Upload canceled');
+    window.location.reload();
 });
 
 async function updateSaveProgress(id) {
