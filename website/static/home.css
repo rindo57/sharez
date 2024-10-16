@@ -474,7 +474,7 @@ body {
 }
 
 .directory .td-align .download-btn {
-    padding: 5px;
+    padding: 8px 1px;
     border-radius: 20px;
     display: flex;
     align-items: center;
