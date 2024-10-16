@@ -126,6 +126,7 @@ fileInput.addEventListener('change', async (e) => {
 
     // Start uploading files from the queue
     processUploadQueue();
+    alert('Upload Completed');
 });
 
 function processUploadQueue() {
@@ -237,7 +238,7 @@ async function handleUpload2(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            //alert('Upload Completed');
+            
             activeUploads--; // Decrement active uploads counter after uploading to Telegram
             processUploadQueue(); // Process next in queue
         }
