@@ -30,10 +30,10 @@ body {
 /* Sidebar Style Start */
 
 .sidebar {
-    width: 500px;
-    height: 200%;
+    width: 200px;
+    height: 100%;
     background-color: #25293c;
-    padding: 40px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: start;
@@ -47,8 +47,8 @@ body {
 }
 
 .sidebar-header img {
-    width: 40px;
-    height: 40px;
+    width: 160px;
+    height: 100px;
     margin-right: 10px;
 }
 .sidebar-header span {
@@ -60,7 +60,7 @@ body {
 .sidebar .new-button {
     padding: 15px 20px;
     background-color:#ff79c6;
-    border: 1px solid #e0e0e0;
+    border: 0px #ff1493;
     border-radius: 20px;
     margin-top: 20px;
     display: flex;
@@ -69,15 +69,17 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    font-size: 0.9rem;
-    color: #282c35;
+    font-size: 1.2rem;
+    color: white;
     font-weight: 500;
+
 }
 
 .sidebar .new-button:hover {
-    background-color: #edf1fa;
-    border: 1px solid #c9d0e6;
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.1s ease;
+    background-color: #ff79c6;
+    border: 0px solid #ff79c6;
+    box-shadow: 0 0 30px 1px #ff1493;
 }
 
 .sidebar .new-button img {
@@ -289,7 +291,7 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    background-color: #fff;
+    background-color: #25293c;
     border-radius: 10px;
     z-index: -1;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
