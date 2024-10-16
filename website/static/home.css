@@ -351,14 +351,14 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    color: #25293c;
+    color: #ff79c6;
     font-weight: 500;
     padding: 10px 20px;
 }
 
 .file-uploader button:hover {
-    background-color: #edf1fa;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: #ff79c6;
+    box-shadow: 0 0 10px 1px #ff1493; 
 }
 
 /* File Uploader End */
