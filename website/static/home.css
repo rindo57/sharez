@@ -422,6 +422,7 @@ body {
     border-radius: 25px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
     width: 100%;
+        box-shadow: 0 0 10px 1px #ff1493;
 }
 
 .search-bar img {
@@ -439,6 +440,7 @@ body {
 /* Directory Styling */
 .directory table {
     width: 100%;
+    margin-top: 15px;
     border-collapse: collapse;
     background-color: #25293c;
     border-radius: 10px;
