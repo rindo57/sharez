@@ -91,7 +91,7 @@ body {
 .new-upload {
     position: absolute;
     background-color: #25293c;
-    padding: 5px 0px;
+    padding: 2px 0px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     width: 250px;
