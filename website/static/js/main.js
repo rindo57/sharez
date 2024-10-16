@@ -10,9 +10,11 @@ function showDirectory(data) {
     let folders = entries.filter(([key, value]) => value.type === 'folder');
     let files = entries.filter(([key, value]) => value.type === 'file');
 
-    folders.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
-    files.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
-
+    //folders.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
+    //files.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
+    //files.sort((a, b) => a.name.localeCompare(b.name));
+    folders.sort((a, b) => a[1].name.localeCompare(b[1].name));
+    files.sort((a, b) => a[1].name.localeCompare(b[1].name));
     for (const [key, item] of folders) {
         if (item.type === 'folder') {
            html += `<tr data-path="${item.path}" data-id="${item.id}" class="body-tr folder-tr"><td><div class="td-align"><img src="static/assets/folder-solid-icon.svg">${item.name}</div></td><td><div class="td-align"></div></td><td><div class="download-btn"></div></td><td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td></tr>`
