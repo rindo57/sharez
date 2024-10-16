@@ -106,45 +106,25 @@ async function getFolderShareAuth(path) {
 
 // File Uploader Start
 
-// File Uploader Start
-
-const MAX_FILE_SIZE = MAX_FILE_SIZE__SDGJDG; // Will be replaced by the python
+const MAX_FILE_SIZE = MAX_FILE_SIZE__SDGJDG // Will be replaced by the python
 
 const fileInput = document.getElementById('fileInput');
 const progressBar = document.getElementById('progress-bar');
 const cancelButton = document.getElementById('cancel-file-upload');
 const uploadPercent = document.getElementById('upload-percent');
-let uploadQueue = []; // Queue for files to upload
-let activeUploads = 0; // Counter for active uploads
-const maxConcurrentUploads = 3; // Limit concurrent uploads
+let uploadRequest = null;
+let uploadStep = 0;
+let uploadID = null;
 
 fileInput.addEventListener('change', async (e) => {
-    const files = fileInput.files;
+    const file = fileInput.files[0];
 
-    // Validate file sizes
-    for (const file of files) {
-        if (file.size > MAX_FILE_SIZE) {
-            alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
-            return;
-        }
-        uploadQueue.push(file); // Add valid files to the queue
+    if (file.size > MAX_FILE_SIZE) {
+        alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
+        return;
     }
 
-    // Start uploading files from the queue
-    processUploadQueue();
-});
-
-function processUploadQueue() {
-    while (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
-        const file = uploadQueue.shift(); // Get the next file from the queue
-        uploadFile(file);
-    }
-}
-
-async function uploadFile(file) {
-    activeUploads++;
-    
-    // Show uploader UI
+    // Showing file uploader
     document.getElementById('bg-blur').style.zIndex = '2';
     document.getElementById('bg-blur').style.opacity = '0.1';
     document.getElementById('file-uploader').style.zIndex = '3';
@@ -154,6 +134,7 @@ async function uploadFile(file) {
     document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
     document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
 
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('path', getCurrentPath());
@@ -162,7 +143,8 @@ async function uploadFile(file) {
     formData.append('id', id);
     formData.append('total_size', file.size);
 
-    const uploadRequest = new XMLHttpRequest();
+    uploadStep = 1;
+    uploadRequest = new XMLHttpRequest();
     uploadRequest.open('POST', '/api/upload', true);
 
     uploadRequest.upload.addEventListener('progress', (e) => {
@@ -174,26 +156,25 @@ async function uploadFile(file) {
     });
 
     uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id);
-        activeUploads--; // Decrement active uploads counter
-        processUploadQueue(); // Process next in queue
+        await updateSaveProgress(id)
     });
 
     uploadRequest.upload.addEventListener('error', () => {
-        alert(`Upload of ${file.name} failed`);
-        activeUploads--; // Decrement active uploads counter
-        processUploadQueue(); // Process next in queue
+        alert('Upload failed');
+        window.location.reload();
     });
 
     uploadRequest.send(formData);
-}
-
-cancelButton.addEventListener('click', () => {
-    alert('Upload canceled');
 });
 
-// The rest of your functions remain unchanged...
-
+cancelButton.addEventListener('click', () => {
+    if (uploadStep === 1) {
+        uploadRequest.abort();
+    } else if (uploadStep === 2) {
+        const data = { 'id': uploadID }
+        postJson('/api/cancelUpload', data)
+    }
+    alert('Upload canceled');
     window.location.reload();
 });
 
