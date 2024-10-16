@@ -193,7 +193,6 @@ async function shareFile() {
     }
 
     copyTextToClipboard(link)
-    window.open(link)
 }
 
 
