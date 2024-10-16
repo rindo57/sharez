@@ -1,130 +1,144 @@
-// Api Fuctions
+// Api Functions
 async function postJson(url, data) {
-    data['password'] = getPassword()
+    data['password'] = getPassword();
     const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
-    })
-    return await response.json()
+    });
+    return await response.json();
 }
 
 document.getElementById('pass-login').addEventListener('click', async () => {
-    const password = document.getElementById('auth-pass').value
-    const data = { 'pass': password }
-    const json = await postJson('/api/checkPassword', data)
+    const password = document.getElementById('auth-pass').value;
+    const data = { 'pass': password };
+    const json = await postJson('/api/checkPassword', data);
     if (json.status === 'ok') {
-        localStorage.setItem('password', password)
-        alert('Logged In Successfully')
-        window.location.reload()
+        localStorage.setItem('password', password);
+        alert('Logged In Successfully');
+        window.location.reload();
     }
     else {
-        alert('Wrong Password')
+        alert('Wrong Password');
     }
-
-})
+});
 
 async function getCurrentDirectory() {
-    let path = getCurrentPath()
+    let path = getCurrentPath();
     if (path === 'redirect') {
-        return
+        return;
     }
     try {
-        const auth = getFolderAuthFromPath()
-        console.log(path)
+        const auth = getFolderAuthFromPath();
+        console.log(path);
 
-        const data = { 'path': path, 'auth': auth }
-        const json = await postJson('/api/getDirectory', data)
+        const data = { 'path': path, 'auth': auth };
+        const json = await postJson('/api/getDirectory', data);
 
         if (json.status === 'ok') {
             if (getCurrentPath().startsWith('/share')) {
-                const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a')
-                console.log(path)
+                const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a');
+                console.log(path);
 
                 if (removeSlash(json['auth_home_path']) === removeSlash(path.split('_')[1])) {
-                    sections[0].setAttribute('class', 'selected-item')
-
+                    sections[0].setAttribute('class', 'selected-item');
                 } else {
-                    sections[0].setAttribute('class', 'unselected-item')
+                    sections[0].setAttribute('class', 'unselected-item');
                 }
-                sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`
-                console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`)
+                sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
+                console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`);
             }
 
-            console.log(json)
-            showDirectory(json['data'])
+            console.log(json);
+            showDirectory(json['data']);
         } else {
-            alert('404 Current Directory Not Found')
+            alert('404 Current Directory Not Found');
         }
     }
     catch (err) {
-        console.log(err)
-        alert('404 Current Directory Not Found')
+        console.log(err);
+        alert('404 Current Directory Not Found');
     }
 }
 
 async function createNewFolder() {
     const folderName = document.getElementById('new-folder-name').value;
-    const path = getCurrentPath()
+    const path = getCurrentPath();
     if (path === 'redirect') {
-        return
+        return;
     }
     if (folderName.length > 0) {
         const data = {
             'name': folderName,
             'path': path
-        }
+        };
         try {
-            const json = await postJson('/api/createNewFolder', data)
+            const json = await postJson('/api/createNewFolder', data);
 
             if (json.status === 'ok') {
                 window.location.reload();
             } else {
-                alert(json.status)
+                alert(json.status);
             }
         }
         catch (err) {
-            alert('Error Creating Folder')
+            alert('Error Creating Folder');
         }
     } else {
-        alert('Folder Name Cannot Be Empty')
+        alert('Folder Name Cannot Be Empty');
     }
 }
 
-
 async function getFolderShareAuth(path) {
-    const data = { 'path': path }
-    const json = await postJson('/api/getFolderShareAuth', data)
+    const data = { 'path': path };
+    const json = await postJson('/api/getFolderShareAuth', data);
     if (json.status === 'ok') {
-        return json.auth
+        return json.auth;
     } else {
-        alert('Error Getting Folder Share Auth')
+        alert('Error Getting Folder Share Auth');
     }
 }
 
 // File Uploader Start
-
-const MAX_FILE_SIZE = MAX_FILE_SIZE__SDGJDG // Will be replaced by the python
+const MAX_FILE_SIZE = MAX_FILE_SIZE__SDGJDG; // Will be replaced by the python
 
 const fileInput = document.getElementById('fileInput');
 const progressBar = document.getElementById('progress-bar');
 const cancelButton = document.getElementById('cancel-file-upload');
 const uploadPercent = document.getElementById('upload-percent');
-let uploadRequest = null;
-let uploadStep = 0;
-let uploadID = null;
+let uploadQueue = []; // Queue for files to upload
+let activeUploads = 0; // Counter for active uploads
+const maxConcurrentUploads = 3; // Limit concurrent uploads
 
 fileInput.addEventListener('change', async (e) => {
-    const file = fileInput.files[0];
+    const files = fileInput.files;
 
-    if (file.size > MAX_FILE_SIZE) {
-        alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
-        return;
+    // Validate file sizes
+    for (const file of files) {
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
+            return;
+        }
+        uploadQueue.push(file); // Add valid files to the queue
     }
 
-    // Showing file uploader
+    // Start uploading files from the queue
+    processUploadQueue();
+});
+
+function processUploadQueue() {
+    while (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
+        const file = uploadQueue.shift(); // Get the next file from the queue
+        uploadFile(file);
+    }
+}
+
+async function uploadFile(file) {
+    activeUploads++;
+
+    // Show uploader UI
     document.getElementById('bg-blur').style.zIndex = '2';
     document.getElementById('bg-blur').style.opacity = '0.1';
     document.getElementById('file-uploader').style.zIndex = '3';
@@ -134,7 +148,6 @@ fileInput.addEventListener('change', async (e) => {
     document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
     document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
 
-
     const formData = new FormData();
     formData.append('file', file);
     formData.append('path', getCurrentPath());
@@ -143,8 +156,7 @@ fileInput.addEventListener('change', async (e) => {
     formData.append('id', id);
     formData.append('total_size', file.size);
 
-    uploadStep = 1;
-    uploadRequest = new XMLHttpRequest();
+    const uploadRequest = new XMLHttpRequest();
     uploadRequest.open('POST', '/api/upload', true);
 
     uploadRequest.upload.addEventListener('progress', (e) => {
@@ -156,37 +168,33 @@ fileInput.addEventListener('change', async (e) => {
     });
 
     uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id)
+        await updateSaveProgress(id);
+        activeUploads--; // Decrement active uploads counter
+        processUploadQueue(); // Process next in queue
     });
 
     uploadRequest.upload.addEventListener('error', () => {
-        alert('Upload failed');
-        window.location.reload();
+        alert(`Upload of ${file.name} failed`);
+        activeUploads--; // Decrement active uploads counter
+        processUploadQueue(); // Process next in queue
     });
 
     uploadRequest.send(formData);
-});
+}
 
 cancelButton.addEventListener('click', () => {
-    if (uploadStep === 1) {
-        uploadRequest.abort();
-    } else if (uploadStep === 2) {
-        const data = { 'id': uploadID }
-        postJson('/api/cancelUpload', data)
-    }
     alert('Upload canceled');
-    window.location.reload();
 });
 
 async function updateSaveProgress(id) {
-    console.log('save progress')
+    console.log('save progress');
     progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%'
+    uploadPercent.innerText = 'Progress : 0%';
     document.getElementById('upload-status').innerText = 'Status: Processing File On Backend Server';
 
     const interval = setInterval(async () => {
-        const response = await postJson('/api/getSaveProgress', { 'id': id })
-        const data = response['data']
+        const response = await postJson('/api/getSaveProgress', { 'id': id });
+        const data = response['data'];
 
         if (data[0] === 'running') {
             const current = data[1];
@@ -199,33 +207,32 @@ async function updateSaveProgress(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            uploadPercent.innerText = 'Progress : 100%'
+            uploadPercent.innerText = 'Progress : 100%';
             progressBar.style.width = '100%';
 
-            await handleUpload2(id)
+            await handleUpload2(id);
         }
-    }, 3000)
-
+    }, 3000);
 }
 
 async function handleUpload2(id) {
-    console.log(id)
+    console.log(id);
     document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
     progressBar.style.width = '0%';
     uploadPercent.innerText = 'Progress : 0%';
 
     const interval = setInterval(async () => {
-        const response = await postJson('/api/getUploadProgress', { 'id': id })
-        const data = response['data']
+        const response = await postJson('/api/getUploadProgress', { 'id': id });
+        const data = response['data'];
 
         if (data[0] === 'running') {
             const current = data[1];
             const total = data[2];
             document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
 
-            let percentComplete
+            let percentComplete;
             if (total === 0) {
-                percentComplete = 0
+                percentComplete = 0;
             }
             else {
                 percentComplete = (current / total) * 100;
@@ -235,14 +242,12 @@ async function handleUpload2(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            alert('Upload Completed')
+            alert('Upload Completed');
             window.location.reload();
         }
-    }, 3000)
+    }, 3000);
 }
-
 // File Uploader End
-
 
 // URL Uploader Start
 
