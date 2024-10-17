@@ -141,11 +141,10 @@ fileInput.addEventListener('change', async (e) => {
 });
 
 function processUploadQueue() {
-    if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
+    if (uploadQueue.length > 0 && activeUploads < maxConcurrentUploads) {
         const file = uploadQueue.shift(); // Get the next file from the queue
         uploadFile(file);
-    }
-    else if (activeUploads === 0 && uploadQueue.length === 0) {
+    } else if (activeUploads === 0 && uploadQueue.length === 0) {
         alert('All uploads completed!'); // Show alert when queue is fully processed
         window.location.reload();
     }
@@ -201,7 +200,6 @@ async function uploadFile(file) {
     uploadRequest.send(formData);
 }
 
-// Function to update the UI with the list of selected/uploading files
 function updateActiveUploadList() {
     const uploadListContainer = document.getElementById('active-upload-list');
     uploadListContainer.innerHTML = ''; // Clear the existing list
@@ -231,19 +229,23 @@ async function updateSaveProgress(id, uploadTask) {
             const percentComplete = (current / total) * 100;
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-        else if (data[0] === 'completed') {
+        } else if (data[0] === 'done') {
             clearInterval(interval);
-            uploadTask.status = 'Processed'; // Update task status on completion
-            await handleUpload2(id, uploadTask); // Proceed to the next phase after saving progress
+            await completeUpload(id, uploadTask); // Pass the uploadTask to complete it
+        } else if (data[0] === 'error') {
+            clearInterval(interval);
+            alert('Error occurred while saving file.');
+            activeUploads--;
+            uploadTask.status = 'Failed'; // Update the task status
+            processUploadQueue();
+            updateActiveUploadList(); // Update UI after error
         }
-
-        updateActiveUploadList(); // Update the list after each status change
-    }, 3000);
+    }, 1000);
 }
 
-async function handleUpload2(id, uploadTask) {
-    console.log(id);
+async function completeUpload(id, uploadTask) {
+    progressBar.style.width = '0%';
+    uploadPercent.innerText = 'Progress : 0%';
     document.getElementById('upload-status').innerText = 'Status: Finalizing File Upload';
     await postJson('/api/handleUpload2', { 'id': id });
     activeUploads--;
@@ -252,6 +254,7 @@ async function handleUpload2(id, uploadTask) {
     updateActiveUploadList(); // Refresh UI after completion
 }
 // File Uploader End
+
 
 // URL Uploader Start
 
