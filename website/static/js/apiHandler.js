@@ -102,16 +102,76 @@ async function getFolderShareAuth(path) {
 }
 
 // File Uploader Start
-const MAX_FILE_SIZE = 2126008811.52; // Will be replaced by the python
+// Define upload queue and max file size
+const uploadQueue = [];
+const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
 
-const fileInput = document.getElementById('fileInput');
-const progressBar = document.getElementById('progress-bar');
+// Elements for file input, upload button, pending uploads, etc.
+const fileInput = document.getElementById('file-input');
+const uploadButton = document.getElementById('upload-button');
+const pendingUploadsButton = document.getElementById('pending-uploads');
+const pendingUploadsModal = document.getElementById('pending-uploads-modal');
+const pendingUploadsList = document.getElementById('pending-uploads-list');
 const cancelButton = document.getElementById('cancel-file-upload');
-const uploadPercent = document.getElementById('upload-percent');
-let uploadQueue = []; // Queue for files to upload
-let activeUploads = 0; // Counter for active uploads
-const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
+// Show pending uploads when the button is clicked
+pendingUploadsButton.addEventListener('click', () => {
+    pendingUploadsList.innerHTML = ''; // Clear previous list
+    if (uploadQueue.length > 0) {
+        uploadQueue.forEach((file, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `File: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.setAttribute('data-index', index);
+            removeButton.classList.add('remove-pending-upload');
+
+            listItem.appendChild(removeButton);
+            pendingUploadsList.appendChild(listItem);
+        });
+
+        pendingUploadsModal.style.display = 'block'; // Show the modal with pending uploads
+    } else {
+        alert('No pending uploads.');
+    }
+});
+
+// Remove a file from the upload queue
+pendingUploadsList.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-pending-upload')) {
+        const index = e.target.getAttribute('data-index');
+        uploadQueue.splice(index, 1); // Remove the file from the queue
+
+        // Refresh the list after removing the file
+        pendingUploadsList.innerHTML = '';
+        uploadQueue.forEach((file, index) => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `File: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.setAttribute('data-index', index);
+            removeButton.classList.add('remove-pending-upload');
+
+            listItem.appendChild(removeButton);
+            pendingUploadsList.appendChild(listItem);
+        });
+
+        if (uploadQueue.length === 0) {
+            pendingUploadsModal.style.display = 'none'; // Hide the modal if no uploads remain
+        }
+    }
+});
+
+// Hide the modal when clicking outside of it
+window.addEventListener('click', (e) => {
+    if (e.target === pendingUploadsModal) {
+        pendingUploadsModal.style.display = 'none';
+    }
+});
+
+// File input handler
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
 
@@ -128,66 +188,48 @@ fileInput.addEventListener('change', async (e) => {
     processUploadQueue();
 });
 
-function processUploadQueue() {
-    if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
-        const file = uploadQueue.shift(); // Get the next file from the queue
-        uploadFile(file);
+// Process upload queue (upload files one by one)
+async function processUploadQueue() {
+    if (uploadQueue.length === 0) {
+        alert('Upload Completed');
+        return;
     }
-    else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed boss! ðŸ˜Ž'); // Show alert when queue is fully processed
-        window.location.reload();
+
+    const file = uploadQueue.shift(); // Get the first file in the queue
+
+    try {
+        await uploadFile(file); // Upload the file
+        processUploadQueue();   // Continue with the next file in the queue
+    } catch (error) {
+        console.error(`Failed to upload file ${file.name}:`, error);
     }
 }
 
+// Upload a single file
 async function uploadFile(file) {
-    activeUploads++;
-
-    // Show uploader UI
-    document.getElementById('bg-blur').style.zIndex = '2';
-    document.getElementById('bg-blur').style.opacity = '0.1';
-    document.getElementById('file-uploader').style.zIndex = '3';
-    document.getElementById('file-uploader').style.opacity = '1';
-
-    document.getElementById('upload-filename').innerText = 'Filename: ' + file.name;
-    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-    document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
-
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('path', getCurrentPath());
-    formData.append('password', getPassword());
-    const id = getRandomId();
-    formData.append('id', id);
-    formData.append('total_size', file.size);
 
-    const uploadRequest = new XMLHttpRequest();
-    uploadRequest.open('POST', '/api/upload', true);
-
-    uploadRequest.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
+    return fetch('/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(`File ${file.name} uploaded successfully.`);
+    })
+    .catch(error => {
+        console.error('Error uploading file:', error);
+        throw error;
     });
-
-    uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id);
-    });
-
-    uploadRequest.upload.addEventListener('error', () => {
-        alert(`Upload of ${file.name} failed`);
-        activeUploads--;
-        processUploadQueue();
-    });
-
-    uploadRequest.send(formData);
 }
 
+// Cancel upload logic (optional)
 cancelButton.addEventListener('click', () => {
+    uploadQueue.length = 0; // Clear the upload queue
     alert('Upload canceled');
-    window.location.reload();
 });
+
 
 async function updateSaveProgress(id) {
     console.log('save progress');
