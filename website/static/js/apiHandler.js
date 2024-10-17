@@ -112,7 +112,7 @@ let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
 const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
-
+let activeUploadTasks = []; // Array to hold objects representing each upload task
 
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
@@ -140,28 +140,22 @@ fileInput.addEventListener('change', async (e) => {
     processUploadQueue();
 });
 
-
-
 function processUploadQueue() {
     if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
         const file = uploadQueue.shift(); // Get the next file from the queue
         uploadFile(file);
     }
     else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed boss! ðŸ˜Ž'); // Show alert when queue is fully processed
+        alert('All uploads completed!'); // Show alert when queue is fully processed
         window.location.reload();
     }
 }
 
-let activeUploadTasks = []; // Array to hold objects representing each upload task
-
 async function uploadFile(file) {
     activeUploads++;
-    const uploadTask = { file: file.name, status: 'Uploading...' };
-    activeUploadTasks.push(uploadTask); // Add the upload task to the array
-
-    // Update UI with the active uploads
-    updateActiveUploadList();
+    const uploadTask = activeUploadTasks.find(task => task.file === file.name);
+    uploadTask.status = 'Uploading...'; // Update task status to 'Uploading'
+    updateActiveUploadList(); // Refresh the UI with updated statuses
 
     // Show uploader UI
     document.getElementById('bg-blur').style.zIndex = '2';
@@ -207,7 +201,7 @@ async function uploadFile(file) {
     uploadRequest.send(formData);
 }
 
-// Function to update the UI with the list of active uploads
+// Function to update the UI with the list of selected/uploading files
 function updateActiveUploadList() {
     const uploadListContainer = document.getElementById('active-upload-list');
     uploadListContainer.innerHTML = ''; // Clear the existing list
@@ -250,40 +244,15 @@ async function updateSaveProgress(id, uploadTask) {
 
 async function handleUpload2(id, uploadTask) {
     console.log(id);
-    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
-    progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%';
-
-    const interval = setInterval(async () => {
-        const response = await postJson('/api/getUploadProgress', { 'id': id });
-        const data = response['data'];
-
-        if (data[0] === 'running') {
-            const current = data[1];
-            const total = data[2];
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
-
-            let percentComplete;
-            if (total === 0) {
-                percentComplete = 0;
-            }
-            else {
-                percentComplete = (current / total) * 100;
-            }
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-        else if (data[0] === 'completed') {
-            clearInterval(interval);
-            uploadTask.status = 'Uploaded'; // Update task status to 'Uploaded'
-            activeUploads--; // Decrement active uploads counter after uploading to Telegram
-            processUploadQueue(); // Process next in queue or show alert when done
-        }
-
-        updateActiveUploadList(); // Update the list after each status change
-    }, 3000);
+    document.getElementById('upload-status').innerText = 'Status: Finalizing File Upload';
+    await postJson('/api/handleUpload2', { 'id': id });
+    activeUploads--;
+    uploadTask.status = 'Completed'; // Mark the task as completed
+    processUploadQueue();
+    updateActiveUploadList(); // Refresh UI after completion
 }
 // File Uploader End
+
 // URL Uploader Start
 
 async function get_file_info_from_url(url) {
