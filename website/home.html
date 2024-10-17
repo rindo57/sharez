@@ -30,8 +30,7 @@
             </button>
 
             <div id="new-upload" class="new-upload">
-                <input id="new-upload-focus" type="text"
-                    style="height: 0px; width: 0px; border: none; position: absolute" readonly />
+                <input id="new-upload-focus" type="text" style="height: 0px; width: 0px; border: none; position: absolute" readonly />
                 <div id="new-folder-btn">
                     <img src="static/assets/folder-icon.svg" />
                     New Folder
@@ -122,15 +121,12 @@
         </div>
         <!-- File Uploader End -->
 
-        <!-- Pending Uploads Modal Start -->
-        <div id="pending-uploads-modal" class="pending-uploads-modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close-modal" id="close-modal">&times;</span>
-                <h2>Pending Uploads</h2>
-                <div id="pending-uploads-list"></div>
-            </div>
+        <!-- Active Uploads List Start -->
+        <div id="active-uploads" class="active-uploads">
+            <h3>Active Uploads</h3>
+            <ul id="active-uploads-list"></ul>
         </div>
-        <!-- Pending Uploads Modal End -->
+        <!-- Active Uploads List End -->
 
         <!-- Main Content Start -->
         <div class="main-content">
@@ -140,6 +136,7 @@
                     <form id="search-form">
                         <input id="file-search" type="text" placeholder="Search in Drive" autocomplete="off" />
                     </form>
+
                 </div>
             </div>
 
@@ -166,13 +163,11 @@
         </div>
     </footer>
     <!-- Footer End -->
-    
     <script src="static/js/extra.js"></script>
     <script src="static/js/apiHandler.js"></script>
     <script src="static/js/sidebar.js"></script>
     <script src="static/js/fileClickHandler.js"></script>
-    <script src="static/js/main.js"></script>>
-    
+    <script src="static/js/main.js"></script>
 </body>
 
 </html>
