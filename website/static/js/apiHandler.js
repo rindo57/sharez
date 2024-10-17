@@ -112,6 +112,48 @@ let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
 const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
+// Pending Uploads Modal
+const pendingUploadsModal = document.getElementById('pending-uploads-modal');
+const pendingUploadsList = document.getElementById('pending-uploads-list');
+const pendingUploadsButton = document.getElementById('view-pending-uploads');
+const modalCloseButton = document.getElementById('modal-close-button');
+
+// Show pending uploads modal
+pendingUploadsButton.addEventListener('click', () => {
+    if (uploadQueue.length > 0) {
+        pendingUploadsList.innerHTML = ''; // Clear the list
+        uploadQueue.forEach((file, index) => {
+            const li = document.createElement('li');
+            li.innerText = file.name;
+            const removeButton = document.createElement('button');
+            removeButton.innerText = 'Remove';
+            removeButton.className = 'remove-pending-upload';
+            removeButton.setAttribute('data-index', index);
+            li.appendChild(removeButton);
+            pendingUploadsList.appendChild(li);
+        });
+        pendingUploadsModal.style.display = 'block'; // Show modal
+    } else {
+        alert('No pending uploads.');
+    }
+});
+
+// Handle closing the pending uploads modal
+modalCloseButton.addEventListener('click', () => {
+    pendingUploadsModal.style.display = 'none';
+});
+
+// Handle removing a pending upload
+pendingUploadsList.addEventListener('click', (event) => {
+    if (event.target.classList.contains('remove-pending-upload')) {
+        const index = event.target.getAttribute('data-index');
+        uploadQueue.splice(index, 1); // Remove the file from the queue
+        event.target.parentElement.remove(); // Remove from the DOM
+        alert('Upload removed from pending uploads.');
+    }
+});
+
+// Handle file input change event
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
 
@@ -134,7 +176,7 @@ function processUploadQueue() {
         uploadFile(file);
     }
     else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed boss! ðŸ˜Ž'); // Show alert when queue is fully processed
+        alert('All uploads completed!'); // Show alert when queue is fully processed
         window.location.reload();
     }
 }
@@ -207,46 +249,14 @@ async function updateSaveProgress(id) {
             const percentComplete = (current / total) * 100;
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-        else if (data[0] === 'completed') {
+        } else {
             clearInterval(interval);
-            await handleUpload2(id); // Proceed to the next phase after saving progress
+            activeUploads--;
+            processUploadQueue();
         }
-    }, 3000);
+    }, 1000);
 }
 
-async function handleUpload2(id) {
-    console.log(id);
-    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
-    progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%';
-
-    const interval = setInterval(async () => {
-        const response = await postJson('/api/getUploadProgress', { 'id': id });
-        const data = response['data'];
-
-        if (data[0] === 'running') {
-            const current = data[1];
-            const total = data[2];
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
-
-            let percentComplete;
-            if (total === 0) {
-                percentComplete = 0;
-            }
-            else {
-                percentComplete = (current / total) * 100;
-            }
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-        else if (data[0] === 'completed') {
-            clearInterval(interval);
-            activeUploads--; // Decrement active uploads counter after uploading to Telegram
-            processUploadQueue(); // Process next in queue or show alert when done
-        }
-    }, 3000);
-}
 // File Uploader End
 
 
