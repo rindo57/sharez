@@ -32,15 +32,12 @@ async function getCurrentDirectory() {
     }
     try {
         const auth = getFolderAuthFromPath();
-        console.log(path);
-
         const data = { 'path': path, 'auth': auth };
         const json = await postJson('/api/getDirectory', data);
 
         if (json.status === 'ok') {
             if (getCurrentPath().startsWith('/share')) {
                 const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a');
-                console.log(path);
 
                 if (removeSlash(json['auth_home_path']) === removeSlash(path.split('_')[1])) {
                     sections[0].setAttribute('class', 'selected-item');
@@ -48,17 +45,14 @@ async function getCurrentDirectory() {
                     sections[0].setAttribute('class', 'unselected-item');
                 }
                 sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
-                console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`);
             }
 
-            console.log(json);
             showDirectory(json['data']);
         } else {
             alert('404 Current Directory Not Found');
         }
     }
     catch (err) {
-        console.log(err);
         alert('404 Current Directory Not Found');
     }
 }
@@ -112,49 +106,50 @@ let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
 const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
-let activeUploadTasks = []; // Array to hold objects representing each upload task
-
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
 
-    // Clear the active upload tasks (for new batch of files)
-    activeUploadTasks = [];
-
-    // Validate file sizes and update the upload task list
+    // Validate file sizes
     for (const file of files) {
         if (file.size > MAX_FILE_SIZE) {
             alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
             return;
         }
-
-        // Create a new upload task with 'Pending' status
-        const uploadTask = { file: file.name, status: 'Pending' };
-        activeUploadTasks.push(uploadTask); // Add to upload task list
         uploadQueue.push(file); // Add valid files to the queue
     }
-
-    // Update the UI to show the selected files and their initial status
-    updateActiveUploadList();
 
     // Start uploading files from the queue
     processUploadQueue();
 });
 
+// Add this function to render the pending upload list
+function renderPendingUploadList() {
+    const pendingFilesList = document.getElementById('pending-files');
+    pendingFilesList.innerHTML = ''; // Clear previous list
+
+    // Add each file in the uploadQueue to the list
+    uploadQueue.forEach(file => {
+        const listItem = document.createElement('li');
+        listItem.textContent = file.name; // Show the filename
+        pendingFilesList.appendChild(listItem);
+    });
+}
+
+// Modify the processUploadQueue function
 function processUploadQueue() {
-    if (uploadQueue.length > 0 && activeUploads < maxConcurrentUploads) {
+    renderPendingUploadList(); // Update the pending uploads list
+
+    if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
         const file = uploadQueue.shift(); // Get the next file from the queue
         uploadFile(file);
     } else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed!'); // Show alert when queue is fully processed
+        alert('All uploads completed! 😅'); // Show alert when queue is fully processed
         window.location.reload();
     }
 }
 
 async function uploadFile(file) {
     activeUploads++;
-    const uploadTask = activeUploadTasks.find(task => task.file === file.name);
-    uploadTask.status = 'Uploading...'; // Update task status to 'Uploading'
-    updateActiveUploadList(); // Refresh the UI with updated statuses
 
     // Show uploader UI
     document.getElementById('bg-blur').style.zIndex = '2';
@@ -186,33 +181,24 @@ async function uploadFile(file) {
     });
 
     uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id, uploadTask); // Pass the uploadTask to update its status
+        await updateSaveProgress(id);
     });
 
     uploadRequest.upload.addEventListener('error', () => {
         alert(`Upload of ${file.name} failed`);
-        uploadTask.status = 'Failed'; // Update the task status
         activeUploads--;
         processUploadQueue();
-        updateActiveUploadList(); // Update UI after upload failure
     });
 
     uploadRequest.send(formData);
 }
 
-function updateActiveUploadList() {
-    const uploadListContainer = document.getElementById('active-upload-list');
-    uploadListContainer.innerHTML = ''; // Clear the existing list
+cancelButton.addEventListener('click', () => {
+    alert('Upload canceled');
+    window.location.reload();
+});
 
-    activeUploadTasks.forEach(task => {
-        const listItem = document.createElement('div');
-        listItem.innerText = `${task.file}: ${task.status}`; // Display the filename and status
-        uploadListContainer.appendChild(listItem);
-    });
-}
-
-async function updateSaveProgress(id, uploadTask) {
-    console.log('save progress');
+async function updateSaveProgress(id) {
     progressBar.style.width = '0%';
     uploadPercent.innerText = 'Progress : 0%';
     document.getElementById('upload-status').innerText = 'Status: Processing File On Backend Server';
@@ -229,131 +215,41 @@ async function updateSaveProgress(id, uploadTask) {
             const percentComplete = (current / total) * 100;
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        } else if (data[0] === 'done') {
-            clearInterval(interval);
-            await completeUpload(id, uploadTask); // Pass the uploadTask to complete it
-        } else if (data[0] === 'error') {
-            clearInterval(interval);
-            alert('Error occurred while saving file.');
-            activeUploads--;
-            uploadTask.status = 'Failed'; // Update the task status
-            processUploadQueue();
-            updateActiveUploadList(); // Update UI after error
-        }
-    }, 1000);
-}
-
-async function completeUpload(id, uploadTask) {
-    progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%';
-    document.getElementById('upload-status').innerText = 'Status: Finalizing File Upload';
-    await postJson('/api/handleUpload2', { 'id': id });
-    activeUploads--;
-    uploadTask.status = 'Completed'; // Mark the task as completed
-    processUploadQueue();
-    updateActiveUploadList(); // Refresh UI after completion
-}
-// File Uploader End
-
-
-// URL Uploader Start
-
-async function get_file_info_from_url(url) {
-    const data = { 'url': url }
-    const json = await postJson('/api/getFileInfoFromUrl', data)
-    if (json.status === 'ok') {
-        return json.data
-    } else {
-        throw new Error(`Error Getting File Info : ${json.status}`)
-    }
-
-}
-
-async function start_file_download_from_url(url, filename, singleThreaded) {
-    const data = { 'url': url, 'path': getCurrentPath(), 'filename': filename, 'singleThreaded': singleThreaded }
-    const json = await postJson('/api/startFileDownloadFromUrl', data)
-    if (json.status === 'ok') {
-        return json.id
-    } else {
-        throw new Error(`Error Starting File Download : ${json.status}`)
-    }
-}
-
-async function download_progress_updater(id, file_name, file_size) {
-    uploadID = id;
-    uploadStep = 2
-    // Showing file uploader
-    document.getElementById('bg-blur').style.zIndex = '2';
-    document.getElementById('bg-blur').style.opacity = '0.1';
-    document.getElementById('file-uploader').style.zIndex = '3';
-    document.getElementById('file-uploader').style.opacity = '1';
-
-    document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
-    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
-
-    const interval = setInterval(async () => {
-        const response = await postJson('/api/getFileDownloadProgress', { 'id': id })
-        const data = response['data']
-
-        if (data[0] === 'error') {
-            clearInterval(interval);
-            alert('Failed To Download File From URL To Backend Server')
-            window.location.reload()
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            uploadPercent.innerText = 'Progress : 100%'
-            progressBar.style.width = '100%';
-            await handleUpload2(id)
+            await handleUpload2(id); // Proceed to the next phase after saving progress
         }
-        else {
+    }, 3000);
+}
+
+async function handleUpload2(id) {
+    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
+    progressBar.style.width = '0%';
+    uploadPercent.innerText = 'Progress : 0%';
+
+    const interval = setInterval(async () => {
+        const response = await postJson('/api/getUploadProgress', { 'id': id });
+        const data = response['data'];
+
+        if (data[0] === 'running') {
             const current = data[1];
             const total = data[2];
+            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
 
-            const percentComplete = (current / total) * 100;
+            let percentComplete;
+            if (total === 0) {
+                percentComplete = 0;
+            } else {
+                percentComplete = (current / total) * 100;
+            }
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-
-            if (data[0] === 'Downloading') {
-                document.getElementById('upload-status').innerText = 'Status: Downloading File From Url To Backend Server';
-            }
-            else {
-                document.getElementById('upload-status').innerText = `Status: ${data[0]}`;
-            }
         }
-    }, 3000)
-}
-
-
-async function Start_URL_Upload() {
-    try {
-        document.getElementById('new-url-upload').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('new-url-upload').style.zIndex = '-1';
-        }, 300)
-
-        const file_url = document.getElementById('remote-url').value
-        const singleThreaded = document.getElementById('single-threaded-toggle').checked
-
-        const file_info = await get_file_info_from_url(file_url)
-        const file_name = file_info.file_name
-        const file_size = file_info.file_size
-
-        if (file_size > MAX_FILE_SIZE) {
-            throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
+        else if (data[0] === 'completed') {
+            clearInterval(interval);
+            activeUploads--; // Decrement active uploads counter after uploading
+            processUploadQueue(); // Check for the next file in the queue
         }
-
-        const id = await start_file_download_from_url(file_url, file_name, singleThreaded)
-
-        await download_progress_updater(id, file_name, file_size)
-
-    }
-    catch (err) {
-        alert(err)
-        window.location.reload()
-    }
-
-
+    }, 3000);
 }
-
-// URL Uploader End
