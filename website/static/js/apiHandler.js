@@ -103,6 +103,7 @@ async function getFolderShareAuth(path) {
 
 // File Uploader Start
 // Define upload queue and max file size
+// Define upload queue and max file size
 const uploadQueue = [];
 const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
 
@@ -224,7 +225,7 @@ async function uploadFile(file) {
     });
 }
 
-// Cancel upload logic (optional)
+// Cancel upload logic
 cancelButton.addEventListener('click', () => {
     uploadQueue.length = 0; // Clear the upload queue
     alert('Upload canceled');
