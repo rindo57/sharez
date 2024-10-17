@@ -131,7 +131,15 @@ function renderPendingUploadList() {
     uploadQueue.forEach(file => {
         const listItem = document.createElement('li');
         listItem.textContent = file.name; // Show the filename
-        pendingFilesList.appendChild(listItem);
+        
+        // Create a remove button
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.style.marginLeft = '10px'; // Add some space between filename and button
+        removeButton.onclick = () => removeFile(file); // Bind the remove function to the button
+        
+        listItem.appendChild(removeButton); // Add the button to the list item
+        pendingFilesList.appendChild(listItem); // Add the list item to the pending files list
     });
 }
 
