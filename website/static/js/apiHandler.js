@@ -269,9 +269,7 @@ async function handleUpload2(id, uploadTask) {
         updateActiveUploadList(); // Update the list after each status change
     }, 3000);
 }
-
 // File Uploader End
-
 // URL Uploader Start
 
 async function get_file_info_from_url(url) {
