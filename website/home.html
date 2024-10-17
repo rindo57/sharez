@@ -174,77 +174,7 @@
     <script src="static/js/sidebar.js"></script>
     <script src="static/js/fileClickHandler.js"></script>
     <script src="static/js/main.js"></script>
-    <script>
-        // JavaScript code for managing file uploads and pending uploads
-        const uploadQueue = [];
-        const MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB
-
-        const fileInput = document.getElementById('fileInput');
-        const uploadButton = document.getElementById('upload-button');
-        const pendingUploadsButton = document.getElementById('pending-uploads');
-        const pendingUploadsModal = document.getElementById('pending-uploads-modal');
-        const pendingUploadsList = document.getElementById('pending-uploads-list');
-        const cancelButton = document.getElementById('cancel-file-upload');
-        const modalCloseButton = document.getElementById('modal-close');
-
-        // Show pending uploads when the button is clicked
-        pendingUploadsButton.addEventListener('click', () => {
-            pendingUploadsList.innerHTML = ''; // Clear previous list
-            if (uploadQueue.length > 0) {
-                uploadQueue.forEach((file, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `File: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-
-                    const removeButton = document.createElement('button');
-                    removeButton.textContent = 'Remove';
-                    removeButton.setAttribute('data-index', index);
-                    removeButton.classList.add('remove-pending-upload');
-
-                    listItem.appendChild(removeButton);
-                    pendingUploadsList.appendChild(listItem);
-                });
-
-                pendingUploadsModal.style.display = 'block'; // Show modal
-            } else {
-                alert('No pending uploads.');
-            }
-        });
-
-        // Handle closing the pending uploads modal
-        modalCloseButton.addEventListener('click', () => {
-            pendingUploadsModal.style.display = 'none';
-        });
-
-        // Handle removing a pending upload
-        pendingUploadsList.addEventListener('click', (event) => {
-            if (event.target.classList.contains('remove-pending-upload')) {
-                const index = event.target.getAttribute('data-index');
-                uploadQueue.splice(index, 1); // Remove the file from the queue
-                event.target.parentElement.remove(); // Remove from the DOM
-                alert('Upload removed from pending uploads.');
-            }
-        });
-
-        // Handle file input change event
-        fileInput.addEventListener('change', (event) => {
-            const files = Array.from(event.target.files);
-            files.forEach(file => {
-                if (file.size <= MAX_FILE_SIZE) {
-                    uploadQueue.push(file);
-                } else {
-                    alert(`File ${file.name} exceeds the maximum allowed size.`);
-                }
-            });
-            alert(`Added ${files.length} files to pending uploads.`);
-            fileInput.value = ''; // Clear the input
-        });
-
-        // Handle cancel button click
-        cancelButton.addEventListener('click', () => {
-            // Add logic to cancel the current upload if in progress
-            alert('Upload cancelled.');
-        });
-    </script>
+    
 </body>
 
 </html>
