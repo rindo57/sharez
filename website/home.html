@@ -118,11 +118,19 @@
             </div>
             <div class="btn-div">
                 <button id="cancel-file-upload">Cancel Upload</button>
-
-             </div>
             </div>
-
+        </div>
         <!-- File Uploader End -->
+
+        <!-- Pending Uploads Modal Start -->
+        <div id="pending-uploads-modal" class="pending-uploads-modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close-modal" id="close-modal">&times;</span>
+                <h2>Pending Uploads</h2>
+                <div id="pending-uploads-list"></div>
+            </div>
+        </div>
+        <!-- Pending Uploads Modal End -->
 
         <!-- Main Content Start -->
         <div class="main-content">
@@ -158,11 +166,55 @@
         </div>
     </footer>
     <!-- Footer End -->
+    
     <script src="static/js/extra.js"></script>
     <script src="static/js/apiHandler.js"></script>
     <script src="static/js/sidebar.js"></script>
     <script src="static/js/fileClickHandler.js"></script>
     <script src="static/js/main.js"></script>
+
+    <script>
+        // Show pending uploads modal when uploading files
+        function showPendingUploads() {
+            const modal = document.getElementById('pending-uploads-modal');
+            const pendingList = document.getElementById('pending-uploads-list');
+            pendingList.innerHTML = '';
+
+            // Populate the pending uploads list
+            uploadQueue.forEach(file => {
+                const listItem = document.createElement('div');
+                listItem.innerText = `Uploading: ${file.name}`;
+                pendingList.appendChild(listItem);
+            });
+
+            modal.style.display = 'block';
+        }
+
+        // Close pending uploads modal
+        document.getElementById('close-modal').addEventListener('click', () => {
+            document.getElementById('pending-uploads-modal').style.display = 'none';
+        });
+
+        // Call this function when you start uploading files
+        fileInput.addEventListener('change', async (e) => {
+            const files = fileInput.files;
+
+            // Validate file sizes
+            for (const file of files) {
+                if (file.size > MAX_FILE_SIZE) {
+                    alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
+                    return;
+                }
+                uploadQueue.push(file); // Add valid files to the queue
+            }
+
+            // Show the pending uploads modal
+            showPendingUploads();
+
+            // Start uploading files from the queue
+            processUploadQueue();
+        });
+    </script>
     
 </body>
 
