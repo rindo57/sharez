@@ -112,25 +112,35 @@ let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
 const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
-let activeUploadTasks = []; // Array to hold objects representing each upload task
+
 
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
 
-    // Validate file sizes
+    // Clear the active upload tasks (for new batch of files)
+    activeUploadTasks = [];
+
+    // Validate file sizes and update the upload task list
     for (const file of files) {
         if (file.size > MAX_FILE_SIZE) {
             alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
             return;
         }
-        const uploadTask = { file: file.name, status: 'Uploading...' };
-        activeUploadTasks.push(uploadTask); // Add the upload task to the array
+
+        // Create a new upload task with 'Pending' status
+        const uploadTask = { file: file.name, status: 'Pending' };
+        activeUploadTasks.push(uploadTask); // Add to upload task list
         uploadQueue.push(file); // Add valid files to the queue
     }
+
+    // Update the UI to show the selected files and their initial status
+    updateActiveUploadList();
 
     // Start uploading files from the queue
     processUploadQueue();
 });
+
+
 
 function processUploadQueue() {
     if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
@@ -143,12 +153,12 @@ function processUploadQueue() {
     }
 }
 
-//let activeUploadTasks = []; // Array to hold objects representing each upload task
+let activeUploadTasks = []; // Array to hold objects representing each upload task
 
 async function uploadFile(file) {
     activeUploads++;
-    //const uploadTask = { file: file.name, status: 'Uploading...' };
-    //activeUploadTasks.push(uploadTask); // Add the upload task to the array
+    const uploadTask = { file: file.name, status: 'Uploading...' };
+    activeUploadTasks.push(uploadTask); // Add the upload task to the array
 
     // Update UI with the active uploads
     updateActiveUploadList();
