@@ -123,6 +123,27 @@ fileInput.addEventListener('change', async (e) => {
 });
 
 // Add this function to render the pending upload list
+function removeFile(fileToRemove) {
+    // Filter out the file to be removed from the upload queue
+    uploadQueue = uploadQueue.filter(file => file.name !== fileToRemove.name);
+
+    // Re-render the pending upload list to reflect changes
+    renderPendingUploadList();
+    
+    // If the file was being uploaded, decrement active uploads
+    // You may also want to handle any additional cleanup if the file is actively uploading
+    if (activeUploads > 0) {
+        alert(`${fileToRemove.name} has been removed from the upload queue.`);
+        // Optionally, you could check if the file being removed is currently uploading and handle that case
+    } else {
+        alert(`${fileToRemove.name} has been removed from the pending uploads.`);
+    }
+    
+    // Optionally, if you want to immediately process the next upload after removal
+    processUploadQueue();
+}
+
+// Ensure you call renderPendingUploadList() after updating uploadQueue
 function renderPendingUploadList() {
     const pendingFilesList = document.getElementById('pending-files');
     pendingFilesList.innerHTML = ''; // Clear previous list
@@ -142,6 +163,7 @@ function renderPendingUploadList() {
         pendingFilesList.appendChild(listItem); // Add the list item to the pending files list
     });
 }
+
 
 // Modify the processUploadQueue function
 function processUploadQueue() {
