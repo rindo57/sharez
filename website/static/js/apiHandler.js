@@ -112,6 +112,8 @@ let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
 const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
+let activeUploadTasks = []; // Array to hold objects representing each upload task
+
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
 
@@ -121,6 +123,8 @@ fileInput.addEventListener('change', async (e) => {
             alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
             return;
         }
+        const uploadTask = { file: file.name, status: 'Uploading...' };
+        activeUploadTasks.push(uploadTask); // Add the upload task to the array
         uploadQueue.push(file); // Add valid files to the queue
     }
 
@@ -139,12 +143,12 @@ function processUploadQueue() {
     }
 }
 
-let activeUploadTasks = []; // Array to hold objects representing each upload task
+//let activeUploadTasks = []; // Array to hold objects representing each upload task
 
 async function uploadFile(file) {
     activeUploads++;
-    const uploadTask = { file: file.name, status: 'Uploading...' };
-    activeUploadTasks.push(uploadTask); // Add the upload task to the array
+    //const uploadTask = { file: file.name, status: 'Uploading...' };
+    //activeUploadTasks.push(uploadTask); // Add the upload task to the array
 
     // Update UI with the active uploads
     updateActiveUploadList();
