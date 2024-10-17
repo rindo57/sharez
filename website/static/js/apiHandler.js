@@ -1,3 +1,106 @@
+// Api Functions
+async function postJson(url, data) {
+    data['password'] = getPassword();
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    return await response.json();
+}
+
+document.getElementById('pass-login').addEventListener('click', async () => {
+    const password = document.getElementById('auth-pass').value;
+    const data = { 'pass': password };
+    const json = await postJson('/api/checkPassword', data);
+    if (json.status === 'ok') {
+        localStorage.setItem('password', password);
+        alert('Logged In Successfully');
+        window.location.reload();
+    }
+    else {
+        alert('Wrong Password');
+    }
+});
+
+async function getCurrentDirectory() {
+    let path = getCurrentPath();
+    if (path === 'redirect') {
+        return;
+    }
+    try {
+        const auth = getFolderAuthFromPath();
+        console.log(path);
+
+        const data = { 'path': path, 'auth': auth };
+        const json = await postJson('/api/getDirectory', data);
+
+        if (json.status === 'ok') {
+            if (getCurrentPath().startsWith('/share')) {
+                const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a');
+                console.log(path);
+
+                if (removeSlash(json['auth_home_path']) === removeSlash(path.split('_')[1])) {
+                    sections[0].setAttribute('class', 'selected-item');
+                } else {
+                    sections[0].setAttribute('class', 'unselected-item');
+                }
+                sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
+                console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`);
+            }
+
+            console.log(json);
+            showDirectory(json['data']);
+        } else {
+            alert('404 Current Directory Not Found');
+        }
+    }
+    catch (err) {
+        console.log(err);
+        alert('404 Current Directory Not Found');
+    }
+}
+
+async function createNewFolder() {
+    const folderName = document.getElementById('new-folder-name').value;
+    const path = getCurrentPath();
+    if (path === 'redirect') {
+        return;
+    }
+    if (folderName.length > 0) {
+        const data = {
+            'name': folderName,
+            'path': path
+        };
+        try {
+            const json = await postJson('/api/createNewFolder', data);
+
+            if (json.status === 'ok') {
+                window.location.reload();
+            } else {
+                alert(json.status);
+            }
+        }
+        catch (err) {
+            alert('Error Creating Folder');
+        }
+    } else {
+        alert('Folder Name Cannot Be Empty');
+    }
+}
+
+async function getFolderShareAuth(path) {
+    const data = { 'path': path };
+    const json = await postJson('/api/getFolderShareAuth', data);
+    if (json.status === 'ok') {
+        return json.auth;
+    } else {
+        alert('Error Getting Folder Share Auth');
+    }
+}
+
 // File Uploader Start
 const MAX_FILE_SIZE = 2126008811.52; // Will be replaced by the python
 
@@ -9,44 +112,6 @@ let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
 const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
-// Pending Uploads Modal
-const pendingUploadsModal = document.getElementById('pending-uploads-modal');
-const pendingUploadsList = document.getElementById('pending-uploads-list');
-const pendingUploadsButton = document.getElementById('view-pending-uploads');
-const modalCloseButton = document.getElementById('modal-close-button');
-
-// Show pending uploads modal
-pendingUploadsButton.addEventListener('click', () => {
-    if (uploadQueue.length > 0) {
-        pendingUploadsList.innerHTML = ''; // Clear the list
-        uploadQueue.forEach((file, index) => {
-            const li = document.createElement('li');
-            li.innerText = `${file.name} - Status: Pending`;
-            li.id = `upload-status-${index}`; // Set ID for updating status
-            pendingUploadsList.appendChild(li);
-        });
-        pendingUploadsModal.style.display = 'block'; // Show modal
-    } else {
-        alert('No pending uploads.');
-    }
-});
-
-// Handle closing the pending uploads modal
-modalCloseButton.addEventListener('click', () => {
-    pendingUploadsModal.style.display = 'none';
-});
-
-// Handle removing a pending upload
-pendingUploadsList.addEventListener('click', (event) => {
-    if (event.target.classList.contains('remove-pending-upload')) {
-        const index = event.target.getAttribute('data-index');
-        uploadQueue.splice(index, 1); // Remove the file from the queue
-        event.target.parentElement.remove(); // Remove from the DOM
-        alert('Upload removed from pending uploads.');
-    }
-});
-
-// Handle file input change event
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
 
@@ -66,16 +131,23 @@ fileInput.addEventListener('change', async (e) => {
 function processUploadQueue() {
     if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
         const file = uploadQueue.shift(); // Get the next file from the queue
-        updatePendingStatus(file.name, 'Uploading...'); // Update status in pending list
         uploadFile(file);
-    } else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed!'); // Show alert when queue is fully processed
+    }
+    else if (activeUploads === 0 && uploadQueue.length === 0) {
+        alert('All uploads completed boss! ðŸ˜Ž'); // Show alert when queue is fully processed
         window.location.reload();
     }
 }
 
+let activeUploadTasks = []; // Array to hold objects representing each upload task
+
 async function uploadFile(file) {
     activeUploads++;
+    const uploadTask = { file: file.name, status: 'Uploading...' };
+    activeUploadTasks.push(uploadTask); // Add the upload task to the array
+
+    // Update UI with the active uploads
+    updateActiveUploadList();
 
     // Show uploader UI
     document.getElementById('bg-blur').style.zIndex = '2';
@@ -107,24 +179,33 @@ async function uploadFile(file) {
     });
 
     uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id);
+        await updateSaveProgress(id, uploadTask); // Pass the uploadTask to update its status
     });
 
     uploadRequest.upload.addEventListener('error', () => {
         alert(`Upload of ${file.name} failed`);
+        uploadTask.status = 'Failed'; // Update the task status
         activeUploads--;
         processUploadQueue();
+        updateActiveUploadList(); // Update UI after upload failure
     });
 
     uploadRequest.send(formData);
 }
 
-cancelButton.addEventListener('click', () => {
-    alert('Upload canceled');
-    window.location.reload();
-});
+// Function to update the UI with the list of active uploads
+function updateActiveUploadList() {
+    const uploadListContainer = document.getElementById('active-upload-list');
+    uploadListContainer.innerHTML = ''; // Clear the existing list
 
-async function updateSaveProgress(id) {
+    activeUploadTasks.forEach(task => {
+        const listItem = document.createElement('div');
+        listItem.innerText = `${task.file}: ${task.status}`; // Display the filename and status
+        uploadListContainer.appendChild(listItem);
+    });
+}
+
+async function updateSaveProgress(id, uploadTask) {
     console.log('save progress');
     progressBar.style.width = '0%';
     uploadPercent.innerText = 'Progress : 0%';
@@ -142,29 +223,54 @@ async function updateSaveProgress(id) {
             const percentComplete = (current / total) * 100;
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        } else {
-            clearInterval(interval);
-            activeUploads--;
-            processUploadQueue();
         }
-    }, 1000);
+        else if (data[0] === 'completed') {
+            clearInterval(interval);
+            uploadTask.status = 'Processed'; // Update task status on completion
+            await handleUpload2(id, uploadTask); // Proceed to the next phase after saving progress
+        }
+
+        updateActiveUploadList(); // Update the list after each status change
+    }, 3000);
 }
 
-// Function to update pending uploads status
-function updatePendingStatus(fileName, status) {
-    const index = uploadQueue.findIndex(file => file.name === fileName);
-    if (index >= 0) {
-        const statusElement = document.getElementById(`upload-status-${index}`);
-        if (statusElement) {
-            statusElement.innerText = `${fileName} - Status: ${status}`;
+async function handleUpload2(id, uploadTask) {
+    console.log(id);
+    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
+    progressBar.style.width = '0%';
+    uploadPercent.innerText = 'Progress : 0%';
+
+    const interval = setInterval(async () => {
+        const response = await postJson('/api/getUploadProgress', { 'id': id });
+        const data = response['data'];
+
+        if (data[0] === 'running') {
+            const current = data[1];
+            const total = data[2];
+            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
+
+            let percentComplete;
+            if (total === 0) {
+                percentComplete = 0;
+            }
+            else {
+                percentComplete = (current / total) * 100;
+            }
+            progressBar.style.width = percentComplete + '%';
+            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
         }
-    }
+        else if (data[0] === 'completed') {
+            clearInterval(interval);
+            uploadTask.status = 'Uploaded'; // Update task status to 'Uploaded'
+            activeUploads--; // Decrement active uploads counter after uploading to Telegram
+            processUploadQueue(); // Process next in queue or show alert when done
+        }
+
+        updateActiveUploadList(); // Update the list after each status change
+    }, 3000);
 }
 
 // File Uploader End
-
-
-
 
 // URL Uploader Start
 
