@@ -93,17 +93,13 @@ function showDirectory(data) {
 }
 
 // Search functionality
-document.getElementById('search-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const query = document.getElementById('file-search').value;
-    console.log(query);
-    if (query === '') {
-        alert('Search field is empty');
-        return;
-    }
-    const path = '/?path=/search_' + encodeURI(query);
-    console.log(path);
-    window.location = path;
+document.getElementById('search-input').addEventListener('input', async (e) => {
+    const query = e.target.value;
+    const currentPath = getCurrentPath(); // Get the current path
+
+    const response = await fetch(`/search?query=${encodeURIComponent(query)}&path=${encodeURIComponent(currentPath)}`);
+    const data = await response.json();
+    showDirectory(data); // Ensure this function handles the search results properly
 });
 
 // Loading Main Page
