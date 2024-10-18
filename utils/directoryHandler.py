@@ -1,3 +1,4 @@
+from pathlib import Path
 import config
 from pyrogram.types import InputMediaDocument
 import pickle, os, random, string, asyncio
