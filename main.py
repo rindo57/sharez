@@ -123,9 +123,9 @@ async def api_get_directory(request: Request):
 
     elif "/search_" in data["path"]:
         query = urllib.parse.unquote(data["path"].split("_", 1)[1])
-        path = urllib.parse.unquote(data["filter"].split('/')[1])
+        segments = urllib.parse.unquote(data["path"].split('/'))
+        path = '/'.join(segments[:-1]) 
         print(query)
-        print("path: ",path)
         data = {"contents": DRIVE_DATA.search_file_folder(query, path)}
         print(data)
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
