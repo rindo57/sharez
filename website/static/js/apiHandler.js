@@ -159,7 +159,7 @@ function renderPendingUploadList() {
             fileNameSpan.style.whiteSpace = 'nowrap'; // Prevent filename from wrapping
             fileNameSpan.style.flexGrow = '1'; // Ensure the filename takes the remaining space
             fileNameSpan.style.marginRight = '10px'; // Add some spacing between filename and remove button
-
+            fileNameSpan.style.maxWidth = '300px'
             // Create a remove button
             const removeButton = document.createElement('button');
             removeButton.textContent = '❌';
