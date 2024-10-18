@@ -225,11 +225,12 @@ class NewDriveData:
         del folder_data.contents[file_id]
         self.save()
 
-    def search_file_folder(self, query: str, current_path: str):
+    def search_file_folder(self, query: str, path: str):
+        print("path: ", path)
         search_results = {}
     
     # Get the directory to search within
-        folder_data = self.get_directory(current_path)
+        folder_data = self.get_directory(path)
 
         def traverse_directory(folder):
             for item in folder.contents.values():
