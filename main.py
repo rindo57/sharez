@@ -121,9 +121,9 @@ async def api_get_directory(request: Request):
         data = {"contents": DRIVE_DATA.get_trashed_files_folders()}
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=True)
 
-    elif "/search_" in data["q"]:
-        query = urllib.parse.unquote(data["q"].split("_", 1)[1])
-        path = urllib.parse.unquote(data["path"].split('/')[1])
+    elif "/search_" in data["path"]:
+        query = urllib.parse.unquote(data["path"].split("_", 1)[1])
+        path = urllib.parse.unquote(data["filter"].split('/')[1])
         print(query)
         data = {"contents": DRIVE_DATA.search_file_folder(query, path)}
         print(data)
