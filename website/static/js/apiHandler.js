@@ -146,16 +146,16 @@ function renderPendingUploadList() {
     uploadQueue.forEach(file => {
         if (file !== currentUploadingFile) {
             const listItem = document.createElement('li');
-            listItem.style.display = 'flex'; // Set display to flex for inline elements
-            listItem.style.alignItems = 'left'; // Align items vertically in the middle
+            listItem.style.display = 'flex'; // Set display to flex for inline elements // Align items vertically in the middle
             listItem.style.justifyContent = 'space-between'; 
-            
+            listItem.style.alignItems = 'center'; // Vertically align items in the center
+            listItem.style.marginBottom = '5px';
             const fileNameSpan = document.createElement('span');
             fileNameSpan.textContent = '- ' + file.name; // Show the filename
 
             // Create a remove button
             const removeButton = document.createElement('button');
-            removeButton.textContent = '| ❌';
+            removeButton.textContent = '❌';
             removeButton.style.marginLeft = '10px'; // Add some space between filename and button
             removeButton.onclick = () => removeFile(file); // Bind the remove function to the button
 
