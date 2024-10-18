@@ -148,13 +148,14 @@ function renderPendingUploadList() {
             const listItem = document.createElement('li');
             listItem.style.display = 'flex'; // Set display to flex for inline elements
             listItem.style.alignItems = 'left'; // Align items vertically in the middle
-
+            listItem.style.justifyContent = 'space-between'; 
+            
             const fileNameSpan = document.createElement('span');
-            fileNameSpan.textContent = file.name + '❌'; // Show the filename
+            fileNameSpan.textContent = '- ' + file.name; // Show the filename
 
             // Create a remove button
             const removeButton = document.createElement('button');
-            removeButton.textContent = '❌';
+            removeButton.textContent = '| ❌';
             removeButton.style.marginLeft = '10px'; // Add some space between filename and button
             removeButton.onclick = () => removeFile(file); // Bind the remove function to the button
 
