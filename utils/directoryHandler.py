@@ -225,9 +225,11 @@ class NewDriveData:
         del folder_data.contents[file_id]
         self.save()
 
-    def search_file_folder(self, query: str):
-        root_dir = self.get_directory("/")
+    def search_file_folder(self, query: str, current_path: str):
         search_results = {}
+    
+    # Get the directory to search within
+        folder_data = self.get_directory(current_path)
 
         def traverse_directory(folder):
             for item in folder.contents.values():
@@ -236,8 +238,9 @@ class NewDriveData:
                 if item.type == "folder":
                     traverse_directory(item)
 
-        traverse_directory(root_dir)
+        traverse_directory(folder_data)
         return search_results
+
 
 
 class NewBotMode:
