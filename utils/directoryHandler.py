@@ -1,4 +1,3 @@
-from pathlib import Path
 import config
 from pyrogram.types import InputMediaDocument
 import pickle, os, random, string, asyncio
@@ -225,12 +224,9 @@ class NewDriveData:
         del folder_data.contents[file_id]
         self.save()
 
-    def search_file_folder(self, query: str, path: str):
-        print("path: ", path)
+    def search_file_folder(self, query: str):
+        root_dir = self.get_directory("/EXV5XM/")
         search_results = {}
-    
-    # Get the directory to search within
-        folder_data = self.get_directory(path)
 
         def traverse_directory(folder):
             for item in folder.contents.values():
@@ -239,9 +235,8 @@ class NewDriveData:
                 if item.type == "folder":
                     traverse_directory(item)
 
-        traverse_directory(folder_data)
+        traverse_directory(root_dir)
         return search_results
-
 
 
 class NewBotMode:
