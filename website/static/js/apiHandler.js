@@ -150,7 +150,7 @@ function renderPendingUploadList() {
             listItem.style.alignItems = 'left'; // Align items vertically in the middle
 
             const fileNameSpan = document.createElement('span');
-            fileNameSpan.textContent = file.name; // Show the filename
+            fileNameSpan.textContent = file.name + '❌'; // Show the filename
 
             // Create a remove button
             const removeButton = document.createElement('button');
