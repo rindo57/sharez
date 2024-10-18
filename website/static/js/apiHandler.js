@@ -106,10 +106,12 @@ let uploadQueue = []; // Queue for files to upload
 let activeUploads = 0; // Counter for active uploads
 const maxConcurrentUploads = 1; // Limit concurrent uploads to 1
 
+let currentUploadingFile = null; // Track the file that is being uploaded
+
 fileInput.addEventListener('change', async (e) => {
     const files = fileInput.files;
 
-    // Validate file sizes
+    // Validate file sizes and add them to the queue
     for (const file of files) {
         if (file.size > MAX_FILE_SIZE) {
             alert(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
@@ -118,64 +120,54 @@ fileInput.addEventListener('change', async (e) => {
         uploadQueue.push(file); // Add valid files to the queue
     }
 
-    // Start uploading files from the queue
+    // Start processing uploads
     processUploadQueue();
+    renderPendingUploadList(); // Render pending uploads excluding the currently uploading file
 });
 
-// Add this function to render the pending upload list
-function removeFile(fileToRemove) {
-    // Filter out the file to be removed from the upload queue
-    uploadQueue = uploadQueue.filter(file => file.name !== fileToRemove.name);
-
-    // Re-render the pending upload list to reflect changes
-    renderPendingUploadList();
-    
-    // If the file was being uploaded, decrement active uploads
-    // You may also want to handle any additional cleanup if the file is actively uploading
-    if (activeUploads > 0) {
-        alert(`${fileToRemove.name} has been removed from the upload queue.`);
-        // Optionally, you could check if the file being removed is currently uploading and handle that case
-    } else {
-        alert(`${fileToRemove.name} has been removed from the pending uploads.`);
+function processUploadQueue() {
+    if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
+        const file = uploadQueue.shift(); // Get the next file from the queue
+        currentUploadingFile = file; // Mark the current file as uploading
+        uploadFile(file);
+    } else if (activeUploads === 0 && uploadQueue.length === 0) {
+        alert('All uploads completed boss! 😎'); // Show alert when queue is fully processed
+        window.location.reload();
     }
-    
-    // Optionally, if you want to immediately process the next upload after removal
-    processUploadQueue();
+
+    renderPendingUploadList(); // Update pending list whenever queue changes
 }
 
-// Ensure you call renderPendingUploadList() after updating uploadQueue
 function renderPendingUploadList() {
     const pendingFilesList = document.getElementById('pending-files');
     pendingFilesList.innerHTML = ''; // Clear previous list
 
-    // Add each file in the uploadQueue to the list
+    // Filter the queue to exclude the current uploading file
     uploadQueue.forEach(file => {
-        const listItem = document.createElement('li');
-        listItem.textContent = file.name; // Show the filename
-        
-        // Create a remove button
-        const removeButton = document.createElement('button');
-        removeButton.textContent = 'Remove';
-        removeButton.style.marginLeft = '10px'; // Add some space between filename and button
-        removeButton.onclick = () => removeFile(file); // Bind the remove function to the button
-        
-        listItem.appendChild(removeButton); // Add the button to the list item
-        pendingFilesList.appendChild(listItem); // Add the list item to the pending files list
+        if (file !== currentUploadingFile) {
+            const listItem = document.createElement('li');
+            listItem.textContent = file.name; // Show the filename
+
+            // Create a remove button
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Remove';
+            removeButton.style.marginLeft = '10px'; // Add some space between filename and button
+            removeButton.onclick = () => removeFile(file); // Bind the remove function to the button
+
+            listItem.appendChild(removeButton); // Add the button to the list item
+            pendingFilesList.appendChild(listItem); // Add the list item to the pending files list
+        }
     });
 }
 
+function removeFile(fileToRemove) {
+    // Remove the file from the upload queue
+    uploadQueue = uploadQueue.filter(file => file.name !== fileToRemove.name);
 
-// Modify the processUploadQueue function
-function processUploadQueue() {
-    renderPendingUploadList(); // Update the pending uploads list
-
-    if (activeUploads < maxConcurrentUploads && uploadQueue.length > 0) {
-        const file = uploadQueue.shift(); // Get the next file from the queue
-        uploadFile(file);
-    } else if (activeUploads === 0 && uploadQueue.length === 0) {
-        alert('All uploads completed! 😅'); // Show alert when queue is fully processed
-        window.location.reload();
-    }
+    // Re-render the pending upload list
+    renderPendingUploadList();
+    
+    alert(`${fileToRemove.name} has been removed from the pending uploads.`);
 }
 
 async function uploadFile(file) {
