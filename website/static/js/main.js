@@ -66,7 +66,7 @@ document.getElementById('search-form').addEventListener('submit', async (event) 
         alert('Search field is empty');
         return;
     }
-    const path = '/?path=' + getCurrentPath() + 'search_' + encodeURI(query);
+    const path = '/?path=' + getCurrentPath() + '&q=' + encodeURI(query);
     console.log(path)
     window.location = path;
 });
