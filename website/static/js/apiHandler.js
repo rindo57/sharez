@@ -148,11 +148,13 @@ function renderPendingUploadList() {
     // Filter the queue to exclude the current uploading file
     const pendingFiles = uploadQueue.filter(file => file !== currentUploadingFile);
 
-    // Show or hide the "Pending Uploads" heading based on whether there are pending files
+    // Show or hide the "Pending Uploads" heading and list based on whether there are pending files
     if (pendingFiles.length > 0) {
         pendingHeading.style.display = 'block'; // Show the heading if there are pending files
+        pendingFilesList.style.display = 'block'; // Show the pending uploads list
     } else {
         pendingHeading.style.display = 'none'; // Hide the heading if no pending files
+        pendingFilesList.style.display = 'none'; // Hide the pending uploads list
     }
 
     pendingFiles.forEach(file => {
