@@ -141,7 +141,8 @@ function processUploadQueue() {
 function renderPendingUploadList() {
     const pendingFilesList = document.getElementById('pending-files');
     const pendingHeading = document.getElementById('pending-heading');
-    
+    const pendingUploadListContainer = document.getElementById('Pending-upload-list');
+
     // Clear previous list
     pendingFilesList.innerHTML = '';
 
@@ -152,9 +153,11 @@ function renderPendingUploadList() {
     if (pendingFiles.length > 0) {
         pendingHeading.style.display = 'block'; // Show the heading if there are pending files
         pendingFilesList.style.display = 'block'; // Show the pending uploads list
+        pendingUploadListContainer.style.border = '1px solid #ccc'; // Show the border
     } else {
         pendingHeading.style.display = 'none'; // Hide the heading if no pending files
         pendingFilesList.style.display = 'none'; // Hide the pending uploads list
+        pendingUploadListContainer.style.border = 'none'; // Hide the border
     }
 
     pendingFiles.forEach(file => {
