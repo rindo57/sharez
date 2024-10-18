@@ -192,8 +192,7 @@ function removeFile(fileToRemove) {
 
     // Re-render the pending upload list
     renderPendingUploadList();
-    
-    alert(`${fileToRemove.name} has been removed from the pending uploads.`);
+
 }
 
 async function uploadFile(file) {
