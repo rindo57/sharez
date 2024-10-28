@@ -1,3 +1,4 @@
+/*#c9ed55*/
 * {
     margin: 0;
     padding: 0;
@@ -55,7 +56,7 @@ body {
 
 .sidebar .new-button {
     padding: 15px 20px;
-    background-color:#ff79c6;
+    background-color:#c9ed55;
     border: 0px #ff1493;
     border-radius: 20px;
     margin-top: 20px;
@@ -73,8 +74,8 @@ body {
 
 .sidebar .new-button:hover {
     transition: all 0.1s ease;
-    background-color: #ff79c6;
-    border: 0px solid #ff79c6;
+    background-color: #c9ed55;
+    border: 0px solid #c9ed55;
     box-shadow: 0 0 30px 1px #ff1493;
 }
 
@@ -235,7 +236,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    color: #ff79c6;
+    color: #c9ed55;
     font-weight: 500;
     padding: 10px 20px;
 }
@@ -324,7 +325,7 @@ body {
 
 .progress-bar {
     height: 20px;
-    background-color: #ff79c6;
+    background-color: #c9ed55;
     width: 0;
     transition: width 0.3s;
 }
@@ -347,7 +348,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    color: #ff79c6;
+    color: #c9ed55;
     font-weight: 500;
     padding: 10px 20px;
 }
@@ -385,11 +386,11 @@ body {
 
 
 .sidebar-menu a.selected-item {
-    color: #ff79c6;
+    color: #c9ed55;
 }
 
 .sidebar-menu a:hover {
-    color: #ff79c6;
+    color: #c9ed55;
 }
 
 .sidebar-menu a img {
@@ -473,7 +474,7 @@ body {
 }
 
 .directory th {
-    background-color: #ff79c6;
+    background-color: #c9ed55;
 }
 
 .directory tr:hover {
@@ -563,7 +564,7 @@ box-shadow: 0 0 10px 1px #FFFF00;
 }
 
 .footer-content a {
-    color: #ff79c6; /* Accent color */
+    color: #c9ed55; /* Accent color */
     text-decoration: none;
     margin: 0; /* Remove margin */
 }
