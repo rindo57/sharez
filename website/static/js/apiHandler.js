@@ -307,6 +307,40 @@ async function handleUpload2(id) {
 // File Uploader End
 // URL Uploader Start
 
+async function handleUpload3(id) {
+    console.log(id)
+    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
+    progressBar.style.width = '0%';
+    uploadPercent.innerText = 'Progress : 0%';
+
+    const interval = setInterval(async () => {
+        const response = await postJson('/api/getUploadProgress', { 'id': id })
+        const data = response['data']
+
+        if (data[0] === 'running') {
+            const current = data[1];
+            const total = data[2];
+            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
+
+            let percentComplete
+            if (total === 0) {
+                percentComplete = 0
+            }
+            else {
+                percentComplete = (current / total) * 100;
+            }
+            progressBar.style.width = percentComplete + '%';
+            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
+        }
+        else if (data[0] === 'completed') {
+            clearInterval(interval);
+            alert('Upload Completed')
+            window.location.reload();
+        }
+    }, 3000)
+}
+
+
 async function get_file_info_from_url(url) {
     const data = { 'url': url }
     const json = await postJson('/api/getFileInfoFromUrl', data)
@@ -353,8 +387,7 @@ async function download_progress_updater(id, file_name, file_size) {
             clearInterval(interval);
             uploadPercent.innerText = 'Progress : 100%'
             progressBar.style.width = '100%';
-            await handleUpload2(id)
-            await window.location.reload();
+            await handleUpload3(id)
         }
         else {
             const current = data[1];
