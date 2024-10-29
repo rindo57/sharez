@@ -354,6 +354,7 @@ async function download_progress_updater(id, file_name, file_size) {
             uploadPercent.innerText = 'Progress : 100%'
             progressBar.style.width = '100%';
             await handleUpload2(id)
+            await window.location.reload();
         }
         else {
             const current = data[1];
