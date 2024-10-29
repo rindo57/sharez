@@ -29,7 +29,13 @@ async def download_file(url, id, path, filename, singleThreaded):
     global DOWNLOAD_PROGRESS, STOP_DOWNLOAD
 
     logger.info(f"Downloading file from {url}")
-
+    username = "AnExt"
+    password = " fhdft783443@"
+    auth = base64.b64encode(f"{username}:{password}".encode()).decode()
+    
+    headers = {
+        "Authorization": f"{auth}"
+    }
     try:
         downloader = TechZDL(
             url,
@@ -39,6 +45,7 @@ async def download_file(url, id, path, filename, singleThreaded):
             progress_args=(id,),
             max_retries=5,
             single_threaded=singleThreaded,
+            headers=headers,
         )
         await downloader.start(in_background=True)
 
@@ -80,6 +87,7 @@ async def get_file_info_from_url(url):
         progress_callback=download_progress_callback,
         progress_args=(id,),
         max_retries=5,
+        headers=headers,
     )
     file_info = await downloader.get_file_info()
     return {"file_size": file_info["total_size"], "file_name": file_info["filename"]}
