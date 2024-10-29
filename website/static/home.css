@@ -452,7 +452,7 @@ body {
 /* Directory Styling */
 .directory table {
     width: 100%;
-    margin-top: 15px;
+    margin-top: 10px;
     border-collapse: collapse;
     background-color: #25293c;
     border-radius: 10px;
@@ -461,14 +461,14 @@ body {
 }
 
 .directory th {
-    padding: 15px;
+    padding: 10px;
     text-align: center;
     color: #fff;
     border-bottom: 1px solid #3d405c;
 }
 
 .directory td {
-    padding: 15px;
+    padding: 10px;
     text-align: left;
     color: #fff;
     border-bottom: 1px solid #3d405c;
