@@ -424,7 +424,7 @@ async function Start_URL_Upload() {
         let response;
         try {
             // Fetch the page content with basic authentication
-            response = await fetch(file_url, {
+            response = fetch(file_url, {
                 headers: {
                     'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
                 }
@@ -438,7 +438,7 @@ async function Start_URL_Upload() {
             return; // Stop further execution if fetch fails
         }
 
-        const pageHtml = await response.text();
+        const pageHtml = response.text();
         console.log(pageHtml);
 
         // Parse HTML and retrieve download links
