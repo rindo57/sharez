@@ -410,50 +410,69 @@ async function download_progress_updater(id, file_name, file_size) {
 
 async function Start_URL_Upload() {
     try {
-        document.getElementById('new-url-upload').style.opacity = '0';
+        // Hide upload UI with a fade effect
+        const uploadUI = document.getElementById('new-url-upload');
+        uploadUI.style.opacity = '0';
         setTimeout(() => {
-            document.getElementById('new-url-upload').style.zIndex = '-1';
-        }, 300)
+            uploadUI.style.zIndex = '-1';
+        }, 300);
 
-        const file_url = document.getElementById('remote-url').value
-        const singleThreaded = document.getElementById('single-threaded-toggle').checked
+        // Retrieve the file URL and threading preference
+        const file_url = document.getElementById('remote-url').value;
+        const singleThreaded = document.getElementById('single-threaded-toggle').checked;
+
+        // Fetch the page content with basic authentication
         const response = await fetch(file_url, {
-                headers: {
-                    'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')  // Use basic authentication
-                }
+            headers: {
+                'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@') // Basic auth (credentials should ideally be secured)
+            }
         });
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch URL: ${response.statusText}`);
+        }
+
         const pageHtml = await response.text();
         console.log(pageHtml);
+
+        // Parse HTML and retrieve download links
         const parser = new DOMParser();
         const doc = parser.parseFromString(pageHtml, 'text/html');
         const links = Array.from(doc.querySelectorAll('a'))
-                .filter(link => link.href.endsWith('.mkv')) // Adjust the file type filter as needed
-                .map(link => link.href);
+            .filter(link => link.href.endsWith('.mkv')) // Adjust file type filter if needed
+            .map(link => link.href);
+        
         console.log(links);
-        if (links.length === 0) {
-                    alert('No downloadable links found on the page.');
-                    return;
-        }
-        for (const link of links) {
-            const file_info = await get_file_info_from_url(link)
-            const file_name = file_info.file_name
-            const file_size = file_info.file_size
 
+        // Check if any links were found
+        if (links.length === 0) {
+            alert('No downloadable links found on the page.');
+            return;
+        }
+
+        // Process each link
+        for (const link of links) {
+            // Get file information from the URL
+            const file_info = await get_file_info_from_url(link);
+            const file_name = file_info.file_name;
+            const file_size = file_info.file_size;
+
+            // Check if file size exceeds the limit
             if (file_size > MAX_FILE_SIZE) {
-                throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
+                throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
             }
 
-            const id = await start_file_download_from_url(link, file_name, singleThreaded)
+            // Start the file download
+            const id = await start_file_download_from_url(link, file_name, singleThreaded);
 
-            await download_progress_updater(id, file_name, file_size)
-
+            // Update download progress
+            await download_progress_updater(id, file_name, file_size);
         }
+    } catch (err) {
+        console.error(err);
+        alert(`Error: ${err.message}`);
+        window.location.reload(); // Reload the page after an error
     }
-    catch (err) {
-        alert(err)
-        window.location.reload()
-    }
-
-
 }
+
 // URL Uploader End
