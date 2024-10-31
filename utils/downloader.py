@@ -51,7 +51,7 @@ async def download_file(url, id, path, filename, singleThreaded):
                 file_url = "https://void.anidl.org" + link['href']
                 try:
                     downloader = TechZDL(
-                        url,
+                        file_url,
                         output_dir=cache_dir,
                         debug=False,
                         progress_callback=download_progress_callback,
