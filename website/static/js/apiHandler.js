@@ -332,11 +332,11 @@ async function handleUpload3(id) {
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
         }
-        else if (data[0] === 'completed') {
-            clearInterval(interval);
-            alert('Upload Completed')
-            window.location.reload();
-        }
+       // else if (data[0] === 'completed') {
+         //   clearInterval(interval);
+           // alert('Upload Completed')
+            //window.location.reload();
+       // }
     }, 3000)
 }
 
