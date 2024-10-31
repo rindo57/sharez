@@ -425,9 +425,7 @@ async function Start_URL_Upload() {
         headers: {
         'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
         }
-        }).then(response => response.text())
-        .then(data => console.log(data))
-        .catch(error => console.error('Fetch error:', error));
+        })
 
         const pageHtml = response.text();
         console.log(pageHtml);
