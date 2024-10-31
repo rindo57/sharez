@@ -84,7 +84,7 @@ async def download_file(url, id, path, filename, singleThreaded):
 
 async def get_file_info_from_url(url):
     username = "AnExt"
-    password = " fhdft783443@"
+    password = "fhdft783443@"
     auth = base64.b64encode(f"{username}:{password}".encode()).decode()
     headers = {
         "Authorization": f"Basic {auth}",
