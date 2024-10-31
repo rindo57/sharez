@@ -421,22 +421,13 @@ async function Start_URL_Upload() {
         const file_url = document.getElementById('remote-url').value;
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
-        let response;
-        try {
-            // Fetch the page content with basic authentication
-            response = fetch(file_url, {
-                headers: {
-                    'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Failed to fetch URL: ${response.statusText}`);
-            }
-        } catch (networkError) {
-            console.error("Network error:", networkError);
-            alert(`Network error: ${networkError.message}`);
-            return; // Stop further execution if fetch fails
+        fetch(file_url, {
+        headers: {
+        'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
         }
+        }).then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Fetch error:', error));
 
         const pageHtml = response.text();
         console.log(pageHtml);
