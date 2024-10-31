@@ -1,4 +1,6 @@
 const { JSDOM } = require("jsdom");
+import fetch from 'node-fetch';
+
 // Api Functions
 async function postJson(url, data) {
     data['password'] = getPassword();
