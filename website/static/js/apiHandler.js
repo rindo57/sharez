@@ -409,76 +409,32 @@ async function download_progress_updater(id, file_name, file_size) {
 }
 
 async function Start_URL_Upload() {
-    const fetch = (await import("node-fetch")).default;
-    const username = "AnExt";
-    const password = "fhdft783443@";
     try {
         document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('new-url-upload').style.zIndex = '-1';
         }, 300)
 
+        const file_url = document.getElementById('remote-url').value
+        const singleThreaded = document.getElementById('single-threaded-toggle').checked
 
-        // Retrieve the file URL and threading preference
-        const file_url = document.getElementById('remote-url').value;
-        const singleThreaded = document.getElementById('single-threaded-toggle').checked;
+        const file_info = await get_file_info_from_url(file_url)
+        const file_name = file_info.file_name
+        const file_size = file_info.file_size
 
-        console.log("Attempting to fetch:", file_url);
-
-        const encodedCredentials = Buffer.from(`${username}:${password}`).toString("base64");
-        // Await the fetch call to ensure we get a response object
-        const response = await fetch(file_url, {
-            headers: {
-                "Authorization": `Basic ${encodedCredentials}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+        if (file_size > MAX_FILE_SIZE) {
+            throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
         }
 
-        const pageHtml = await response.text();  // Await the text conversion
-        console.log("Page HTML retrieved successfully.");
+        const id = await start_file_download_from_url(file_url, file_name, singleThreaded)
 
-        // Parse HTML and retrieve download links
-        const text = await response.text();
-        const parser = new JSDOM(text);
-        
-        const doc = parser.window.document;
-        const links = doc.querySelectorAll("a");
-        links.forEach(link => {
-            console.log(link.href);
-            .filter(link => link.href.endsWith('.mkv')) 
-            .map(link => link.href);
-             
-        });
+        await download_progress_updater(id, file_name, file_size)
 
- 
-
-        if (links.length === 0) {
-            alert('No downloadable links found on the page.');
-            return;
-        }
-
-        for (const link of links) {
-            const file_info = await get_file_info_from_url(link);
-            const file_name = file_info.file_name;
-            const file_size = file_info.file_size;
-
-            if (file_size > MAX_FILE_SIZE) {
-                throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
-            }
-
-            const id = await start_file_download_from_url(link, file_name, singleThreaded);
-
-            await download_progress_updater(id, file_name, file_size);
-        }
-    } catch (err) {
-        console.error("General error:", err);
-        alert(`Error: ${err.message}`);
-        window.location.reload();
+    }
+    catch (err) {
+        alert(err)
+        window.location.reload()
     }
 }
-
 
 // URL Uploader End
