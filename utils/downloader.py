@@ -100,23 +100,28 @@ async def get_file_info_from_url(url):
         "Authorization": f"Basic {auth}",
         "Referer": "https://void.anidl.org",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
-    
     }
     response = requests.get(url, auth=(username, password))
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Loop through each link to find the .mkv file
         for link in soup.find_all('a', href=True):
             href = link['href']
             if href.endswith('.mkv'):
-                file_url = "https://void.anidl.org" + link['href']
+                file_url = "https://void.anidl.org" + href
                 downloader = TechZDL(
-                file_url,
-                output_dir=cache_dir,
-                debug=False,
-                progress_callback=download_progress_callback,
-                progress_args=(id,),
-                max_retries=5,
-                custom_headers=headers,
-            )
-            file_info = await downloader.get_file_info()
-    return {"file_size": file_info["total_size"], "file_name": file_info["filename"]}
+                    file_url,
+                    output_dir=cache_dir,
+                    debug=False,
+                    progress_callback=download_progress_callback,
+                    progress_args=(id,),  # Be sure 'id' is defined in this scope
+                    max_retries=5,
+                    custom_headers=headers,
+                )
+                file_info = await downloader.get_file_info()
+                return {"file_size": file_info["total_size"], "file_name": file_info["filename"]}
+    
+    # In case no .mkv file is found or request fails
+    return None
+
