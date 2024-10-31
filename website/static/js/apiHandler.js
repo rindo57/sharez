@@ -410,7 +410,7 @@ async function download_progress_updater(id, file_name, file_size) {
 
 async function Start_URL_Upload() {
     try {
-        // Hide upload UI with a fade effect
+        // Hide upload UI with fade effect
         const uploadUI = document.getElementById('new-url-upload');
         uploadUI.style.opacity = '0';
         setTimeout(() => {
@@ -421,15 +421,21 @@ async function Start_URL_Upload() {
         const file_url = document.getElementById('remote-url').value;
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
-        // Fetch the page content with basic authentication
-        const response = await fetch(file_url, {
-            headers: {
-                'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@') // Basic auth (credentials should ideally be secured)
+        let response;
+        try {
+            // Fetch the page content with basic authentication
+            response = await fetch(file_url, {
+                headers: {
+                    'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch URL: ${response.statusText}`);
             }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Failed to fetch URL: ${response.statusText}`);
+        } catch (networkError) {
+            console.error("Network error:", networkError);
+            alert(`Network error: ${networkError.message}`);
+            return; // Stop further execution if fetch fails
         }
 
         const pageHtml = await response.text();
@@ -444,35 +450,30 @@ async function Start_URL_Upload() {
         
         console.log(links);
 
-        // Check if any links were found
         if (links.length === 0) {
             alert('No downloadable links found on the page.');
             return;
         }
 
-        // Process each link
         for (const link of links) {
-            // Get file information from the URL
             const file_info = await get_file_info_from_url(link);
             const file_name = file_info.file_name;
             const file_size = file_info.file_size;
 
-            // Check if file size exceeds the limit
             if (file_size > MAX_FILE_SIZE) {
                 throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
             }
 
-            // Start the file download
             const id = await start_file_download_from_url(link, file_name, singleThreaded);
 
-            // Update download progress
             await download_progress_updater(id, file_name, file_size);
         }
     } catch (err) {
-        console.error(err);
+        console.error("General error:", err);
         alert(`Error: ${err.message}`);
-        window.location.reload(); // Reload the page after an error
+        window.location.reload();
     }
 }
+
 
 // URL Uploader End
