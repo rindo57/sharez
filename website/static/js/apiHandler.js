@@ -406,15 +406,17 @@ async function download_progress_updater(id, file_name, file_size) {
         }
     }, 3000)
 }
-
+const { JSDOM } = require("jsdom");
 async function Start_URL_Upload() {
+    const fetch = (await import("node-fetch")).default;
+    const username = "AnExt";
+    const password = "fhdft783443@";
     try {
-        // Hide upload UI with fade effect
-        const uploadUI = document.getElementById('new-url-upload');
-        uploadUI.style.opacity = '0';
+        document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
-            uploadUI.style.zIndex = '-1';
-        }, 300);
+            document.getElementById('new-url-upload').style.zIndex = '-1';
+        }, 300)
+
 
         // Retrieve the file URL and threading preference
         const file_url = document.getElementById('remote-url').value;
@@ -422,29 +424,35 @@ async function Start_URL_Upload() {
 
         console.log("Attempting to fetch:", file_url);
 
+        const encodedCredentials = Buffer.from(`${username}:${password}`).toString("base64");
         // Await the fetch call to ensure we get a response object
         const response = await fetch(file_url, {
             headers: {
-                'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
+                "Authorization": `Basic ${encodedCredentials}`
             }
         });
 
-        // Check if response is okay (status 200-299)
         if (!response.ok) {
-            throw new Error(`Network response was not ok: ${response.statusText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const pageHtml = await response.text();  // Await the text conversion
         console.log("Page HTML retrieved successfully.");
 
         // Parse HTML and retrieve download links
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(pageHtml, 'text/html');
-        const links = Array.from(doc.querySelectorAll('a'))
-            .filter(link => link.href.endsWith('.mkv')) // Adjust file type filter if needed
+        const text = await response.text();
+        const parser = new JSDOM(text);
+        
+        const doc = parser.window.document;
+        const links = doc.querySelectorAll("a");
+        links.forEach(link => {
+            console.log(link.href);
+            .filter(link => link.href.endsWith('.mkv')) 
             .map(link => link.href);
+             
+        });
 
-        console.log("Downloadable links found:", links);
+ 
 
         if (links.length === 0) {
             alert('No downloadable links found on the page.');
