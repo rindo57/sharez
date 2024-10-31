@@ -87,9 +87,9 @@ async def download_file(url, id, path, filename, singleThreaded):
                             downloader.output_path, id, path, filename, downloader.total_size
                         )
                     )
-    except Exception as e:
-        DOWNLOAD_PROGRESS[id] = ("error", 0, 0)
-        logger.error(f"Failed to download file: {url} {e}")
+                except Exception as e:
+                    DOWNLOAD_PROGRESS[id] = ("error", 0, 0)
+                    logger.error(f"Failed to download file: {url} {e}")
 
 
 async def get_file_info_from_url(url):
