@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+
 const { JSDOM } = require("jsdom");
 
 
@@ -415,7 +415,7 @@ async function download_progress_updater(id, file_name, file_size) {
 async function Start_URL_Upload() {
     
     try {
-        const fetch = (await import("node-fetch")).default;
+    
         const username = "AnExt";
         const password = "fhdft783443@";
         const encodedCredentials = Buffer.from(`${username}:${password}`).toString("base64");
