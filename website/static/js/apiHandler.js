@@ -1,5 +1,6 @@
-const { JSDOM } = require("jsdom");
 import fetch from 'node-fetch';
+const { JSDOM } = require("jsdom");
+
 
 // Api Functions
 async function postJson(url, data) {
