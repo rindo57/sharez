@@ -420,8 +420,8 @@ async function Start_URL_Upload() {
         // Retrieve the file URL and threading preference
         const file_url = document.getElementById('remote-url').value;
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
-        let response;
-        fetch(file_url, {
+
+        const response = fetch(file_url, {
         headers: {
         'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
         }
