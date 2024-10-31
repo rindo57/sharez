@@ -418,7 +418,8 @@ async function Start_URL_Upload() {
     
         const username = "AnExt";
         const password = "fhdft783443@";
-        const encodedCredentials = Buffer.from(`${username}:${password}`).toString("base64");
+        const encodedCredentials = btoa(`${username}:${password}`);
+
         document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('new-url-upload').style.zIndex = '-1';
