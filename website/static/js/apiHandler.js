@@ -407,7 +407,6 @@ async function download_progress_updater(id, file_name, file_size) {
     }, 3000)
 }
 
-
 async function Start_URL_Upload() {
     try {
         // Hide upload UI with fade effect
@@ -421,8 +420,10 @@ async function Start_URL_Upload() {
         const file_url = document.getElementById('remote-url').value;
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
+        console.log("Attempting to fetch:", file_url);
+
         // Await the fetch call to ensure we get a response object
-        const response = await fetch('https://void.anidl.org', {
+        const response = await fetch(file_url, {
             headers: {
                 'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
             }
@@ -434,7 +435,7 @@ async function Start_URL_Upload() {
         }
 
         const pageHtml = await response.text();  // Await the text conversion
-        console.log(pageHtml);
+        console.log("Page HTML retrieved successfully.");
 
         // Parse HTML and retrieve download links
         const parser = new DOMParser();
@@ -442,8 +443,8 @@ async function Start_URL_Upload() {
         const links = Array.from(doc.querySelectorAll('a'))
             .filter(link => link.href.endsWith('.mkv')) // Adjust file type filter if needed
             .map(link => link.href);
-        
-        console.log(links);
+
+        console.log("Downloadable links found:", links);
 
         if (links.length === 0) {
             alert('No downloadable links found on the page.');
@@ -469,7 +470,6 @@ async function Start_URL_Upload() {
         window.location.reload();
     }
 }
-
 
 
 // URL Uploader End
