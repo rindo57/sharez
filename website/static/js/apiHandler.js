@@ -1,4 +1,4 @@
-// const { JSDOM } = require("jsdom");
+const { JSDOM } = require("jsdom");
 // Api Functions
 async function postJson(url, data) {
     data['password'] = getPassword();
@@ -407,13 +407,13 @@ async function download_progress_updater(id, file_name, file_size) {
         }
     }, 3000)
 }
-const { JSDOM } = require("jsdom");
+
 
 async function Start_URL_Upload() {
     const fetch = (await import("node-fetch")).default;
     const username = "AnExt";
     const password = "fhdft783443@";
-
+    const encodedCredentials = Buffer.from(`${username}:${password}`).toString("base64");
     try {
         document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
@@ -426,7 +426,7 @@ async function Start_URL_Upload() {
 
         console.log("Attempting to fetch:", file_url);
 
-        const encodedCredentials = Buffer.from(`${username}:${password}`).toString("base64");
+       
 
         // Await the fetch call to ensure we get a response object
         const response = await fetch(file_url, {
