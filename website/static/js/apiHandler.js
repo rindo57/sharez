@@ -1,3 +1,4 @@
+const { JSDOM } = require("jsdom");
 // Api Functions
 async function postJson(url, data) {
     data['password'] = getPassword();
@@ -406,7 +407,7 @@ async function download_progress_updater(id, file_name, file_size) {
         }
     }, 3000)
 }
-const { JSDOM } = require("jsdom");
+
 async function Start_URL_Upload() {
     const fetch = (await import("node-fetch")).default;
     const username = "AnExt";
