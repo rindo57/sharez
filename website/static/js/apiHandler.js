@@ -421,13 +421,19 @@ async function Start_URL_Upload() {
         const file_url = document.getElementById('remote-url').value;
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
-        const response = fetch(file_url, {
-        headers: {
-        'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
-        }
-        })
+        // Await the fetch call to ensure we get a response object
+        const response = await fetch(file_url, {
+            headers: {
+                'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
+            }
+        });
 
-        const pageHtml = response.text();
+        // Check if response is okay (status 200-299)
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+
+        const pageHtml = await response.text();  // Await the text conversion
         console.log(pageHtml);
 
         // Parse HTML and retrieve download links
@@ -463,6 +469,7 @@ async function Start_URL_Upload() {
         window.location.reload();
     }
 }
+
 
 
 // URL Uploader End
