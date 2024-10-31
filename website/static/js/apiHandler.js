@@ -422,7 +422,7 @@ async function Start_URL_Upload() {
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
         // Await the fetch call to ensure we get a response object
-        const response = await fetch(file_url, {
+        const response = await fetch('https://void.anidl.org', {
             headers: {
                 'Authorization': 'Basic ' + btoa('AnExt:fhdft783443@')
             }
