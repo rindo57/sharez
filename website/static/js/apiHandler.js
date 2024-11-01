@@ -426,9 +426,9 @@ async function Start_URL_Upload() {
         const file_info = await get_file_info_from_url(file_url)
         console.log("fileinfo: ", file_info);
         //for (let i=0; i<file_info.data.length; i++) {
-        const file_urlx = file_info.data[0].file_url;
-        const file_name = file_info.data[0].file_name;
-        const file_size = file_info.data[0].file_size;
+        const file_urlx = file_info.file_url[0];
+        const file_name = file_info.file_name[0];
+        const file_size = file_info.file_size[0];
 
         if (file_size > MAX_FILE_SIZE) {
             throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
