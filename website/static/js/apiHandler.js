@@ -425,17 +425,20 @@ async function Start_URL_Upload() {
 
         const file_info = await get_file_info_from_url(file_url)
         console.log("fileinfo: ", file_info);
-        const file_name = file_info.file_name
-        const file_size = file_info.file_size
+        for (let i=0; i<file_info.data.length; i++) {
+            const file_urlx = file_info.data[i].file_url;
+            const file_name = file_info.data[i].file_name;
+            const file_size = file_info.data[i].file_size;
 
-        if (file_size > MAX_FILE_SIZE) {
-            throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
+            if (file_size > MAX_FILE_SIZE) {
+                throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
+            }
+
+            const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded)
+
+            await download_progress_updater(id, file_name, file_size)
+
         }
-
-        const id = await start_file_download_from_url(file_url, file_name, singleThreaded)
-
-        await download_progress_updater(id, file_name, file_size)
-
     }
     catch (err) {
         alert(err)
