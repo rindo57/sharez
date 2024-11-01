@@ -128,6 +128,7 @@ async def get_file_info_from_url(url):
                 )
                 file_info = await downloader.get_file_info()
                 x.append({"file_size": file_info["total_size"], "file_name": file_info["filename"]})
+        print(x)
         return x
     
     # In case no .mkv file is found or request fails
