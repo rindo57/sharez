@@ -3,11 +3,6 @@ from utils.downloader import (
     get_file_info_from_url,
 )
 import asyncio
-import os
-from bs4 import BeautifulSoup
-import aiohttp, asyncio
-import requests
-import base64
 from pathlib import Path
 from contextlib import asynccontextmanager
 import aiofiles
@@ -128,10 +123,8 @@ async def api_get_directory(request: Request):
 
     elif "/search_" in data["path"]:
         query = urllib.parse.unquote(data["path"].split("_", 1)[1])
-        segments = data["path"].split('/')
-        path = '/'.join(segments[:-1]) 
         print(query)
-        data = {"contents": DRIVE_DATA.search_file_folder(query, path)}
+        data = {"contents": DRIVE_DATA.search_file_folder(query)}
         print(data)
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
         print(folder_data)
@@ -303,32 +296,10 @@ async def getFileInfoFromUrl(request: Request):
 
     logger.info(f"getFileInfoFromUrl {data}")
     try:
-        username = "AnExt"
-        password = "fhdft783443@"
-        auth = base64.b64encode(f"{username}:{password}".encode()).decode()
-        headers = {
-            "Authorization": f"Basic {auth}",
-            "Referer": "https://void.anidl.org",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
-        }
-        response = requests.get(data["url"], auth=(username, password))
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-        
-            # Loop through each link to find the .mkv file
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                if href.endswith('.mkv'):
-                    xlink = "https://void.anidl.org" + href
-                    file_info = await get_file_info_from_url(xlink)
-                    return JSONResponse({"status": "ok", "data": file_info})
-                    
-        return JSONResponse({"status": "File not found"})
-        
+        file_info = await get_file_info_from_url(data["url"])
+        return JSONResponse({"status": "ok", "data": file_info})
     except Exception as e:
         return JSONResponse({"status": str(e)})
-
-
 
 
 @app.post("/api/startFileDownloadFromUrl")
@@ -341,15 +312,12 @@ async def startFileDownloadFromUrl(request: Request):
     logger.info(f"startFileDownloadFromUrl {data}")
     try:
         id = getRandomID()
-        links = data["url"]
-        for link in links:
-            asyncio.create_task(
-                download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
-            )
+        asyncio.create_task(
+            download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
+        )
         return JSONResponse({"status": "ok", "id": id})
     except Exception as e:
         return JSONResponse({"status": str(e)})
-
 
 
 @app.post("/api/getFileDownloadProgress")
