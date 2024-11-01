@@ -443,7 +443,7 @@ async function Start_URL_Upload() {
         }
     } catch (err) {
         console.error("Error during upload:", err);
-        alert(err.message || err);
+        alert("what: ", err.message || err);
         window.location.reload();
     }
 }
