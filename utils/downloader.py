@@ -4,6 +4,7 @@ import aiohttp, asyncio
 from utils.extra import get_filename
 from utils.logger import Logger
 from pathlib import Path
+from bs4 import BeautifulSoup
 from utils.uploader import start_file_uploader
 from techzdl import TechZDL
 import requests 
