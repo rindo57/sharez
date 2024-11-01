@@ -97,6 +97,7 @@ async def download_file(url, id, path, filename, singleThreaded):
 
 
 async def get_file_info_from_url(url):
+    
     username = "AnExt"
     password = "fhdft783443@"
     auth = base64.b64encode(f"{username}:{password}".encode()).decode()
@@ -108,7 +109,7 @@ async def get_file_info_from_url(url):
     response = requests.get(url, auth=(username, password))
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
-        
+        x = []
         # Loop through each link to find the .mkv file
         for link in soup.find_all('a', href=True):
             href = link['href']
@@ -126,7 +127,8 @@ async def get_file_info_from_url(url):
                     custom_headers=headers,
                 )
                 file_info = await downloader.get_file_info()
-                return {"file_size": file_info["total_size"], "file_name": fname}
+                x.append({"file_size": file_info["total_size"], "file_name": file_name})
+        return x
     
     # In case no .mkv file is found or request fails
     return None
