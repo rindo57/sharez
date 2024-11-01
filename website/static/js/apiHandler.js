@@ -424,7 +424,7 @@ async function Start_URL_Upload() {
         const singleThreaded = document.getElementById('single-threaded-toggle').checked
 
         const file_info = await get_file_info_from_url(file_url)
-        console.log("fileinfo: ", file_info);
+  
         //for (let i=0; i<file_info.data.length; i++) {
         const file_urlx = file_info.file_url[0];
         const file_name = file_info.file_name[0];
@@ -441,7 +441,7 @@ async function Start_URL_Upload() {
       
     }
     catch (err) {
-        alert("boom: ", err)
+        alert("boom: ", err.message)
         window.location.reload()
     }
 
