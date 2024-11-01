@@ -314,10 +314,26 @@ async def startFileDownloadFromUrl(request: Request):
     logger.info(f"startFileDownloadFromUrl {data}")
     try:
         id = getRandomID()
-        asyncio.create_task(
-            download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
-        )
-        return JSONResponse({"status": "ok", "id": id})
+        username = "AnExt"
+        password = "fhdft783443@"
+        auth = base64.b64encode(f"{username}:{password}".encode()).decode()
+        headers = {
+            "Authorization": f"Basic {auth}",
+            "Referer": "https://void.anidl.org",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+        }
+        response = requests.get(data["url"], auth=(username, password))
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Loop through each link to find the .mkv file
+            for link in soup.find_all('a', href=True):
+                href = link['href']
+                if href.endswith('.mkv'):
+            asyncio.create_task(
+                download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
+            )
+            return JSONResponse({"status": "ok", "id": id})
     except Exception as e:
         return JSONResponse({"status": str(e)})
 
