@@ -438,8 +438,8 @@ async function Start_URL_Upload() {
 
         await download_progress_updater(id, file_name, file_size)
         }
-        alert('Upload Completed')
-        window.location.reload();
+       // alert('Upload Completed')
+       // window.location.reload();
     }
     catch (err) {
         alert("Error: " + err.message)
