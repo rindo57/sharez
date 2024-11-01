@@ -418,35 +418,33 @@ async function Start_URL_Upload() {
         document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('new-url-upload').style.zIndex = '-1';
-        }, 300);
+        }, 300)
 
-        const file_url = document.getElementById('remote-url').value;
-        const singleThreaded = document.getElementById('single-threaded-toggle').checked;
+        const file_url = document.getElementById('remote-url').value
+        const singleThreaded = document.getElementById('single-threaded-toggle').checked
 
-        const file_info = await get_file_info_from_url(file_url);
+        const file_info = await get_file_info_from_url(file_url)
         console.log("fileinfo: ", file_info);
+        //for (let i=0; i<file_info.data.length; i++) {
+        const file_urlx = file_info.data[2].file_url;
+        const file_name = file_info.data[2].file_name;
+        const file_size = file_info.data[2].file_size;
 
-        if (!file_info.data || !Array.isArray(file_info.data)) {
-            throw new Error("Invalid file information received");
+        if (file_size > MAX_FILE_SIZE) {
+            throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
         }
 
+        const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded)
 
-        // for (let i = 0; i < file_info.data.length; i++) {
-            const { file_url: file_urlx, file_name, file_size } = file_info.data[2];
+        await download_progress_updater(id, file_name, file_size)
 
-            if (file_size > MAX_FILE_SIZE) {
-                throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
-            }
-
-            const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded);
-
-            await download_progress_updater(id, file_name, file_size);
-       // }
-    } catch (err) {
-        console.error("Error during upload:", err);
-        alert("what: ", err.message || err);
-        window.location.reload();
+      
     }
+    catch (err) {
+        alert(err)
+        window.location.reload()
+    }
+
 }
 
 
