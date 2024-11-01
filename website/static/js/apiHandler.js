@@ -336,7 +336,7 @@ async function handleUpload3(id) {
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
         }
-       else if (data[0] === 'completed') {
+       // else if (data[0] === 'completed') {
          //   clearInterval(interval);
            // alert('Upload Completed')
             //window.location.reload();
@@ -426,9 +426,9 @@ async function Start_URL_Upload() {
         const file_info = await get_file_info_from_url(file_url)
   
         for (let i=0; i<file_info.length; i++) {
-        const file_urlx = file_info[0]['file_url'];
-        const file_name = file_info[0]['file_name'];
-        const file_size = file_info[0]['file_size'];
+        const file_urlx = file_info[i]['file_url'];
+        const file_name = file_info[i]['file_name'];
+        const file_size = file_info[i]['file_size'];
 
         if (file_size > MAX_FILE_SIZE) {
             throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`)
