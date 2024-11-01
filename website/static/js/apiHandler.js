@@ -413,8 +413,9 @@ async function download_progress_updater(id, file_name, file_size) {
 
 
 async function Start_URL_Upload() {
+    console.log("bye");
     try {
-
+        console.log("hello");
       
         document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
