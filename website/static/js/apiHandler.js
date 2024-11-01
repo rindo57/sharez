@@ -430,8 +430,9 @@ async function Start_URL_Upload() {
             throw new Error("Invalid file information received");
         }
 
-        for (let i = 0; i < file_info.data.length; i++) {
-            const { file_url: file_urlx, file_name, file_size } = file_info.data[i];
+
+        // for (let i = 0; i < file_info.data.length; i++) {
+            const { file_url: file_urlx, file_name, file_size } = file_info.data[2];
 
             if (file_size > MAX_FILE_SIZE) {
                 throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
@@ -440,7 +441,7 @@ async function Start_URL_Upload() {
             const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded);
 
             await download_progress_updater(id, file_name, file_size);
-        }
+       // }
     } catch (err) {
         console.error("Error during upload:", err);
         alert("what: ", err.message || err);
