@@ -302,22 +302,6 @@ async def getFileInfoFromUrl(request: Request):
 
     logger.info(f"getFileInfoFromUrl {data}")
     try:
-        file_info = await get_file_info_from_url(data["url"])
-        return JSONResponse({"status": "ok", "data": file_info})
-    except Exception as e:
-        return JSONResponse({"status": str(e)})
-
-
-@app.post("/api/startFileDownloadFromUrl")
-async def startFileDownloadFromUrl(request: Request):
-    data = await request.json()
-
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"startFileDownloadFromUrl {data}")
-    try:
-        id = getRandomID()
         username = "AnExt"
         password = "fhdft783443@"
         auth = base64.b64encode(f"{username}:{password}".encode()).decode()
@@ -334,12 +318,32 @@ async def startFileDownloadFromUrl(request: Request):
             for link in soup.find_all('a', href=True):
                 href = link['href']
                 if href.endswith('.mkv'):
-                    asyncio.create_task(
-                        download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
-                    )
-            return JSONResponse({"status": "ok", "id": id})
+                    file_info = await get_file_info_from_url(link)
+        return JSONResponse({"status": "ok", "data": file_info})
     except Exception as e:
         return JSONResponse({"status": str(e)})
+
+
+
+@app.post("/api/startFileDownloadFromUrl")
+async def startFileDownloadFromUrl(request: Request):
+    data = await request.json()
+
+    if data["password"] != ADMIN_PASSWORD:
+        return JSONResponse({"status": "Invalid password"})
+
+    logger.info(f"startFileDownloadFromUrl {data}")
+    try:
+        id = getRandomID()
+        links = data["url"]
+        for link in links:
+            asyncio.create_task(
+                download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
+            )
+        return JSONResponse({"status": "ok", "id": id})
+    except Exception as e:
+        return JSONResponse({"status": str(e)})
+
 
 
 @app.post("/api/getFileDownloadProgress")
