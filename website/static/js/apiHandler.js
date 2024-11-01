@@ -413,9 +413,7 @@ async function download_progress_updater(id, file_name, file_size) {
 
 
 async function Start_URL_Upload() {
-    
     try {
-    
         const username = "AnExt";
         const password = "fhdft783443@";
         const encodedCredentials = btoa(`${username}:${password}`);
@@ -427,6 +425,60 @@ async function Start_URL_Upload() {
 
         // Retrieve the file URL and threading preference
         const file_url = document.getElementById('remote-url').value;
+        const singleThreaded = document.getElementById('single-threaded-toggle').checked;
+
+        console.log("Attempting to fetch:", file_url);
+
+        // Use POST method as a workaround
+        const response = await fetch(file_url, {
+            method: 'POST', // Using POST instead of GET
+            headers: {
+                "Authorization": `Basic ${encodedCredentials}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: "Requesting access" }) // Adding a JSON body as a placeholder
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const pageHtml = await response.text();  // Await the text conversion
+        console.log("Page HTML retrieved successfully.");
+
+        // Parse HTML and retrieve download links
+        const parser = new JSDOM(pageHtml); 
+        
+        const doc = parser.window.document;
+        const links = Array.from(doc.querySelectorAll("a"))
+            .filter(link => link.href.endsWith('.mkv'))
+            .map(link => link.href);
+
+        if (links.length === 0) {
+            alert('No downloadable links found on the page.');
+            return;
+        }
+
+        for (const link of links) {
+            const file_info = await get_file_info_from_url(link);
+            const file_name = file_info.file_name;
+            const file_size = file_info.file_size;
+
+            if (file_size > MAX_FILE_SIZE) {
+                throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
+            }
+
+            const id = await start_file_download_from_url(link, file_name, singleThreaded);
+
+            await download_progress_updater(id, file_name, file_size);
+        }
+    } catch (err) {
+        console.error("General error:", err);
+        alert(`Error: ${err.message}`);
+        window.location.reload();
+    }
+}
+onst file_url = document.getElementById('remote-url').value;
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
         console.log("Attempting to fetch:", file_url);
