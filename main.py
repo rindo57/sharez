@@ -316,10 +316,10 @@ async def getFileInfoFromUrl(request: Request):
             soup = BeautifulSoup(response.text, 'html.parser')
         
         # Loop through each link to find the .mkv file
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                if href.endswith('.mkv'):
-                    file_info = await get_file_info_from_url(link)
+            link = soup.find_all('a', href=True):
+            href = link['href'][5]
+            if href.endswith('.mkv'):
+                file_info = await get_file_info_from_url(link)
         return JSONResponse({"status": "ok", "data": file_info})
     except Exception as e:
         return JSONResponse({"status": str(e)})
