@@ -319,7 +319,8 @@ async def getFileInfoFromUrl(request: Request):
             for link in soup.find_all('a', href=True):
                 href = link['href']
                 if href.endswith('.mkv'):
-                    file_info = await get_file_info_from_url(href)
+                    xlink = "https://void.anidl.org" + href
+                    file_info = await get_file_info_from_url(xlink)
                     return JSONResponse({"status": "ok", "data": file_info})
                     
         return JSONResponse({"status": "File not found"})
