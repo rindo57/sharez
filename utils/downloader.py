@@ -73,6 +73,14 @@ async def download_file(url, id, path, filename, singleThreaded):
 
 
 async def get_file_info_from_url(url):
+    username = "AnExt"
+    password = "fhdft783443@"
+    auth = base64.b64encode(f"{username}:{password}".encode()).decode()
+    headers = {
+        "Authorization": f"Basic {auth}",
+        "Referer": "https://void.anidl.org",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+    }
     downloader = TechZDL(
         url,
         output_dir=cache_dir,
@@ -80,6 +88,7 @@ async def get_file_info_from_url(url):
         progress_callback=download_progress_callback,
         progress_args=(id,),
         max_retries=5,
+        custom_headers=headers,
     )
     file_info = await downloader.get_file_info()
     return {"file_size": file_info["total_size"], "file_name": file_info["filename"]}
