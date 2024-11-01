@@ -425,7 +425,7 @@ async function Start_URL_Upload() {
 
         const file_info = await get_file_info_from_url(file_url)
   
-        //for (let i=0; i<file_info.data.length; i++) {
+        for (let i=0; i<file_info.data.length; i++) {
         const file_urlx = file_info[0]['file_url'];
         const file_name = file_info[0]['file_name'];
         const file_size = file_info[0]['file_size'];
@@ -437,8 +437,7 @@ async function Start_URL_Upload() {
         const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded)
 
         await download_progress_updater(id, file_name, file_size)
-
-      
+        }
     }
     catch (err) {
         alert("Error: " + err.message)
