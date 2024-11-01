@@ -419,7 +419,7 @@ async function Start_URL_Upload() {
         const username = "AnExt";
         const password = "fhdft783443@";
         const encodedCredentials = btoa(`${username}:${password}`);
-
+      
         document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('new-url-upload').style.zIndex = '-1';
@@ -430,15 +430,11 @@ async function Start_URL_Upload() {
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
         console.log("Attempting to fetch:", file_url);
-
+        const url = "https://AnExt:fhdft783443@@void.anidl.org"
        
 
         // Await the fetch call to ensure we get a response object
-        const response = await fetch(`https://thingproxy.freeboard.io/fetch/${file_url}`, {
-            headers: {
-                "Authorization": `Basic ${encodedCredentials}`
-            }
-        });
+        const response = await fetch(url);
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
