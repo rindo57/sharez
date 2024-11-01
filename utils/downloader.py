@@ -35,65 +35,47 @@ async def download_file(url, id, path, filename, singleThreaded):
     global DOWNLOAD_PROGRESS, STOP_DOWNLOAD
 
     logger.info(f"Downloading file from {url}")
-    username = "AnExt"
-    password = "fhdft783443@"
-    auth = base64.b64encode(f"{username}:{password}".encode()).decode()
-    
-    headers = {
-        "Authorization": f"Basic {auth}",
-        "Referer": "https://void.anidl.org",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
-    }
-    response = requests.get(url, auth=(username, password))
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        for link in soup.find_all('a', href=True):
-            href = link['href']
-            if href.endswith('.mkv'):
-                file_url = "https://void.anidl.org" + link['href']
-                decoded_url = urllib.parse.unquote(file_url)
-                fname = decoded_url.split('/')[-1]
-                try:
-                    downloader = TechZDL(
-                        file_url,
-                        output_dir=cache_dir,
-                        debug=False,
-                        progress_callback=download_progress_callback,
-                        progress_args=(id,),
-                        max_retries=5,
-                        single_threaded=singleThreaded,
-                        custom_headers=headers,
-                    )
-                    await downloader.start(in_background=True)
 
-                    await asyncio.sleep(5)
+    try:
+        downloader = TechZDL(
+            url,
+            output_dir=cache_dir,
+            debug=False,
+            progress_callback=download_progress_callback,
+            progress_args=(id,),
+            max_retries=5,
+            single_threaded=singleThreaded,
+        )
+        await downloader.start(in_background=True)
 
-                    while downloader.is_running:
-                        if id in STOP_DOWNLOAD:
-                            logger.info(f"Stopping download {id}")
-                            await downloader.stop()
-                            return
-                        await asyncio.sleep(1)
+        await asyncio.sleep(5)
 
-                    if downloader.download_success is False:
-                        raise downloader.download_error
+        while downloader.is_running:
+            if id in STOP_DOWNLOAD:
+                logger.info(f"Stopping download {id}")
+                await downloader.stop()
+                return
+            await asyncio.sleep(1)
 
-                    DOWNLOAD_PROGRESS[id] = (
-                        "completed",
-                        downloader.total_size,
-                        downloader.total_size,
-                    )
+        if downloader.download_success is False:
+            raise downloader.download_error
 
-                    logger.info(f"File downloaded to {downloader.output_path}")
+        DOWNLOAD_PROGRESS[id] = (
+            "completed",
+            downloader.total_size,
+            downloader.total_size,
+        )
 
-                    asyncio.create_task(
-                        start_file_uploader(
-                            downloader.output_path, id, path, fname, downloader.total_size
-                        )
-                    )
-                except Exception as e:
-                    DOWNLOAD_PROGRESS[id] = ("error", 0, 0)
-                    logger.error(f"Failed to download file: {url} {e}")
+        logger.info(f"File downloaded to {downloader.output_path}")
+
+        asyncio.create_task(
+            start_file_uploader(
+                downloader.output_path, id, path, filename, downloader.total_size
+            )
+        )
+    except Exception as e:
+        DOWNLOAD_PROGRESS[id] = ("error", 0, 0)
+        logger.error(f"Failed to download file: {url} {e}")
 
 
 async def get_file_info_from_url(url):
