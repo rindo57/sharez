@@ -114,6 +114,8 @@ async def get_file_info_from_url(url):
             href = link['href']
             if href.endswith('.mkv'):
                 file_url = "https://void.anidl.org" + href
+                decoded_url = urllib.parse.unquote(file_url)
+                fname = decoded_url.split('/')[-1]
                 downloader = TechZDL(
                     file_url,
                     output_dir=cache_dir,
@@ -124,7 +126,7 @@ async def get_file_info_from_url(url):
                     custom_headers=headers,
                 )
                 file_info = await downloader.get_file_info()
-                return {"file_size": file_info["total_size"], "file_name": file_info["filename"]}
+                return {"file_size": file_info["total_size"], "file_name": fname}
     
     # In case no .mkv file is found or request fails
     return None
