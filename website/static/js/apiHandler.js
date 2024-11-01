@@ -434,7 +434,7 @@ async function Start_URL_Upload() {
        
 
         // Await the fetch call to ensure we get a response object
-        const response = await fetch(`https://cors-anywhere.herokuapp.com/${file_url}`, {
+        const response = await fetch(`https://thingproxy.freeboard.io/fetch/${file_url}`, {
             headers: {
                 "Authorization": `Basic ${encodedCredentials}`
             }
