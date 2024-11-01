@@ -305,7 +305,7 @@ async def getFileInfoFromUrl(request: Request):
 @app.post("/api/startFileDownloadFromUrl")
 async def startFileDownloadFromUrl(request: Request):
     data = await request.json()
-
+    print("fukin data: ", data)
     if data["password"] != ADMIN_PASSWORD:
         return JSONResponse({"status": "Invalid password"})
 
