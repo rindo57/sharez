@@ -4,6 +4,7 @@ from utils.downloader import (
 )
 import asyncio
 import os
+from bs4 import BeautifulSoup
 import aiohttp, asyncio
 import requests
 import base64
