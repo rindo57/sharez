@@ -441,7 +441,7 @@ async function Start_URL_Upload() {
       
     }
     catch (err) {
-        alert("boom: ", err.message)
+        alert("Error: " + err.message)
         window.location.reload()
     }
 
