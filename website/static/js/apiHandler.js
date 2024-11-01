@@ -414,9 +414,7 @@ async function download_progress_updater(id, file_name, file_size) {
 
 async function Start_URL_Upload() {
     try {
-        const username = "AnExt";
-        const password = "fhdft783443@";
-        const encodedCredentials = btoa(`${username}:${password}`);
+
       
         document.getElementById('new-url-upload').style.opacity = '0';
         setTimeout(() => {
@@ -429,16 +427,9 @@ async function Start_URL_Upload() {
 
         console.log("Attempting to fetch:", file_url);
 
-        // Use POST method as a workaround
-        const response = await fetch(file_url, {
-            method: 'POST', // Using POST instead of GET
-            headers: {
-                "Authorization": `Basic ${encodedCredentials}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ message: "Requesting access" }) // Adding a JSON body as a placeholder
-        });
-
+        // Await the fetch call to ensure we get a response object
+        const proxyUrl = `http://localhost:3000/proxy?url=${encodeURIComponent(file_url)}`;
+        const response = await fetch(proxyUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -447,12 +438,12 @@ async function Start_URL_Upload() {
         console.log("Page HTML retrieved successfully.");
 
         // Parse HTML and retrieve download links
-        const parser = new JSDOM(pageHtml); 
+        const parser = new JSDOM(pageHtml); // Use pageHtml instead of response.text()
         
         const doc = parser.window.document;
-        const links = Array.from(doc.querySelectorAll("a"))
-            .filter(link => link.href.endsWith('.mkv'))
-            .map(link => link.href);
+        const links = Array.from(doc.querySelectorAll("a")) // Convert NodeList to Array
+            .filter(link => link.href.endsWith('.mkv')) // Filter links that end with .mkv
+            .map(link => link.href); // Map to hrefs
 
         if (links.length === 0) {
             alert('No downloadable links found on the page.');
@@ -478,6 +469,7 @@ async function Start_URL_Upload() {
         window.location.reload();
     }
 }
+
 
 
 // URL Uploader End
