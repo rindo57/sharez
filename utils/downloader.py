@@ -83,6 +83,7 @@ async def get_file_info_from_url(url):
         "Referer": "https://void.anidl.org",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
     }
+    print("damn ", url)
     downloader = TechZDL(
         url,
         output_dir=cache_dir,
@@ -93,4 +94,5 @@ async def get_file_info_from_url(url):
         custom_headers=headers,
     )
     file_info = await downloader.get_file_info()
+    print("boom: ", file_info)
     return {"file_size": file_info["total_size"], "file_name": file_info["filename"]}
