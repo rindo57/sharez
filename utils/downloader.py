@@ -35,8 +35,16 @@ async def download_file(url, id, path, filename, singleThreaded):
     global DOWNLOAD_PROGRESS, STOP_DOWNLOAD
 
     logger.info(f"Downloading file from {url}")
-
+    username = "AnExt"
+    password = "fhdft783443@"
+    auth = base64.b64encode(f"{username}:{password}".encode()).decode()
+    headers = {
+        "Authorization": f"Basic {auth}",
+        "Referer": "https://void.anidl.org",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+    }
     try:
+        
         downloader = TechZDL(
             url,
             output_dir=cache_dir,
@@ -45,6 +53,7 @@ async def download_file(url, id, path, filename, singleThreaded):
             progress_args=(id,),
             max_retries=5,
             single_threaded=singleThreaded,
+            custom_headers=headers,
         )
         await downloader.start(in_background=True)
 
