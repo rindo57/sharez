@@ -478,54 +478,6 @@ async function Start_URL_Upload() {
         window.location.reload();
     }
 }
-onst file_url = document.getElementById('remote-url').value;
-        const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
-        console.log("Attempting to fetch:", file_url);
-        const url = "https://AnExt:fhdft783443@@void.anidl.org"
-       
-
-        // Await the fetch call to ensure we get a response object
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const pageHtml = await response.text();  // Await the text conversion
-        console.log("Page HTML retrieved successfully.");
-
-        // Parse HTML and retrieve download links
-        const parser = new JSDOM(pageHtml); // Use pageHtml instead of response.text()
-        
-        const doc = parser.window.document;
-        const links = Array.from(doc.querySelectorAll("a")) // Convert NodeList to Array
-            .filter(link => link.href.endsWith('.mkv')) // Filter links that end with .mkv
-            .map(link => link.href); // Map to hrefs
-
-        if (links.length === 0) {
-            alert('No downloadable links found on the page.');
-            return;
-        }
-
-        for (const link of links) {
-            const file_info = await get_file_info_from_url(link);
-            const file_name = file_info.file_name;
-            const file_size = file_info.file_size;
-
-            if (file_size > MAX_FILE_SIZE) {
-                throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
-            }
-
-            const id = await start_file_download_from_url(link, file_name, singleThreaded);
-
-            await download_progress_updater(id, file_name, file_size);
-        }
-    } catch (err) {
-        console.error("General error:", err);
-        alert(`Error: ${err.message}`);
-        window.location.reload();
-    }
-}
 
 // URL Uploader End
