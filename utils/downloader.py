@@ -127,7 +127,7 @@ async def get_file_info_from_url(url):
                     custom_headers=headers,
                 )
                 file_info = await downloader.get_file_info()
-                x.append({"file_size": file_info["total_size"], "file_name": file_info["filename"]})
+                x.append({"file_size": file_info["total_size"], "file_name": file_info["filename"], "file_url": file_url})
         print(x)
         return x
     
