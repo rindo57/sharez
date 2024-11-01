@@ -350,6 +350,7 @@ async function get_file_info_from_url(url) {
     const json = await postJson('/api/getFileInfoFromUrl', data)
     if (json.status === 'ok') {
         return json.data
+        console.log("jsondata: ", json.data);
     } else {
         throw new Error(`Error Getting File Info : ${json.status}`)
     }
@@ -423,7 +424,7 @@ async function Start_URL_Upload() {
         const singleThreaded = document.getElementById('single-threaded-toggle').checked
 
         const file_info = await get_file_info_from_url(file_url)
-        console.log(file_info)
+        console.log("fileinfo: ", file_info);
         const file_name = file_info.file_name
         const file_size = file_info.file_size
 
