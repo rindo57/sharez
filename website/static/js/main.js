@@ -73,7 +73,7 @@ document.getElementById('search-form').addEventListener('submit', async (event) 
     let currentPath = getCurrentPath();
 // Check if the current path ends with "search_xyz" and remove it
     if (getCurrentPath().includes('/share_')){
-        const path = '/?path=' +  currentPath + '&' + encodeURI(query);
+        const path = '/?path=' +  currentPath + '/search_' + encodeURI(query);
     } else {
         currentPath = currentPath.replace('share_', '')
         currentPath = currentPath.replace(/\/search_.+$/, '')
