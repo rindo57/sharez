@@ -90,6 +90,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (getCurrentPath().includes('/share_')) {
         getCurrentDirectory()
+    } else if (currentPath.includes('/search')) {
+        getCurrentDirectory()
+     // Add your specific logic for the '/search' path here
+       // handleSearchPath()
     } else {
         if (getPassword() === null) {
             document.getElementById('bg-blur').style.zIndex = '2';
