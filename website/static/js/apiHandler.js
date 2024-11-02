@@ -320,8 +320,12 @@ let currentUploadingRemoteFile = null; // Track the file being uploaded from URL
 
 async function Start_URL_Upload() {
     try {
-        const file_url = document.getElementById('remote-url').value;
-        const singleThreaded = document.getElementById('single-threaded-toggle').checked;
+        document.getElementById('new-url-upload').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('new-url-upload').style.zIndex = '-1';
+        }, 300)
+        const file_url = document.getElementById('remote-url').value
+        const singleThreaded = document.getElementById('single-threaded-toggle').checked
 
         const file_info = await get_file_info_from_url(file_url);
 
