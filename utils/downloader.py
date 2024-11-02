@@ -101,6 +101,21 @@ async def get_file_info_from_url(url):
     
     if url.startswith("https://void.anidl.org"):
         if url.endswith(".mkv"):  # Fixed the parentheses here
+            downloader = TechZDL(
+                url,
+                output_dir=cache_dir,
+                debug=False,
+                progress_callback=download_progress_callback,
+                progress_args=(id,),
+                max_retries=5,
+                custom_headers=headers,
+            )
+            file_info = await downloader.get_file_info()
+            return {"file_size": file_info["total_size"], "file_name": file_info["filename"], "file_url": url}
+            
+            
+            
+        else:
             response = requests.get(url, auth=(username, password))
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -124,19 +139,7 @@ async def get_file_info_from_url(url):
                         x.append({"file_size": file_info["total_size"], "file_name": file_info["filename"], "file_url": file_url})
                 print(x)
                 return x
-        else:
-            downloader = TechZDL(
-                url,
-                output_dir=cache_dir,
-                debug=False,
-                progress_callback=download_progress_callback,
-                progress_args=(id,),
-                max_retries=5,
-                custom_headers=headers,
-            )
-            file_info = await downloader.get_file_info()
-            return {"file_size": file_info["total_size"], "file_name": file_info["filename"], "file_url": url}
-            
+                
     else: 
         downloader = TechZDL(
             url,
