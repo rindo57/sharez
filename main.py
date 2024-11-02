@@ -139,6 +139,8 @@ async def api_get_directory(request: Request):
             if match:
                 path = match.group(1)
                 query = urllib.parse.unquote(data["path"].split('query_')[1])
+                auth = data["path"].split('=')[1].split('/')[0] 
+                print("THIS AUTH", auth)
                 data, auth_home_path = DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)
                 print("share data: ", data)
                 auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
