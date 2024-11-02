@@ -249,12 +249,6 @@ class NewDriveData:
                     "/" + folder_data.path.strip("/") + "/" + folder_data.id
                 )
 
-        if not is_admin and not auth_success:
-            return None
-
-        if auth_success:
-            return folder_data, auth_home_path
-
         return folder_data
     
     def search_file_folder(self, query: str, path: str, is_admin: bool, auth: str):
