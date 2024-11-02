@@ -135,7 +135,7 @@ async def api_get_directory(request: Request):
 
     elif "/share_" in data["path"]:
         if "/query_" in data["path"]:
-            print("data["path"]", data["path"])
+            print("data[path]", data["path"])
             pattern = r"/share_(.+?)/query_"
             match = re.search(pattern, data["path"])
             if match:
