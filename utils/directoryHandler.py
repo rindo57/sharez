@@ -243,11 +243,11 @@ class NewDriveData:
             for folder in path:
                 folder_data = folder_data.contents[folder]
 
-                if auth in folder_data.auth_hashes:
-                    auth_success = True
-                    auth_home_path = (
-                        "/" + folder_data.path.strip("/") + "/" + folder_data.id
-                    )
+               # if auth in folder_data.auth_hashes:
+                auth_success = True
+                auth_home_path = (
+                    "/" + folder_data.path.strip("/") + "/" + folder_data.id
+                )
 
         if not is_admin and not auth_success:
             return None
@@ -264,6 +264,7 @@ class NewDriveData:
             root_dir = self.get_directory("/")
         else:   
             root_dir = self.get_directory2(path)
+            print(root_dir)
         search_results = {}
 
         def traverse_directory(folder):
