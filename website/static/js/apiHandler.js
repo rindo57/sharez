@@ -50,12 +50,9 @@ async function getCurrentDirectory() {
                 }
                 sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
             } else if (getCurrentPath().includes('/search_')) {
-                const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a');
-
-                if (removeSlash(json['auth_home_path']) === removeSlash(path.split('_')[1])) {
-                    sections[0].setAttribute('class', 'selected-item');
-                } else {
-                    sections[0].setAttribute('class', 'unselected-item');
+                const sidebarmenu = document.querySelector('.sidebar-menu');
+                if (sidebarmenu) {
+                    sidebarmenu.style.display = 'none';
                 }
             }
 
