@@ -246,7 +246,25 @@ class NewDriveData:
 
         traverse_directory(root_dir)
         return search_results
+    def search_file_folder2(self, query: str, path: str, is_admin: bool, auth: str):
+        if path=="":
+            root_dir, auth_home_path = self.get_directory("/", is_admin, auth)
+        elif path=="/":
+            root_dir, auth_home_path = self.get_directory("/", is_admin, auth)
+        else:   
+            root_dir, auth_home_path = self.get_directory(path, is_admin, auth)
+            print(root_dir)
+        search_results = {}
 
+        def traverse_directory(folder):
+            for item in folder.contents.values():
+                if query.lower() in item.name.lower():
+                    search_results[item.id] = item
+                if item.type == "folder":
+                    traverse_directory(item)
+
+        traverse_directory(root_dir)
+        return search_results, auth_home_path
 
 class NewBotMode:
     def __init__(self, drive_data: NewDriveData) -> None:
