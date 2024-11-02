@@ -346,7 +346,7 @@ async function handleUpload3(id) {
        else if (data[0] === 'completed') {
             clearInterval(interval);
             activeRemoteUploads--;
-            currentUploadingRemoteFile = null; // Reset the current uploading file
+            //currentUploadingRemoteFile = null; // Reset the current uploading file
             
             processRemoteUploadQueue(); // Check for the next file in the queue
          //   clearInterval(interval);
