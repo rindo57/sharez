@@ -456,7 +456,11 @@ function renderPendingRemoteUploadList() {
 
 async function download_progress_updater({ file_urlx, file_name, file_size, singleThreaded }) {
     activeRemoteUploads++;
- 
+    document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
+    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
+    document.getElementById('upload-status').innerText = 'Status: Downloading File From Url To Backend Server';
+    uploadPercent.innerText = 'Progress : 0%'
+    progressBar.style.width = '0%';
     const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded);
     document.getElementById('bg-blur').style.zIndex = '2';
     document.getElementById('bg-blur').style.opacity = '0.1';
@@ -470,14 +474,10 @@ async function download_progress_updater({ file_urlx, file_name, file_size, sing
         const data = response['data'];
 
         if (data[0] === 'error') {
-            document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
             clearInterval(interval);
             alert('Failed to download file from URL to backend server');
             window.location.reload();
         } else if (data[0] === 'completed') {
-            document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
             clearInterval(interval);
             uploadPercent.innerText = 'Progress : 100%'
             progressBar.style.width = '100%';
@@ -486,8 +486,6 @@ async function download_progress_updater({ file_urlx, file_name, file_size, sing
             const current = data[1];
             const total = data[2];
             const percentComplete = (current / total) * 100;
-            document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
             if (data[0] === 'Downloading') {
