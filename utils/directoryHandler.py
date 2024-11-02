@@ -229,7 +229,7 @@ class NewDriveData:
         self, path: str, is_admin: bool = True, auth: str = None
     ) -> Folder:
         folder_data: Folder = self.contents["/"]
-        auth_success = True
+        auth_success = False
         auth_home_path = None
 
         if path != "/":
