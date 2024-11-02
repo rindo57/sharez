@@ -87,8 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
     for (let i = 0; i < inputs.length; i++) {
         document.getElementById(inputs[i]).addEventListener('input', validateInput);
     }
-     if (currentPath.includes('/share_')) {
-        getCurrentDirectory();
+
+    if (getCurrentPath().includes('/share_')) {
+        getCurrentDirectory()
     } else {
         if (getPassword() === null) {
             document.getElementById('bg-blur').style.zIndex = '2';
@@ -97,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('get-password').style.zIndex = '3';
             document.getElementById('get-password').style.opacity = '1';
         } else {
-            getCurrentDirectory();
+            getCurrentDirectory()
         }
     }
 });
