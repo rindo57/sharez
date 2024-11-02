@@ -368,7 +368,7 @@ async function get_file_info_from_url(url) {
 
 }
 
-async function start_file_download_from_url(url, filename, singleThreaded=True) {
+async function start_file_download_from_url(url, filename, singleThreaded=true) {
     const data = { 'url': url, 'path': getCurrentPath(), 'filename': filename, 'singleThreaded': singleThreaded }
     const json = await postJson('/api/startFileDownloadFromUrl', data)
     if (json.status === 'ok') {
@@ -385,7 +385,7 @@ async function Start_URL_Upload() {
             document.getElementById('new-url-upload').style.zIndex = '-1';
         }, 300)
         const file_url = document.getElementById('remote-url').value
-        const singleThreaded = True 
+        const singleThreaded = true 
 
         const file_info = await get_file_info_from_url(file_url);
 
@@ -484,7 +484,7 @@ function removeFile(fileToRemove) {
 
 }
 
-async function download_progress_updater({ file_urlx, file_name, file_size, singleThreaded }) {
+async function download_progress_updater({ file_urlx, file_name, file_size, singleThreaded=true}) {
     activeRemoteUploads++;
     document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
     document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
