@@ -318,6 +318,39 @@ let activeRemoteUploads = 0; // Counter for active remote uploads
 const maxRemoteConcurrentUploads = 1; // Limit concurrent remote uploads to 1
 let currentUploadingRemoteFile = null; // Track the file being uploaded from URL
 
+async function handleUpload3(id) {
+    console.log(id)
+    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
+    progressBar.style.width = '0%';
+    uploadPercent.innerText = 'Progress : 0%';
+
+    const interval = setInterval(async () => {
+        const response = await postJson('/api/getUploadProgress', { 'id': id })
+        const data = response['data']
+
+        if (data[0] === 'running') {
+            const current = data[1];
+            const total = data[2];
+            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
+
+            let percentComplete
+            if (total === 0) {
+                percentComplete = 0
+            }
+            else {
+                percentComplete = (current / total) * 100;
+            }
+            progressBar.style.width = percentComplete + '%';
+            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
+        }
+       // else if (data[0] === 'completed') {
+         //   clearInterval(interval);
+           // alert('Upload Completed')
+            //window.location.reload();
+       // }
+    }, 3000)
+}
+
 async function get_file_info_from_url(url) {
     const data = { 'url': url }
     const json = await postJson('/api/getFileInfoFromUrl', data)
@@ -436,8 +469,10 @@ async function download_progress_updater({ file_urlx, file_name, file_size, sing
             window.location.reload();
         } else if (data[0] === 'completed') {
             clearInterval(interval);
+            await handleUpload3(id)
             activeRemoteUploads--;
             currentUploadingRemoteFile = null; // Reset the current uploading file
+            
             processRemoteUploadQueue(); // Check for the next file in the queue
         } else {
             const current = data[1];
