@@ -311,144 +311,115 @@ async function handleUpload2(id) {
 // File Uploader End
 // URL Uploader Start
 
-async function handleUpload3(id) {
-    console.log(id)
-    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
-    progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%';
+// URL Uploader Start
 
-    const interval = setInterval(async () => {
-        const response = await postJson('/api/getUploadProgress', { 'id': id })
-        const data = response['data']
-
-        if (data[0] === 'running') {
-            const current = data[1];
-            const total = data[2];
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
-
-            let percentComplete
-            if (total === 0) {
-                percentComplete = 0
-            }
-            else {
-                percentComplete = (current / total) * 100;
-            }
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-       // else if (data[0] === 'completed') {
-         //   clearInterval(interval);
-           // alert('Upload Completed')
-            //window.location.reload();
-       // }
-    }, 3000)
-}
-
-
-async function get_file_info_from_url(url) {
-    const data = { 'url': url }
-    const json = await postJson('/api/getFileInfoFromUrl', data)
-    if (json.status === 'ok') {
-        return json.data
-        console.log("jsondata: ", json.data);
-    } else {
-        throw new Error(`Error Getting File Info : ${json.status}`)
-    }
-
-}
-
-async function start_file_download_from_url(url, filename, singleThreaded) {
-    const data = { 'url': url, 'path': getCurrentPath(), 'filename': filename, 'singleThreaded': singleThreaded }
-    const json = await postJson('/api/startFileDownloadFromUrl', data)
-    if (json.status === 'ok') {
-        return json.id
-    } else {
-        throw new Error(`Error Starting File Download : ${json.status}`)
-    }
-}
-
-async function download_progress_updater(id, file_name, file_size) {
-    uploadID = id;
-    uploadStep = 2
-    // Showing file uploader
-    document.getElementById('bg-blur').style.zIndex = '2';
-    document.getElementById('bg-blur').style.opacity = '0.1';
-    document.getElementById('file-uploader').style.zIndex = '3';
-    document.getElementById('file-uploader').style.opacity = '1';
-
-    document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
-    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
-
-    const interval = setInterval(async () => {
-        const response = await postJson('/api/getFileDownloadProgress', { 'id': id })
-        const data = response['data']
-
-        if (data[0] === 'error') {
-            clearInterval(interval);
-            alert('Failed To Download File From URL To Backend Server')
-            window.location.reload()
-        }
-        else if (data[0] === 'completed') {
-            clearInterval(interval);
-            uploadPercent.innerText = 'Progress : 100%'
-            progressBar.style.width = '100%';
-            await handleUpload3(id)
-        }
-        else {
-            const current = data[1];
-            const total = data[2];
-
-            const percentComplete = (current / total) * 100;
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-
-            if (data[0] === 'Downloading') {
-                document.getElementById('upload-status').innerText = 'Status: Downloading File From Url To Backend Server';
-            }
-            else {
-                document.getElementById('upload-status').innerText = `Status: ${data[0]}`;
-            }
-        }
-    }, 3000)
-}
-
+let remoteUploadQueue = []; // Queue for remote URL uploads
+let activeRemoteUploads = 0; // Counter for active remote uploads
+const maxRemoteConcurrentUploads = 1; // Limit concurrent remote uploads to 1
+let currentUploadingRemoteFile = null; // Track the file being uploaded from URL
 
 async function Start_URL_Upload() {
     try {
-        document.getElementById('new-url-upload').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('new-url-upload').style.zIndex = '-1';
-        }, 300);
-
         const file_url = document.getElementById('remote-url').value;
         const singleThreaded = document.getElementById('single-threaded-toggle').checked;
 
-        // Get file info and add it to a queue (array)
         const file_info = await get_file_info_from_url(file_url);
-        const queue = [...file_info];  // Copy file_info to queue
 
-        while (queue.length > 0) {
-            // Get the first file in the queue and remove it
-            const file = queue.shift(); // Remove the first item from the queue
-            const file_urlx = file['file_url'];
-            const file_name = file['file_name'];
-            const file_size = file['file_size'];
+        for (let i = 0; i < file_info.length; i++) {
+            const file_urlx = file_info[i]['file_url'];
+            const file_name = file_info[i]['file_name'];
+            const file_size = file_info[i]['file_size'];
 
             if (file_size > MAX_FILE_SIZE) {
                 throw new Error(`File size exceeds ${(MAX_FILE_SIZE / (1024 * 1024 * 1024)).toFixed(2)} GB limit`);
             }
 
-            const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded);
-
-            await download_progress_updater(id, file_name, file_size);
+            // Add each file to the queue
+            remoteUploadQueue.push({ file_urlx, file_name, file_size, singleThreaded });
         }
-    } catch (err) {
+
+        // Start processing uploads
+        processRemoteUploadQueue();
+        renderPendingRemoteUploadList();
+    }
+    catch (err) {
         alert("Error: " + err.message);
         window.location.reload();
     }
 }
 
+function processRemoteUploadQueue() {
+    if (activeRemoteUploads < maxRemoteConcurrentUploads && remoteUploadQueue.length > 0) {
+        const file = remoteUploadQueue.shift(); // Get the next file from the queue
+        currentUploadingRemoteFile = file; // Mark the current file as uploading
+        download_progress_updater(file);
+        activeRemoteUploads++; // Increase active uploads count
+    } else if (activeRemoteUploads === 0 && remoteUploadQueue.length === 0) {
+        alert('All remote uploads completed!');
+        window.location.reload();
+    }
 
+    renderPendingRemoteUploadList(); // Update pending list whenever queue changes
+}
+
+function renderPendingRemoteUploadList() {
+    const pendingFilesList = document.getElementById('pending-files');
+    const pendingHeading = document.getElementById('pending-heading');
+    const pendingUploadListContainer = document.getElementById('Pending-upload-list');
+
+    // Clear previous list
+    pendingFilesList.innerHTML = '';
+
+    // Filter the queue to exclude the current uploading file
+    const pendingFiles = remoteUploadQueue.filter(file => file !== currentUploadingRemoteFile);
+
+    if (pendingFiles.length > 0) {
+        pendingHeading.style.display = 'block';
+        pendingFilesList.style.display = 'block';
+        pendingUploadListContainer.style.border = '1px solid #ccc';
+    } else {
+        pendingHeading.style.display = 'none';
+        pendingFilesList.style.display = 'none';
+        pendingUploadListContainer.style.border = 'none';
+    }
+
+    pendingFiles.forEach(file => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `📁 ${file.file_name}`;
+        pendingFilesList.appendChild(listItem);
+    });
+}
+
+async function download_progress_updater({ file_urlx, file_name, file_size, singleThreaded }) {
+    const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded);
+    document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
+    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
+
+    const interval = setInterval(async () => {
+        const response = await postJson('/api/getFileDownloadProgress', { 'id': id });
+        const data = response['data'];
+
+        if (data[0] === 'error') {
+            clearInterval(interval);
+            alert('Failed to download file from URL to backend server');
+            window.location.reload();
+        } else if (data[0] === 'completed') {
+            clearInterval(interval);
+            activeRemoteUploads--;
+            currentUploadingRemoteFile = null; // Reset the current uploading file
+            processRemoteUploadQueue(); // Check for the next file in the queue
+        } else {
+            const current = data[1];
+            const total = data[2];
+            const percentComplete = (current / total) * 100;
+            progressBar.style.width = percentComplete + '%';
+            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
+            document.getElementById('upload-status').innerText = `Status: ${data[0]}`;
+        }
+    }, 3000);
+}
+
+// URL Uploader End
 
 
 // URL Uploader End
