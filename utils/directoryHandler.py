@@ -263,7 +263,7 @@ class NewDriveData:
         elif path=="/":
             root_dir = self.get_directory("/")
         else:   
-            root_dir = self.get_directory2(path)
+            root_dir = self.get_directory(path)
         search_results = {}
 
         def traverse_directory(folder):
