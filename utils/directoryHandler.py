@@ -257,13 +257,13 @@ class NewDriveData:
 
         return folder_data
     
-    def search_file_folder(self, query: str, path: str):
+    def search_file_folder(self, query: str, path: str, is_admin: bool, auth: str):
         if path=="":
             root_dir = self.get_directory("/")
         elif path=="/":
             root_dir = self.get_directory("/")
         else:   
-            root_dir = self.get_directory(path)
+            root_dir = self.get_directory(path, is_admin, auth)
         search_results = {}
 
         def traverse_directory(folder):
