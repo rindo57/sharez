@@ -330,6 +330,16 @@ async function get_file_info_from_url(url) {
 
 }
 
+async function start_file_download_from_url(url, filename, singleThreaded) {
+    const data = { 'url': url, 'path': getCurrentPath(), 'filename': filename, 'singleThreaded': singleThreaded }
+    const json = await postJson('/api/startFileDownloadFromUrl', data)
+    if (json.status === 'ok') {
+        return json.id
+    } else {
+        throw new Error(`Error Starting File Download : ${json.status}`)
+    }
+}
+
 async function Start_URL_Upload() {
     try {
         document.getElementById('new-url-upload').style.opacity = '0';
