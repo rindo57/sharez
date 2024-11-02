@@ -130,7 +130,7 @@ async def api_get_directory(request: Request):
         data = {"contents": DRIVE_DATA.search_file_folder(query, path)}
         print(data)
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
-        print(folder_data)
+        print("folder data: ", folder_data)
 
     elif "/share_" in data["path"]:
         if "/query_" in data["path"]:
@@ -140,8 +140,10 @@ async def api_get_directory(request: Request):
                 path = match.group(1)
                 query = unquote(data["path"].split('query_')[1])
                 data, auth_home_path = DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)
+                print("share data: ", data)
                 auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
                 folder_data = convert_class_to_dict(data, isObject=True, showtrash=False)
+                print("share seach folder data: ", folder_data)
                 return JSONResponse(
                     {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
                 )
