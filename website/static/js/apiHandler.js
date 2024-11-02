@@ -449,9 +449,39 @@ function renderPendingRemoteUploadList() {
 
     pendingFiles.forEach(file => {
         const listItem = document.createElement('li');
-        listItem.textContent = `📁 ${file.file_name}`;
-        pendingFilesList.appendChild(listItem);
+        listItem.style.display = 'flex'; // Use flexbox for inline items
+        listItem.style.justifyContent = 'space-between'; // Spread items across the row
+        listItem.style.alignItems = 'center'; // Vertically align items in the center
+        listItem.style.marginBottom = '5px'; // Add margin between items
+        listItem.style.flexWrap = 'nowrap'; // Prevent line breaks for the elements
+
+        const fileNameSpan = document.createElement('span');
+        fileNameSpan.textContent = `📁 ${file.file_name}`; // Prepend the emoji to the filename
+        fileNameSpan.style.overflow = 'hidden'; // Ensure long names don't overflow
+        fileNameSpan.style.textOverflow = 'ellipsis'; // Add ellipsis for long names
+        fileNameSpan.style.whiteSpace = 'nowrap'; // Prevent filename from wrapping
+        fileNameSpan.style.flexGrow = '1'; // Ensure the filename takes the remaining space
+        fileNameSpan.style.marginRight = '10px'; // Add some spacing between filename and remove button
+        fileNameSpan.style.maxWidth = '300px'; // Set a fixed width where ellipsis will kick in
+
+        // Create a remove button
+        const removeButton = document.createElement('button');
+        removeButton.textContent = '❌';
+        removeButton.onclick = () => removeFile(file); // Bind the remove function to the button
+
+        listItem.appendChild(fileNameSpan); // Add the filename span to the list item
+        listItem.appendChild(removeButton); // Add the remove button inline with the filename
+        pendingFilesList.appendChild(listItem); // Add the list item to the pending files list
     });
+}
+
+function removeFile(fileToRemove) {
+    // Remove the file from the upload queue
+    remoteUploadQueue = remoteUploadQueue.filter(file => file.file_name !== fileToRemove.file_name);
+
+    // Re-render the pending upload list
+    renderPendingRemoteUploadList();
+
 }
 
 async function download_progress_updater({ file_urlx, file_name, file_size, singleThreaded }) {
