@@ -318,6 +318,18 @@ let activeRemoteUploads = 0; // Counter for active remote uploads
 const maxRemoteConcurrentUploads = 1; // Limit concurrent remote uploads to 1
 let currentUploadingRemoteFile = null; // Track the file being uploaded from URL
 
+async function get_file_info_from_url(url) {
+    const data = { 'url': url }
+    const json = await postJson('/api/getFileInfoFromUrl', data)
+    if (json.status === 'ok') {
+        return json.data
+        console.log("jsondata: ", json.data);
+    } else {
+        throw new Error(`Error Getting File Info : ${json.status}`)
+    }
+
+}
+
 async function Start_URL_Upload() {
     try {
         document.getElementById('new-url-upload').style.opacity = '0';
