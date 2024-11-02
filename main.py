@@ -121,23 +121,25 @@ async def api_get_directory(request: Request):
         data = {"contents": DRIVE_DATA.get_trashed_files_folders()}
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=True)
 
-    elif "/search_" in data["path"]:
-        query = urllib.parse.unquote(data["path"].split("_", 1)[1])
-        print(query)
-        data = {"contents": DRIVE_DATA.search_file_folder(query)}
-        print(data)
-        folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
-        print(folder_data)
 
     elif "/search_" in data["path"]:
         query = urllib.parse.unquote(data["path"].split("_", 1)[1])
         segments = data["path"].split('/')
         path = '/'.join(segments[:-1]) 
         print(query)
-        data = {"contents": DRIVE_DATA.search_file_folder(query, path)}
+        data = {"contents": DRIVE_DATA.search_file_folder(query, path, is_admin, auth)}
         print(data)
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
         print(folder_data)
+
+    elif "/share_" in data["path"]:
+        path = data["path"].split("_", 1)[1]
+        folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
+        auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
+        folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
+        return JSONResponse(
+            {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
+        )
 
     else:
         folder_data = DRIVE_DATA.get_directory(data["path"])
