@@ -127,7 +127,7 @@ async def api_get_directory(request: Request):
         segments = data["path"].split('/')
         path = '/'.join(segments[:-1]) 
         print(query)
-        data = {"contents": DRIVE_DATA.search_file_folder(query, path, is_admin, auth)}
+        data = {"contents": DRIVE_DATA.search_file_folder(query, path)}
         print(data)
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
         print(folder_data)
