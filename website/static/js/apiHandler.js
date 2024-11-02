@@ -417,7 +417,7 @@ function processRemoteUploadQueue() {
         const file = remoteUploadQueue.shift(); // Get the next file from the queue
         currentUploadingRemoteFile = file; // Mark the current file as uploading
         download_progress_updater(file);
-        activeRemoteUploads++; // Increase active uploads count
+        //activeRemoteUploads++; // Increase active uploads count
     } else if (activeRemoteUploads === 0 && remoteUploadQueue.length === 0) {
         alert('All remote uploads completed!');
         window.location.reload();
@@ -455,6 +455,7 @@ function renderPendingRemoteUploadList() {
 }
 
 async function download_progress_updater({ file_urlx, file_name, file_size, singleThreaded }) {
+    activeRemoteUploads++;
     const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded);
     document.getElementById('bg-blur').style.zIndex = '2';
     document.getElementById('bg-blur').style.opacity = '0.1';
@@ -474,8 +475,8 @@ async function download_progress_updater({ file_urlx, file_name, file_size, sing
             window.location.reload();
         } else if (data[0] === 'completed') {
             clearInterval(interval);
-            //uploadPercent.innerText = 'Progress : 100%'
-            //progressBar.style.width = '100%';
+            uploadPercent.innerText = 'Progress : 100%'
+            progressBar.style.width = '100%';
             await handleUpload3(id)
         } else {
             const current = data[1];
