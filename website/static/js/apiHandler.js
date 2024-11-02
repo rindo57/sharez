@@ -418,6 +418,11 @@ function renderPendingRemoteUploadList() {
 
 async function download_progress_updater({ file_urlx, file_name, file_size, singleThreaded }) {
     const id = await start_file_download_from_url(file_urlx, file_name, singleThreaded);
+    document.getElementById('bg-blur').style.zIndex = '2';
+    document.getElementById('bg-blur').style.opacity = '0.1';
+    document.getElementById('file-uploader').style.zIndex = '3';
+    document.getElementById('file-uploader').style.opacity = '1';
+
     document.getElementById('upload-filename').innerText = 'Filename: ' + file_name;
     document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file_size / (1024 * 1024)).toFixed(2) + ' MB';
 
@@ -440,9 +445,14 @@ async function download_progress_updater({ file_urlx, file_name, file_size, sing
             const percentComplete = (current / total) * 100;
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-            document.getElementById('upload-status').innerText = `Status: ${data[0]}`;
+            if (data[0] === 'Downloading') {
+                document.getElementById('upload-status').innerText = 'Status: Downloading File From Url To Backend Server';
+            }
+            else {
+                document.getElementById('upload-status').innerText = `Status: ${data[0]}`;
+            }
         }
-    }, 3000);
+    }, 3000)
 }
 
 // URL Uploader End
