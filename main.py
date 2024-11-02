@@ -115,8 +115,10 @@ async def api_get_directory(request: Request):
 
     #auth = data.get("auth")
     auth = data.get("auth")
+    
     if auth:
         auth = auth.split('/')[0]
+        data["auth"] = auth
     else:
         auth = None
 
@@ -139,6 +141,7 @@ async def api_get_directory(request: Request):
         print("folder data: ", folder_data)
 
     elif "/share_" in data["path"]:
+        print("data[path]", data["path"])
         if "/query_" in data["path"]:
             print("data[path]", data["path"])
             pattern = r"/share_(.+?)&"
