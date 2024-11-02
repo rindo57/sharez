@@ -65,22 +65,29 @@ function showDirectory(data) {
 document.getElementById('search-form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const query = document.getElementById('file-search').value;
-    console.log(query)
+    console.log(query);
+
     if (query === '') {
         alert('Search field is empty');
         return;
     }
+
     let currentPath = getCurrentPath();
-// Check if the current path ends with "search_xyz" and remove it
-    if (getCurrentPath().includes('/share_')){
-        const path = '/?path=' +  currentPath + '/query_' + encodeURI(query);
+    let path;  // Declare path outside of the if-else blocks
+
+    // Check if the current path contains "/share_"
+    if (currentPath.includes('/share_')) {
+        currentPath = currentPath.replace(/\/query_.+$/, '');
+        path = '/?path=' + currentPath + '/query_' + encodeURIComponent(query);
     } else {
-        currentPath = currentPath.replace('share_', '')
-        currentPath = currentPath.replace(/\/search_.+$/, '')
-        const path = '/?path=' +  currentPath + '/search_' + encodeURI(query);
+        // Remove "share_" and anything after "search_" from currentPath
+        currentPath = currentPath.replace('share_', '');
+        currentPath = currentPath.replace(/\/search_.+$/, '');
+        path = '/?path=' + currentPath + '/search_' + encodeURIComponent(query);
     }
-    console.log(path)
-    window.location = path;
+
+    console.log(path);
+    window.location = path;  // Redirect to the constructed path
 });
 
 // Loading Main Page
