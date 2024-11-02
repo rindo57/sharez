@@ -136,6 +136,38 @@ class NewDriveData:
 
         return folder_data
 
+    def get_directory2(
+        self, path: str, is_admin: bool = True, auth: str = None
+    ) -> Folder:
+        folder_data: Folder = self.contents["/"]
+        auth_success = False
+        auth_home_path = None
+
+        if path != "/":
+            path = path.strip("/")
+
+            if "/" in path:
+                path = path.split("/")
+            else:
+                path = [path]
+
+            for folder in path:
+                folder_data = folder_data.contents[folder]
+
+                #if auth in folder_data.auth_hashes:
+                auth_success = True
+                auth_home_path = (
+                    "/" + folder_data.path.strip("/") + "/" + folder_data.id
+                )
+
+        if not is_admin and not auth_success:
+            return None
+
+        if auth_success:
+            return folder_data, auth_home_path
+
+        return folder_data
+        
     def get_folder_auth(self, path: str) -> None:
         auth = getRandomID()
         folder_data: Folder = self.contents["/"]
@@ -252,7 +284,7 @@ class NewDriveData:
         elif path=="/":
             root_dir, auth_home_path = self.get_directory("/", is_admin, auth)
         else:   
-            root_dir, auth_home_path = self.get_directory(path, is_admin, auth)
+            root_dir, auth_home_path = self.get_directory2(path, is_admin, auth)
             print(root_dir)
         search_results = {}
 
