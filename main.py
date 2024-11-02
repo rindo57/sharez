@@ -114,7 +114,12 @@ async def api_get_directory(request: Request):
         is_admin = False
 
     #auth = data.get("auth")
-    auth = data.split('=')[1].split('/')[0]
+    auth = data.get("auth")
+    if auth:
+        auth = auth.split('/')[0]
+    else:
+        auth = None
+
     print("THIS IS AUTH: ", auth)
     logger.info(f"getFolder {data}")
 
