@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (getCurrentPath().includes('/share_')) {
         getCurrentDirectory()
-    } else if (getcurrentPath().includes('/search')) {
+    } else if (getCurrentPath().includes('/search')) {
         getCurrentDirectory()
      // Add your specific logic for the '/search' path here
        // handleSearchPath()
