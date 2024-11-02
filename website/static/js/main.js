@@ -93,11 +93,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (getCurrentPath().includes('/share_')) {
         getCurrentDirectory()
-    } else if (getCurrentPath().includes('/search')) {
-        getCurrentDirectory()
+  } 
+    //else if (getCurrentPath().includes('/search')) {
+       // getCurrentDirectory()
      // Add your specific logic for the '/search' path here
        // handleSearchPath()
-    } else {
+   // } 
+    else {
         if (getPassword() === null) {
             document.getElementById('bg-blur').style.zIndex = '2';
             document.getElementById('bg-blur').style.opacity = '0.1';
