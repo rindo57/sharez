@@ -343,16 +343,16 @@ async function handleUpload3(id) {
             progressBar.style.width = percentComplete + '%';
             uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
         }
-       //else if (data[0] === 'completed') {
-            //clearInterval(interval);
-            //activeRemoteUploads--;
+       else if (data[0] === 'completed') {
+            clearInterval(interval);
+            activeRemoteUploads--;
             //currentUploadingRemoteFile = null; // Reset the current uploading file
             
-            //processRemoteUploadQueue(); // Check for the next file in the queue
+            processRemoteUploadQueue(); // Check for the next file in the queue
          //   clearInterval(interval);
            // alert('Upload Completed')
             //window.location.reload();
-      // }
+      }
     }, 3000)
 }
 
@@ -474,14 +474,9 @@ async function download_progress_updater({ file_urlx, file_name, file_size, sing
             window.location.reload();
         } else if (data[0] === 'completed') {
             clearInterval(interval);
-            uploadPercent.innerText = 'Progress : 100%'
-            progressBar.style.width = '100%';
-            await handleUpload3(id).then(() => {
-                activeRemoteUploads--;
-                currentUploadingRemoteFile = null; // Clear the current file
-                processRemoteUploadQueue(); // Move to the next file in the queue
-            });
-
+            //uploadPercent.innerText = 'Progress : 100%'
+            //progressBar.style.width = '100%';
+            await handleUpload3(id)
         } else {
             const current = data[1];
             const total = data[2];
