@@ -113,7 +113,8 @@ async def api_get_directory(request: Request):
     else:
         is_admin = False
 
-    auth = data.get("auth")
+    #auth = data.get("auth")
+    auth = data.split('=')[1].split('/')[0]
     print("THIS IS AUTH: ", auth)
     logger.info(f"getFolder {data}")
 
@@ -134,12 +135,13 @@ async def api_get_directory(request: Request):
 
     elif "/share_" in data["path"]:
         if "/query_" in data["path"]:
+            print("data["path"]", data["path"])
             pattern = r"/share_(.+?)/query_"
             match = re.search(pattern, data["path"])
             if match:
                 path = match.group(1)
                 query = urllib.parse.unquote(data["path"].split('query_')[1])
-                auth = data["path"].split('=')[1].split('/')[0] 
+               # auth = data["path"].split('=')[1].split('/')[0] 
                 print("THIS AUTH", auth)
                 fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
                 data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
@@ -150,6 +152,8 @@ async def api_get_directory(request: Request):
                 return JSONResponse(
                     {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
                 )
+            else:
+                print("SOMETHING WRONG")
         else:
             path = data["path"].split("_", 1)[1]
             folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
