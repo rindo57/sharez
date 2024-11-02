@@ -16,7 +16,7 @@ from utils.streamer import media_streamer
 from utils.uploader import start_file_uploader
 from utils.logger import Logger
 import urllib.parse
-
+import re
 
 # Startup Event
 @asynccontextmanager
@@ -114,7 +114,7 @@ async def api_get_directory(request: Request):
         is_admin = False
 
     auth = data.get("auth")
-
+    print("THIS IS AUTH: ", auth)
     logger.info(f"getFolder {data}")
 
     if data["path"] == "/trash":
@@ -133,13 +133,26 @@ async def api_get_directory(request: Request):
         print(folder_data)
 
     elif "/share_" in data["path"]:
-        path = data["path"].split("_", 1)[1]
-        folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
-        auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
-        folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
-        return JSONResponse(
-            {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
-        )
+        if "/query_" in data["path"]:
+            pattern = r"/share_(.+?)/query_"
+            match = re.search(pattern, url)
+            if match:
+                path = match.group(1)
+                query = unquote(data["path"].split('query_')[1])
+                folder_data, auth_home_path = DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
+                auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
+                folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
+                return JSONResponse(
+                    {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
+                )
+        else:
+            path = data["path"].split("_", 1)[1]
+            folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
+            auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
+            folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
+            return JSONResponse(
+                {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
+            )
 
     else:
         folder_data = DRIVE_DATA.get_directory(data["path"])
