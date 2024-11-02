@@ -225,13 +225,45 @@ class NewDriveData:
         del folder_data.contents[file_id]
         self.save()
 
+    def get_directory2(
+        self, path: str, is_admin: bool = False, auth: str = None
+    ) -> Folder:
+        folder_data: Folder = self.contents["/"]
+        auth_success = False
+        auth_home_path = None
+
+        if path != "/":
+            path = path.strip("/")
+
+            if "/" in path:
+                path = path.split("/")
+            else:
+                path = [path]
+
+            for folder in path:
+                folder_data = folder_data.contents[folder]
+
+                if auth in folder_data.auth_hashes:
+                    auth_success = True
+                    auth_home_path = (
+                        "/" + folder_data.path.strip("/") + "/" + folder_data.id
+                    )
+
+        if not is_admin and not auth_success:
+            return folder_data, auth_home_path
+
+        if auth_success:
+            return folder_data, auth_home_path
+
+        return folder_data
+    
     def search_file_folder(self, query: str, path: str):
         if path=="":
             root_dir = self.get_directory("/")
         elif path=="/":
             root_dir = self.get_directory("/")
         else:   
-            root_dir = self.get_directory(path)
+            root_dir = self.get_directory2(path)
         search_results = {}
 
         def traverse_directory(folder):
