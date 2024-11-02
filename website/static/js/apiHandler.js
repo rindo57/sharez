@@ -49,12 +49,12 @@ async function getCurrentDirectory() {
                     sections[0].setAttribute('class', 'unselected-item');
                 }
                 sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
-            } else if (getCurrentPath().includes('/search_')) {
-                const sidebarmenu = document.querySelector('.sidebar-menu');
-                if (sidebarmenu) {
-                    sidebarmenu.style.display = 'none';
-                }
-            }
+            }// else if (getCurrentPath().includes('/search_')) {
+                //const sidebarmenu = document.querySelector('.sidebar-menu');
+              //  if (sidebarmenu) {
+                   // sidebarmenu.style.display = 'none';
+                //}
+          //  }
 
             showDirectory(json['data']);
         } else {
