@@ -152,13 +152,23 @@ async def api_get_directory(request: Request):
             fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
             print("fdata: ", fdata)
             print("auth home path: ", auth_home_path)
-            data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
-            print("share data: ", data)
+           # data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
+          #  print("share data: ", data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
-            folder_data = convert_class_to_dict(data, isObject=True, showtrash=False)
-            print("share seach folder data: ", folder_data)
+            folder = convert_class_to_dict(fdata, isObject=True, showtrash=False)
+            def traverse_directory(folder):
+                search_results = {}
+                for item in folder.contents.values():
+                    if query.lower() in item.name.lower():
+                        search_results[item.id] = item
+                    if item.type == "folder":
+                        traverse_directory(item)
+                return search_data
+            search_data = traverse_directory(folder)
+            datax = {"contents": search_data}
+            print("share seach folder data: ", search_data)
             return JSONResponse(
-                {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
+                {"status": "ok", "data": datax, "auth_home_path": auth_home_path}
             )
         else:
             path = data["path"].split("_", 1)[1]
