@@ -116,9 +116,7 @@ async def api_get_directory(request: Request):
     #auth = data.get("auth")
     auth = data.get("auth")
 
-    authx = data.get("auth")
-    print("authx: ", authx)
-    print(data.get("query"))
+    query = data.get("query"))
     if auth:
         auth = auth.split('/')[0]
         data["auth"] = auth
@@ -145,10 +143,9 @@ async def api_get_directory(request: Request):
 
     elif "/share_" in data["path"]:
         print("data[path]", data["path"])
-        if "/query_" in authx:
+        if query:
 
             path = data["path"].split("_", 1)[1]
-            query = urllib.parse.unquote(authx.split("query_")[1])
             print("query: ", query)
                # auth = data["path"].split('=')[1].split('/')[0] 
             print("THIS AUTH", auth)
@@ -174,6 +171,7 @@ async def api_get_directory(request: Request):
             return JSONResponse(
                 {"status": "ok", "data": finaldata, "auth_home_path": auth_home_path}
             )
+        
         else:
             path = data["path"].split("_", 1)[1]
             folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
