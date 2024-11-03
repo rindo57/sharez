@@ -36,7 +36,7 @@ async function getCurrentDirectory() {
     }
     try {
         const auth = getFolderAuthFromPath();
-        const auth = getFolderQueryFromPath();
+        const query = getFolderQueryFromPath();
         const data = { 'path': path, 'auth': auth, 'query': query };
         const json = await postJson('/api/getDirectory', data);
 
