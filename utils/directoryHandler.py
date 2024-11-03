@@ -160,11 +160,6 @@ class NewDriveData:
                     "/" + folder_data.path.strip("/") + "/" + folder_data.id
                 )
 
-        if not is_admin and not auth_success:
-            return None
-
-        if auth_success:
-            return folder_data, auth_home_path
 
         return folder_data
         
@@ -284,7 +279,7 @@ class NewDriveData:
         elif path=="/":
             root_dir, auth_home_path = self.get_directory("/", is_admin, auth)
         else:   
-            root_dir = self.get_directory(path)
+            root_dir = self.get_directory2(path)
             print(root_dir)
         search_results = {}
 
@@ -296,7 +291,7 @@ class NewDriveData:
                     traverse_directory(item)
 
         traverse_directory(root_dir)
-        return search_results, auth_home_path
+        return search_results
 
 class NewBotMode:
     def __init__(self, drive_data: NewDriveData) -> None:
