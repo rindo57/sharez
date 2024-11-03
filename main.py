@@ -165,11 +165,12 @@ async def api_get_directory(request: Request):
                         traverse_directory(item)
                 return search_results
             search_data = traverse_directory(folder['contents'], query)
-            print("share seach folder data: ", search_data)
+            finaldata =  {"contents": search_data}
+            print("share seach folder data:", finaldata)
             
            
             return JSONResponse(
-                {"status": "ok", "data": search_data, "auth_home_path": auth_home_path}
+                {"status": "ok", "data": finaldata, "auth_home_path": auth_home_path}
             )
         else:
             path = data["path"].split("_", 1)[1]
