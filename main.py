@@ -144,35 +144,34 @@ async def api_get_directory(request: Request):
     elif "/share_" in data["path"]:
         print("data[path]", data["path"])
         if "/query_" in authx:
-            print("data[path]", data["path"])
+
             path = data["path"].split("_", 1)[1]
             query = urllib.parse.unquote(authx.split("query_")[1])
+            print("query: ", query)
                # auth = data["path"].split('=')[1].split('/')[0] 
             print("THIS AUTH", auth)
             fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
             print("fdata: ", fdata)
             print("auth home path: ", auth_home_path)
-           # data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
-          #  print("share data: ", data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
-            
-            datax = {"contents": fdata}
+
             print("datax: ", datax)
-            def traverse_directory(folder):
+
+            folder = convert_class_to_dict(fdata, isObject=True, showtrash=False)
+            def traverse_directory(folder, query):
                 search_results = {}
-                for item in folder.contents.values():
-                    if query.lower() in item.name.lower():
-                        search_results[item.id] = item
-                    if item.type == "folder":
-                        traverse_directory(item)
-                return search_data
-            search_data = traverse_directory(datax)
+                for item in folder.values():
+                    if query.lower() in item["name"].lower():
+                        search_results[item['id']] = item
+                    if item['type'] == "folder":
+                traverse_directory(item)
+                return search_results
+            search_data = traverse_directory(folder["contents'], query)
             print("share seach folder data: ", search_data)
-            folder = convert_class_to_dict(search_data, isObject=True, showtrash=False)
             
            
             return JSONResponse(
-                {"status": "ok", "data": datax, "auth_home_path": auth_home_path}
+                {"status": "ok", "data": search_data, "auth_home_path": auth_home_path}
             )
         else:
             path = data["path"].split("_", 1)[1]
