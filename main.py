@@ -115,7 +115,7 @@ async def api_get_directory(request: Request):
 
     #auth = data.get("auth")
     auth = data.get("auth")
-    authx = auth
+    authx = data.get("auth")
     print("authx: ", authx)
     if auth:
         auth = auth.split('/')[0]
@@ -145,24 +145,19 @@ async def api_get_directory(request: Request):
         print("data[path]", data["path"])
         if "/query_" in authx:
             print("data[path]", data["path"])
-            pattern = r"/share_(.+?)&"
-            match = re.search(pattern, data["path"])
-            if match:
-                path = match.group(1)
-                query = urllib.parse.unquote(authx.split("query_")[1])
+            path = data["path"].split("_", 1)[1]
+            query = urllib.parse.unquote(authx.split("query_")[1])
                # auth = data["path"].split('=')[1].split('/')[0] 
-                print("THIS AUTH", auth)
-                fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
-                data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
-                print("share data: ", data)
-                auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
-                folder_data = convert_class_to_dict(data, isObject=True, showtrash=False)
-                print("share seach folder data: ", folder_data)
-                return JSONResponse(
-                    {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
-                )
-            else:
-                print("SOMETHING WRONG")
+            print("THIS AUTH", auth)
+            fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
+            data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
+            print("share data: ", data)
+            auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
+            folder_data = convert_class_to_dict(data, isObject=True, showtrash=False)
+            print("share seach folder data: ", folder_data)
+            return JSONResponse(
+                {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
+            )
         else:
             path = data["path"].split("_", 1)[1]
             folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
