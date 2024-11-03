@@ -166,7 +166,7 @@ async def api_get_directory(request: Request):
                     if item['type'] == "folder":
                         traverse_directory(item)
                 return search_results
-            search_data = traverse_directory(folder["contents'], query)
+            search_data = traverse_directory(folder['contents'], query)
             print("share seach folder data: ", search_data)
             
            
