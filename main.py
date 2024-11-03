@@ -115,7 +115,8 @@ async def api_get_directory(request: Request):
 
     #auth = data.get("auth")
     auth = data.get("auth")
-    
+    authx = auth
+    print("authx; " authx)
     if auth:
         auth = auth.split('/')[0]
         data["auth"] = auth
@@ -142,13 +143,13 @@ async def api_get_directory(request: Request):
 
     elif "/share_" in data["path"]:
         print("data[path]", data["path"])
-        if "/query_" in data["path"]:
+        if "/query_" in authx:
             print("data[path]", data["path"])
             pattern = r"/share_(.+?)&"
             match = re.search(pattern, data["path"])
             if match:
                 path = match.group(1)
-                query = urllib.parse.unquote(data["path"].split('query_')[1])
+                query = urllib.parse.unquote(authx.split("query_")[1])
                # auth = data["path"].split('=')[1].split('/')[0] 
                 print("THIS AUTH", auth)
                 fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
