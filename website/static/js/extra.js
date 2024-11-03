@@ -16,7 +16,7 @@ function getFolderAuthFromPath() {
 
 function getFolderQueryFromPath() {
     const url = new URL(window.location.href);
-    const auth = url.searchParams.get('query')
+    const query = url.searchParams.get('query')
     return query
 }
 
