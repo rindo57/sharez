@@ -155,8 +155,6 @@ async def api_get_directory(request: Request):
             print("auth home path: ", auth_home_path)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
 
-            print("datax: ", datax)
-
             folder = convert_class_to_dict(fdata, isObject=True, showtrash=False)
             def traverse_directory(folder, query):
                 search_results = {}
