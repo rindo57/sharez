@@ -155,7 +155,9 @@ async def api_get_directory(request: Request):
            # data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
           #  print("share data: ", data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
-            folder = convert_class_to_dict(fdata, isObject=True, showtrash=False)
+            
+            datax = {"contents": fdata}
+            print("datax: ", datax)
             def traverse_directory(folder):
                 search_results = {}
                 for item in folder.contents.values():
@@ -164,9 +166,11 @@ async def api_get_directory(request: Request):
                     if item.type == "folder":
                         traverse_directory(item)
                 return search_data
-            search_data = traverse_directory(folder)
-            datax = {"contents": search_data}
+            search_data = traverse_directory(datax)
             print("share seach folder data: ", search_data)
+            folder = convert_class_to_dict(search_data, isObject=True, showtrash=False)
+            
+           
             return JSONResponse(
                 {"status": "ok", "data": datax, "auth_home_path": auth_home_path}
             )
