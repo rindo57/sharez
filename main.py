@@ -166,6 +166,7 @@ async def api_get_directory(request: Request):
             print("folder share data - ", folder_data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
             folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
+            print("final folder: ", folder_data)
             return JSONResponse(
                 {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
             )
