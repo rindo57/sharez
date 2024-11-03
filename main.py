@@ -150,6 +150,8 @@ async def api_get_directory(request: Request):
                # auth = data["path"].split('=')[1].split('/')[0] 
             print("THIS AUTH", auth)
             fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
+            print("fdata: ", fdata)
+            print("auth home path: " auth_home_path)
             data = {"contents": DRIVE_DATA.search_file_folder2(query, path, is_admin, auth)}
             print("share data: ", data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
@@ -161,6 +163,7 @@ async def api_get_directory(request: Request):
         else:
             path = data["path"].split("_", 1)[1]
             folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
+            print("folder share data - ", folder_data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
             folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
             return JSONResponse(
