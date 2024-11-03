@@ -116,7 +116,7 @@ async def api_get_directory(request: Request):
     #auth = data.get("auth")
     auth = data.get("auth")
 
-    query = data.get("query"))
+    query = data.get("query")
     if auth:
         auth = auth.split('/')[0]
         data["auth"] = auth
