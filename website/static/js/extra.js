@@ -14,6 +14,12 @@ function getFolderAuthFromPath() {
     return auth
 }
 
+function getFolderQueryFromPath() {
+    const url = new URL(window.location.href);
+    const auth = url.searchParams.get('query')
+    return query
+}
+
 // Changing sidebar section class
 if (getCurrentPath() !== '/') {
     const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a')
