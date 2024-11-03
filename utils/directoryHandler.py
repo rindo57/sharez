@@ -279,7 +279,7 @@ class NewDriveData:
         elif path=="/":
             root_dir, auth_home_path = self.get_directory("/", is_admin, auth)
         else:   
-            root_dir = self.get_directory2(path)
+            root_dir = self.get_directory(path)
             print(root_dir)
         search_results = {}
 
