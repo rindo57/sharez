@@ -80,7 +80,7 @@ async def static_files(file_path):
 async def dl_file(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
-    path = request.query_params["path"]
+    path = request.query_params["download"]
     file = DRIVE_DATA.get_file(path)
     return await media_streamer(STORAGE_CHANNEL, file.file_id, file.name, request)
 
