@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(docs_url=None, redoc_url=None, lifespan=lifespan)
 logger = Logger(__name__)
 
-security = HTTPBasic()
+'''security = HTTPBasic()
 
 # Replace these with your actual admin credentials
 ADMIN_USERNAME = "admin"
@@ -55,8 +55,8 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Basic"},
-        )
-@app.get("/", dependencies=[Depends(authenticate)])
+        )'''
+@app.get("/")
 async def home_page():
     return FileResponse("website/home.html")
 
