@@ -10,7 +10,7 @@ function openFolder() {
 
 function openFile() {
     const fileName = this.getAttribute('data-name').toLowerCase()
-    let path = '/file?path=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id')
+    let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id')
 
     if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
         path =  path
@@ -186,9 +186,9 @@ async function shareFile() {
 
     let link
     if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
-        link = `${root_url}/file?path=${path}`
+        link = `${root_url}/file?download=${path}`
     } else {
-        link = `${root_url}/file?path=${path}`
+        link = `${root_url}/file?download=${path}`
 
     }
 
