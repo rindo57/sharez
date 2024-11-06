@@ -5,7 +5,7 @@ function showDirectory(data) {
 
     let html = ''
 
-    // Step 2: Sort the array based on the 'date' values
+
     let entries = Object.entries(data);
     let folders = entries.filter(([key, value]) => value.type === 'folder');
     let files = entries.filter(([key, value]) => value.type === 'file');
