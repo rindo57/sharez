@@ -109,7 +109,7 @@ function getPassword() {
 }
 
 function getRandomId() {
-    const length = 6;
+    const length = 30;
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
