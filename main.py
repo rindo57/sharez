@@ -6,7 +6,7 @@ import asyncio
 from pathlib import Path
 from contextlib import asynccontextmanager
 import aiofiles
-from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response
+from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends
 from fastapi.responses import FileResponse, JSONResponse
 from config import ADMIN_PASSWORD, MAX_FILE_SIZE, STORAGE_CHANNEL
 from utils.clients import initialize_clients
@@ -17,6 +17,10 @@ from utils.uploader import start_file_uploader
 from utils.logger import Logger
 import urllib.parse
 import re
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
+
+
 
 # Startup Event
 @asynccontextmanager
@@ -36,8 +40,23 @@ async def lifespan(app: FastAPI):
 app = FastAPI(docs_url=None, redoc_url=None, lifespan=lifespan)
 logger = Logger(__name__)
 
+security = HTTPBasic()
 
-@app.get("/")
+# Replace these with your actual admin credentials
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "admin"
+
+# Authentication function
+def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = secrets.compare_digest(credentials.username, ADMIN_USERNAME)
+    correct_password = secrets.compare_digest(credentials.password, ADMIN_PASSWORD)
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+@app.get("/", dependencies=[Depends(authenticate)])
 async def home_page():
     return FileResponse("website/home.html")
 
