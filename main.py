@@ -90,6 +90,7 @@ async def generate_link(download_path: str):
     
 @app.get("/file")
 async def dl_file(request: Request):
+    from utils.directoryHandler import DRIVE_DATA
     path = request.query_params.get("download")
     token = request.query_params.get("token")
 
