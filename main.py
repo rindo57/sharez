@@ -64,7 +64,11 @@ TOKEN_EXPIRY_SECONDS = 3600
 async def home_page():
     return FileResponse("website/home.html")
 
-
+@app.get("/captcha", response_class=HTMLResponse)
+async def get_index():
+    with open("captcha.html", "r") as f:
+        return f.read()
+        
 @app.get("/stream")
 async def home_page():
     return FileResponse("website/VideoPlayer.html")
