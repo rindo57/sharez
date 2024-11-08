@@ -28,7 +28,7 @@ async function openFile() {
     const encodedIp = encodeBase64(ip);  // Convert IP to Base64
 
     const fileName = this.getAttribute('data-name').toLowerCase();
-    let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id') + '&ip=' + encodedIp;
+    let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
 
     if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
         path = path;
