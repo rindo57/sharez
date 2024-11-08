@@ -86,9 +86,18 @@ async def dl_file(request: Request):
     client_ip = request.client.host
     print("client ip", client_ip)
     pyip = base64.b64encode((client_ip).encode()).decode()
-    if javaip == pyip:
+    print(pyip)
+    if str(javaip) == str(pyip):
+        print("MATCH")
         file = DRIVE_DATA.get_file(path)
-    return await media_streamer(STORAGE_CHANNEL, file.file_id, file.name, request)
+        if file:
+            # Proceed to stream the file if found
+            return await media_streamer(STORAGE_CHANNEL, file.file_id, file.name, request)
+        else:
+            raise HTTPException(status_code=404, detail="File not found")
+    
+    # Return error if IPs do not match
+    raise HTTPException(status_code=403, detail="IP address mismatch")
 
 
 # Api Routes
