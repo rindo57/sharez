@@ -8,16 +8,45 @@ function openFolder() {
     window.location.href = `/?path=${path}`
 }
 
-function openFile() {
-    const fileName = this.getAttribute('data-name').toLowerCase()
-    let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id')
+async function getVisitorIp() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error("Error fetching IP:", error);
+    }
+}
+
+function encodeBase64(str) {
+    return btoa(str);  // Converts the string to Base64
+}
+
+async function openFile() {
+    const ip = await getVisitorIp();
+    console.log("Visitor IP:", ip);
+    const encodedIp = encodeBase64(ip);  // Convert IP to Base64
+
+    const fileName = this.getAttribute('data-name').toLowerCase();
+    let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id') + '&ip=' + encodedIp;
 
     if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
-        path =  path
+        path = path;
     }
 
-    window.open(path, '_blank')
+    window.open(path, '_blank');
 }
+
+//function openFile() {
+  //  const fileName = this.getAttribute('data-name').toLowerCase()
+    //let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id')
+
+    //if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
+      //  path =  path
+    //}
+
+    //window.open(path, '_blank')
+//}
 
 
 // File More Button Handler Start
