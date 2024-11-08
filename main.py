@@ -20,8 +20,9 @@ import re
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 import base64
-
-
+import jwt
+import time
+import secrets
 # Startup Event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,6 +57,9 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Basic"},
         )'''
+
+SECRET_KEY = secrets.token_urlsafe(32)  # Replace with a secure key
+TOKEN_EXPIRY_SECONDS = 3600 
 @app.get("/")
 async def home_page():
     return FileResponse("website/home.html")
@@ -75,29 +79,44 @@ async def static_files(file_path):
         return Response(content=content, media_type="application/javascript")
     return FileResponse(f"website/static/{file_path}")
 
-
+@app.get("/generate-link")
+async def generate_link(download_path: str):
+    payload = {
+        "path": download_path,
+        "exp": time.time() + TOKEN_EXPIRY_SECONDS
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return {"link": f"/file?download={download_path}&token={token}"}
+    
 @app.get("/file")
 async def dl_file(request: Request):
-    from utils.directoryHandler import DRIVE_DATA
+    path = request.query_params.get("download")
+    token = request.query_params.get("token")
 
-    path = request.query_params["download"]
-    javaip = request.query_params["ip"]
-    print("javaip", javaip)
-    client_ip = request.client.host
-    print("client ip", client_ip)
-    pyip = base64.b64encode((client_ip).encode()).decode()
-    print(pyip)
-    if str(javaip) == str(pyip):
-        print("MATCH")
+    if not path or not token:
+        raise HTTPException(status_code=400, detail="Missing parameters")
+
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+
+        # Verify that the token path matches the requested path
+        if payload.get("path") != path:
+            raise HTTPException(status_code=403, detail="Invalid path in token")
+
+
+        # Retrieve the file if the token and IP are valid
         file = DRIVE_DATA.get_file(path)
         if file:
-            # Proceed to stream the file if found
+            # Stream the file response if found and valid
             return await media_streamer(STORAGE_CHANNEL, file.file_id, file.name, request)
         else:
             raise HTTPException(status_code=404, detail="File not found")
-    
-    # Return error if IPs do not match
-    raise HTTPException(status_code=403, detail="IP address mismatch")
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid token")
 
 
 # Api Routes
