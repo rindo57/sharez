@@ -22,35 +22,17 @@ function encodeBase64(str) {
     return btoa(str);  // Converts the string to Base64
 }
 
-async function openFile() {
+function openFile() {
+    const fileName = this.getAttribute('data-name').toLowerCase()
+    let path = '/generate-link?download_path=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id')
 
-    const fileName = this.getAttribute('data-name').toLowerCase();
-    //let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
-    const filePath = this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
-    if (!fileName.endsWith('.mp4') && !fileName.endsWith('.mkv') && !fileName.endsWith('.webm') && 
-        !fileName.endsWith('.mov') && !fileName.endsWith('.avi') && !fileName.endsWith('.ts') && 
-        !fileName.endsWith('.ogv')) {
-        console.error("Unsupported file format");
-        return;
+    if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
+        path =  path
     }
-    await fetch(`/generate-link?download_path=${encodeURIComponent(filePath)}`);
-    const data = await response.json();
-    if (response.ok && data.link) {
-        const expirableLink = data.link;
-        window.open(expirableLink, '_blank');
-    //window.open(path, '_blank');
+
+    window.open(path, '_blank')
 }
 
-//function openFile() {
-  //  const fileName = this.getAttribute('data-name').toLowerCase()
-    //let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id')
-
-    //if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
-      //  path =  path
-    //}
-
-    //window.open(path, '_blank')
-//}
 
 
 // File More Button Handler Start
