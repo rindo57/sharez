@@ -20,7 +20,7 @@ import re
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 import base64
-import pyjwt
+import jwt
 import time
 import secrets
 # Startup Event
