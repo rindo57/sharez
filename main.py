@@ -19,7 +19,7 @@ import urllib.parse
 import re
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
-
+import base64
 
 
 # Startup Event
@@ -81,7 +81,13 @@ async def dl_file(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
     path = request.query_params["download"]
-    file = DRIVE_DATA.get_file(path)
+    javaip = request.query_params["download"]
+    print("javaip", javaip)
+    client_ip = request.client.host
+    print("client ip", client_ip)
+    pyip = base64.b64encode((client_ip).encode()).decode()
+    if javaip == pyip:
+        file = DRIVE_DATA.get_file(path)
     return await media_streamer(STORAGE_CHANNEL, file.file_id, file.name, request)
 
 
