@@ -7,7 +7,7 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 import aiofiles
 from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends
-from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
+from fastapi.responses import FileResponse, JSONResponse
 from config import ADMIN_PASSWORD, MAX_FILE_SIZE, STORAGE_CHANNEL
 from utils.clients import initialize_clients
 from utils.directoryHandler import getRandomID
@@ -64,11 +64,7 @@ TOKEN_EXPIRY_SECONDS = 3600
 async def home_page():
     return FileResponse("website/home.html")
 
-@app.get("/captcha", response_class=HTMLResponse)
-async def get_index():
-    with open("captcha.html", "r") as f:
-        return f.read()
-        
+
 @app.get("/stream")
 async def home_page():
     return FileResponse("website/VideoPlayer.html")
@@ -82,7 +78,7 @@ async def static_files(file_path):
             content = content.replace("MAX_FILE_SIZE__SDGJDG", str(MAX_FILE_SIZE))
         return Response(content=content, media_type="application/javascript")
     return FileResponse(f"website/static/{file_path}")
-"""
+
 @app.get("/generate-link")
 async def generate_link(download_path: str):
     payload = {
@@ -91,38 +87,7 @@ async def generate_link(download_path: str):
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return {"link": f"/file?download={download_path}&token={token}"}
-"""
-
-@app.post("/generate-link")
-async def generate_link(request: Request):
-    data = await request.json()
-    download_path = data.get("download_path")
-    captcha_token = data.get("captcha_token")
-
-    if not download_path or not captcha_token:
-        raise HTTPException(status_code=400, detail="Missing parameters")
-
-    # Verify hCaptcha token
-    captcha_verification_response = requests.post(
-        "https://hcaptcha.com/siteverify",
-        data={
-            "secret": "ES_78811960b0754887ac8fd8e3ac83bca1",
-            "response": captcha_token
-        }
-    )
-
-    result = captcha_verification_response.json()
-    if not result.get("success"):
-        raise HTTPException(status_code=403, detail="hCaptcha verification failed")
-
-    # hCaptcha is verified, generate the link
-    payload = {
-        "path": download_path,
-        "exp": time.time() + TOKEN_EXPIRY_SECONDS
-    }
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    return {"link": f"/file?download={download_path}&token={token}"}
-
+    
 @app.get("/file")
 async def dl_file(request: Request):
     from utils.directoryHandler import DRIVE_DATA
