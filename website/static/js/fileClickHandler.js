@@ -25,10 +25,13 @@ function encodeBase64(str) {
 async function openFile() {
 
     const fileName = this.getAttribute('data-name').toLowerCase();
-    let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
+    //let path = '/file?download=' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
     const filePath = this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
-    if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
-        path = path;
+    if (!fileName.endsWith('.mp4') && !fileName.endsWith('.mkv') && !fileName.endsWith('.webm') && 
+        !fileName.endsWith('.mov') && !fileName.endsWith('.avi') && !fileName.endsWith('.ts') && 
+        !fileName.endsWith('.ogv')) {
+        console.error("Unsupported file format");
+        return;
     }
     await fetch(`/generate-link?download_path=${encodeURIComponent(filePath)}`);
     const data = await response.json();
