@@ -81,7 +81,7 @@ async def dl_file(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
     path = request.query_params["download"]
-    javaip = request.query_params["download"]
+    javaip = request.query_params["ip"]
     print("javaip", javaip)
     client_ip = request.client.host
     print("client ip", client_ip)
