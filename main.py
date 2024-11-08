@@ -91,6 +91,12 @@ async def generate_link(download_path: str):
 @app.get("/file")
 async def dl_file(request: Request):
     from utils.directoryHandler import DRIVE_DATA
+
+    # Check User-Agent header for bot detection
+    user_agent = request.headers.get("User-Agent", "")
+    if "bot" in user_agent.lower() or "crawler" in user_agent.lower():
+        raise HTTPException(status_code=403, detail="Bot activity detected. Download blocked.")
+
     path = request.query_params.get("download")
     token = request.query_params.get("token")
 
@@ -105,7 +111,6 @@ async def dl_file(request: Request):
         if payload.get("path") != path:
             raise HTTPException(status_code=403, detail="Invalid path in token")
 
-
         # Retrieve the file if the token and IP are valid
         file = DRIVE_DATA.get_file(path)
         if file:
@@ -118,6 +123,7 @@ async def dl_file(request: Request):
         raise HTTPException(status_code=403, detail="Token has expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=403, detail="Invalid token")
+
 
 
 # Api Routes
