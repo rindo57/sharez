@@ -86,7 +86,7 @@ def b64_to_str(b64: str) -> str:
     bytes_b64 = b64.encode('ascii')
     bytes_str = standard_b64decode(bytes_b64)
     __str = bytes_str.decode('ascii')
-    return __str
+    return __str[::-1]
     
 @app.get("/static/{file_path:path}")
 async def static_files(file_path):
@@ -257,9 +257,9 @@ async def generate_link_page(request: Request):
     # Parse the URL and extract the query string (after ?)
     parsed_url = urlparse(full_url)
     download_pat = parsed_url.query
-    xyz = b64_to_str(download_pat)
-    abc = b64_to_str(xyz)
-    download_path = b64_to_str(abc)
+    //xyz = b64_to_str(download_pat)
+    //abc = b64_to_str(xyz)
+    download_path = b64_to_str(download_pat)
     print(download_path)
     # Fetch file details and increment view count
     file = DRIVE_DATA.get_file(download_path)
