@@ -83,10 +83,11 @@ async def home_page():
     return FileResponse("website/VideoPlayer.html")
 
 def b64_to_str(b64: str) -> str:
-    bytes_b64 = b64.encode('ascii')
+    b65=b64[::-1]
+    bytes_b64 = b65.encode('ascii')
     bytes_str = standard_b64decode(bytes_b64)
     __str = bytes_str.decode('ascii')
-    return __str[::-1]
+    return __str
     
 @app.get("/static/{file_path:path}")
 async def static_files(file_path):
