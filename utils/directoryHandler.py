@@ -15,7 +15,7 @@ drive_cache_path = cache_dir / "drive.data"
 def getRandomID():
     global DRIVE_DATA
     while True:
-        id = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=50))
+        id = "".join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k=25))
 
         if id not in DRIVE_DATA.used_ids:
             DRIVE_DATA.used_ids.append(id)
