@@ -82,7 +82,12 @@ async def home_page():
 async def home_page():
     return FileResponse("website/VideoPlayer.html")
 
-
+def b64_to_str(b64: str) -> str:
+    bytes_b64 = b64.encode('ascii')
+    bytes_str = standard_b64decode(bytes_b64)
+    __str = bytes_str.decode('ascii')
+    return __str
+    
 @app.get("/static/{file_path:path}")
 async def static_files(file_path):
     if "apiHandler.js" in file_path:
@@ -251,7 +256,9 @@ async def generate_link_page(request: Request):
     print(full_url)
     # Parse the URL and extract the query string (after ?)
     parsed_url = urlparse(full_url)
-    download_path = parsed_url.query
+    download_pat = parsed_url.query
+    download_path = b64_to_str(download_pat)
+    print(download_path)
     # Fetch file details and increment view count
     file = DRIVE_DATA.get_file(download_path)
     if file is None:
