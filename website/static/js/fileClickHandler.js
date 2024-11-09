@@ -44,27 +44,6 @@ function openFile() {
     }
 }
 
-function openFile(element) {
-    // Ensure that the action is from a user click, not programmatically triggered
-    if (!element.hasAttribute('data-clicked')) {
-        const fileName = element.getAttribute('data-name').toLowerCase();
-        let pathSuffix = element.getAttribute('data-path') + '/' + element.getAttribute('data-id');
-        
-        // Encode pathSuffix to Base64
-        const encodedPathSuffix = btoa(pathSuffix).split('').reverse().join('');
-
-        let path = '/generate-link?' + encodedPathSuffix;
-
-        if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
-            path = path;
-        }
-
-        // Mark this element as clicked, to prevent automated behavior
-        element.setAttribute('data-clicked', 'true');
-
-        window.open(path, '_blank');
-    }
-}
 // Add event listener to the element
 document.querySelectorAll('.download-btn').forEach((button) => {
     button.addEventListener('click', openFile);
