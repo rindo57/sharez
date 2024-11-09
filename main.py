@@ -80,10 +80,37 @@ async def static_files(file_path):
         return Response(content=content, media_type="application/javascript")
     return FileResponse(f"website/static/{file_path}")
 
-@app.get("/generate-link")
+@app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
     # HTML page with Turnstile form
-    return FileResponse("captcha.html")
+    return HTMLResponse(content=f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>URL Verification</title>
+      <style>
+        body {{ font-family: 'Arial', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; }}
+        .container {{ background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
+        h2 {{ margin-bottom: 1rem; color: #333; }}
+        button {{ padding: 0.7rem; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }}
+        button:hover {{ background-color: #0056b3; }}
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Verify You're Human</h2>
+        <form action="/verify-turnstile" method="POST">
+          <input type="hidden" name="download_path" value="{download_path}">
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5"></div>
+          <button type="submit">Continue to Download Link</button>
+        </form>
+      </div>
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    </body>
+    </html>
+    """)
 
 @app.post("/verify-turnstile")
 async def verify_turnstile(download_path: str = Form(...), cf_turnstile_response: str = Form(...)):
