@@ -1,52 +1,86 @@
 function showDirectory(data) {
-    data = data['contents']
-    document.getElementById('directory-data').innerHTML = ''
-    const isTrash = getCurrentPath().startsWith('/trash')
+    data = data['contents'];
+    document.getElementById('directory-data').innerHTML = '';
+    const isTrash = getCurrentPath().startsWith('/trash');
+    const isShare = getCurrentPath().startsWith('/share'); // Check if path starts with /share
 
-    let html = ''
-
+    let html = '';
 
     let entries = Object.entries(data);
     let folders = entries.filter(([key, value]) => value.type === 'folder');
     let files = entries.filter(([key, value]) => value.type === 'file');
 
-    //folders.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
-    //files.sort((a, b) => new Date(b[1].upload_date) - new Date(a[1].upload_date));
     folders.sort((a, b) => a[1].name.localeCompare(b[1].name));
     files.sort((a, b) => a[1].name.localeCompare(b[1].name));
+
     for (const [key, item] of folders) {
         if (item.type === 'folder') {
-            html += `<tr data-path="${item.path}" data-id="${item.id}" class="body-tr folder-tr"><td><div class="td-align"><img src="static/assets/folder-solid-icon.svg"> ${item.name}</div></td><td><div class="td-align"></div></td><td><div class="download-btn"></div></td><td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td></tr>`
-
-            if (isTrash) {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
-            }
-            else {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr><div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr><div id="folder-share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div></div>`
+            html += `<tr data-path="${item.path}" data-id="${item.id}" class="body-tr folder-tr">
+                        <td><div class="td-align"><img src="static/assets/folder-solid-icon.svg"> ${item.name}</div></td>
+                        <td><div class="td-align"></div></td>
+                        <td><div class="download-btn"></div></td>`;
+            
+            // Only add the "More" button and options if the path does NOT start with /share
+            if (!isShare) {
+                html += `<td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td>
+                         </tr>`;
+                
+                if (isTrash) {
+                    html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options">
+                                <input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute">
+                                <div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr>
+                                <div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div>
+                             </div>`;
+                } else {
+                    html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options">
+                                <input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute">
+                                <div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr>
+                                <div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr>
+                                <div id="folder-share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div>
+                             </div>`;
+                }
+            } else {
+                html += `</tr>`;  // Close the row without the "More" button if in /share path
             }
         }
     }
 
     for (const [key, item] of files) {
         if (item.type === 'file') {
-            const size = convertBytes(item.size)
+            const size = convertBytes(item.size);
             html += `<tr data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="body-tr file-tr">
-<td><div class="td-align"><img src="static/assets/file-icon.svg"> ${item.name}</div></td>
-<td><div class="td-align">${size}</div></td>
-<td><div class="td-align"><a href="#" onclick="openFilex(this)" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="download-btn"><img src="static/assets/download-icon.svg" alt="Download"></a></div></td>
-<td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td>
-</tr>`;
-            if (isTrash) {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr><div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div></div>`
-            }
-            else {
-                html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options"><input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute"><div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr><div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr><div id="share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div></div>`
+                        <td><div class="td-align"><img src="static/assets/file-icon.svg"> ${item.name}</div></td>
+                        <td><div class="td-align">${size}</div></td>
+                        <td><div class="td-align"><a href="#" onclick="openFilex(this)" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="download-btn"><img src="static/assets/download-icon.svg" alt="Download"></a></div></td>`;
+            
+            // Only add the "More" button and options if the path does NOT start with /share
+            if (!isShare) {
+                html += `<td><div class="td-align"><a data-id="${item.id}" class="more-btn"><img src="static/assets/more-icon.svg" class="rotate-90"></a></div></td>
+                         </tr>`;
+
+                if (isTrash) {
+                    html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options">
+                                <input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute">
+                                <div id="restore-${item.id}" data-path="${item.path}"><img src="static/assets/load-icon.svg"> Restore</div><hr>
+                                <div id="delete-${item.id}" data-path="${item.path}"><img src="static/assets/trash-icon.svg"> Delete</div>
+                             </div>`;
+                } else {
+                    html += `<div data-path="${item.path}" id="more-option-${item.id}" data-name="${item.name}" class="more-options">
+                                <input class="more-options-focus" readonly="readonly" style="height:0;width:0;border:none;position:absolute">
+                                <div id="rename-${item.id}"><img src="static/assets/pencil-icon.svg"> Rename</div><hr>
+                                <div id="trash-${item.id}"><img src="static/assets/trash-icon.svg"> Trash</div><hr>
+                                <div id="share-${item.id}"><img src="static/assets/share-icon.svg"> Share</div>
+                             </div>`;
+                }
+            } else {
+                html += `</tr>`;  // Close the row without the "More" button if in /share path
             }
         }
     }
-    document.getElementById('directory-data').innerHTML = html
 
-    if (!isTrash) {
+    document.getElementById('directory-data').innerHTML = html;
+
+    if (!isTrash && !isShare) {
         document.querySelectorAll('.folder-tr').forEach(div => {
             div.ondblclick = openFolder;
         });
@@ -55,13 +89,16 @@ function showDirectory(data) {
         });
     }
 
-    document.querySelectorAll('.more-btn').forEach(div => {
-        div.addEventListener('click', function (event) {
-            event.preventDefault();
-            openMoreButton(div)
+    if (!isShare) {
+        document.querySelectorAll('.more-btn').forEach(div => {
+            div.addEventListener('click', function (event) {
+                event.preventDefault();
+                openMoreButton(div);
+            });
         });
-    });
+    }
 }
+
 
 document.getElementById('search-form').addEventListener('submit', async (event) => {
     event.preventDefault();
