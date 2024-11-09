@@ -213,7 +213,7 @@ async def dl_file(request: Request):
 
 # real start
 async def get_or_create_file_stats(download_path: str):
-    stats = file_stats_collection.find_one({"download_path": download_path})
+    stats = await file_stats_collection.find_one({"download_path": download_path})
     if not stats:
         stats = {
             "download_path": download_path,
@@ -222,7 +222,7 @@ async def get_or_create_file_stats(download_path: str):
             "filename": "",
             "filesize": 0
         }
-        file_stats_collection.insert_one(stats)
+        await file_stats_collection.insert_one(stats)
     return stats
 async def verify_turnstile_token(response_token: str) -> bool:
     url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
@@ -244,7 +244,7 @@ async def generate_link_page(download_path: str):
 
     # Get or create file stats and increment views
     stats = await get_or_create_file_stats(download_path)
-    file_stats_collection.update_one(
+    await file_stats_collection.update_one(
         {"download_path": download_path},
         {"$set": {"filename": file.name, "filesize": file.size},
          "$inc": {"views": 1}}
