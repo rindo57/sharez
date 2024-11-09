@@ -164,7 +164,7 @@ async def verify_turnstile(request: Request, download_path: str = Form(...), cf_
 
 
     
-@app.get("/file")
+@app.post("/file")
 async def dl_file(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
