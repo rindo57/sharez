@@ -29,7 +29,7 @@ function openFile() {
         let path = '/generate?' + this.getAttribute('data-path') + '/' + this.getAttribute('data-id')
 
         if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
-            path = '/stream?url=' + getRootUrl() + path;
+            path = path;
         }
 
         // Mark this element as clicked, to prevent automated behavior
