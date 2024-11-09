@@ -23,6 +23,7 @@ import base64
 import jwt
 import time
 import secrets
+import httpx
 # Startup Event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -80,18 +81,6 @@ async def static_files(file_path):
         return Response(content=content, media_type="application/javascript")
     return FileResponse(f"website/static/{file_path}")
 
-from fastapi import FastAPI, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
-import jwt
-import time
-import httpx
-import logging
-
-app = FastAPI()
-
-SECRET_KEY = "your_secret_key"
-TOKEN_EXPIRY_SECONDS = 3600
-TURNSTILE_SECRET_KEY = "your_turnstile_secret_key"  # Cloudflare Turnstile secret key
 
 logging.basicConfig(level=logging.INFO)
 
