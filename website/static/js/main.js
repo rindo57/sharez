@@ -117,6 +117,9 @@ document.getElementById('search-form').addEventListener('submit', async (event) 
     if (currentPath.includes('/share_')) {
         currentPath = currentPath.replace(/\/query_.+$/, '');
         path = '/?path=' + currentPath + '&auth=' + getFolderAuthFromPath() + '&query=' + encodeURIComponent(query);
+        if (query) {
+            document.getElementById('search-form').value = query;
+        }
     } else {
         // Remove "share_" and anything after "search_" from currentPath
         currentPath = currentPath.replace('share_', '');
