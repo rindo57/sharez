@@ -105,11 +105,11 @@ async def generate_link_page(download_path: str):
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>URL Verification</title>
       <style>
-        body {{ font-family: 'Arial', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; }}
-        .container {{ background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
-        h2 {{ margin-bottom: 1rem; color: #333; }}
+        body {{ font-family: 'Arial', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #25293c; }}
+        .container {{ background: #25293c; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
+        h2 {{ margin-bottom: 1rem; color: #ff79c6; }}
         button {{ padding: 0.7rem; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }}
-        button:hover {{ background-color: #0056b3; }}
+        button:hover {{ background-color: #f06292; }}
       </style>
     </head>
     <body>
