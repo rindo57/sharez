@@ -200,16 +200,7 @@ async def dl_file(request: Request):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=403, detail="Invalid token")'''
 
-from fastapi import FastAPI, Request, HTTPException, Form, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
-import jwt
-import time
-from your_utils import verify_turnstile_token, media_streamer, DRIVE_DATA  # Ensure correct imports
 
-app = FastAPI()
-
-SECRET_KEY = "your_secret_key"
-TOKEN_EXPIRY_SECONDS = 3600  # 1 hour expiry
 
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
@@ -234,7 +225,8 @@ async def generate_link_page(download_path: str):
         <form id="verificationForm" action="/verify-turnstile" method="POST">
           <input type="hidden" name="download_path" value="{download_path}">
           <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
-          <div class="cf-turnstile" data-sitekey="your_turnstile_site_key" data-callback="setTurnstileResponse"></div>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5
+" data-callback="setTurnstileResponse"></div>
           <button type="submit">Continue to Download Link</button>
         </form>
       </div>
