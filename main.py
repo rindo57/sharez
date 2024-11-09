@@ -86,7 +86,7 @@ async def generate_link_page(download_path: str):
     return FileResponse("captcha.html")
 
 @app.post("/verify-turnstile")
-async def verify_turnstile(request: Request, download_path: str = Form(...), cf_turnstile_response: str = Form(...)):
+async def verify_turnstile(download_path: str = Form(...), cf_turnstile_response: str = Form(...)):
     # Verify Turnstile response with Cloudflare
     async with httpx.AsyncClient() as client:
         verification_response = await client.post(
@@ -107,7 +107,7 @@ async def verify_turnstile(request: Request, download_path: str = Form(...), cf_
         token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
         return RedirectResponse(url=f"/file?download={download_path}&token={token}")
 
-    return JSONResponse({"error": "Turnstile verification failed. Please try again."}, status_code=400)
+    raise HTTPException(status_code=400, detail="Turnstile verification failed. Please try again.")
 
     
 @app.get("/file")
