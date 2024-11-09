@@ -297,7 +297,7 @@ async def dl_file(request: Request):
 
         file = DRIVE_DATA.get_file(path)
         if file:
-            return await media_streamer(file.file_id, file.name, request)
+            return await media_streamer(STORAGE_CHANNEL,file.file_id, file.name, request)
         else:
             raise HTTPException(status_code=404, detail="File not found")
 
