@@ -20,7 +20,7 @@ import logging
 import re
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
-import base64
+from base64 import standard_b64encode, standard_b64decode
 import jwt
 import time
 import secrets
