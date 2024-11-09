@@ -7,7 +7,7 @@ from pathlib import Path
 from contextlib import asynccontextmanager
 import aiofiles
 from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from config import ADMIN_PASSWORD, MAX_FILE_SIZE, STORAGE_CHANNEL
 from utils.clients import initialize_clients
 from utils.directoryHandler import getRandomID
