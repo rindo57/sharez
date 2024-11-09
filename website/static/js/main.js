@@ -80,7 +80,7 @@ function showDirectory(data) {
 
     document.getElementById('directory-data').innerHTML = html;
 
-    if (!isTrash && !isShare) {
+    if (!isTrash) {
         document.querySelectorAll('.folder-tr').forEach(div => {
             div.ondblclick = openFolder;
         });
