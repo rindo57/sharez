@@ -29,6 +29,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 import os
 from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
+import math
 # Startup Event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -212,6 +213,14 @@ async def dl_file(request: Request):
         raise HTTPException(status_code=403, detail="Invalid token")'''
 
 # real start
+def convert_size(size_bytes):
+    if size_bytes == 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    s = round(size_bytes / p, 2)
+    return f"{s} {size_name[i]}"
 async def get_or_create_file_stats(download_path: str):
     stats = await file_stats_collection.find_one({"download_path": download_path})
     if not stats:
@@ -237,6 +246,7 @@ async def verify_turnstile_token(response_token: str) -> bool:
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
     from utils.directoryHandler import DRIVE_DATA
+
     # Fetch file details and increment view count
     file = DRIVE_DATA.get_file(download_path)
     if file is None:
@@ -251,7 +261,7 @@ async def generate_link_page(download_path: str):
     )
 
     filename = file.name
-    filesize = file.size
+    filesize = convert_size(file.size)  # Convert to MB/GB/etc.
     views = stats["views"] + 1  # Increment view for this request
     downloads = stats["downloads"]
 
@@ -275,7 +285,7 @@ async def generate_link_page(download_path: str):
       <div class="container">
         <h2>File Information</h2>
         <p><strong>Filename:</strong> {filename}</p>
-        <p><strong>Filesize:</strong> {filesize} bytes</p>
+        <p><strong>Filesize:</strong> {filesize}</p>  <!-- Display formatted size -->
         <p><strong>Views:</strong> {views}</p>
         <p><strong>Downloads:</strong> {downloads}</p>
         <h2>Verify You're Human</h2>
