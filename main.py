@@ -60,6 +60,7 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
 
 SECRET_KEY = secrets.token_urlsafe(32)  # Replace with a secure key
 TOKEN_EXPIRY_SECONDS = 3600 
+TURNSTILE_SECRET_KEY = "0x4AAAAAAAzlMli8bi3JNb93TAutfAHmPp4"
 @app.get("/")
 async def home_page():
     return FileResponse("website/home.html")
@@ -79,14 +80,35 @@ async def static_files(file_path):
         return Response(content=content, media_type="application/javascript")
     return FileResponse(f"website/static/{file_path}")
 
-@app.get("/generate-link")
-async def generate_link(download_path: str):
-    payload = {
-        "path": download_path,
-        "exp": time.time() + TOKEN_EXPIRY_SECONDS
-    }
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    return {"link": f"/file?download={download_path}&token={token}"}
+@app.get("/generate-link", response_class=HTMLResponse)
+async def generate_link_page(download_path: str):
+    # HTML page with Turnstile form
+    return FileResponse("captcha.html")
+
+@app.post("/verify-turnstile")
+async def verify_turnstile(request: Request, download_path: str = Form(...), cf_turnstile_response: str = Form(...)):
+    # Verify Turnstile response with Cloudflare
+    async with httpx.AsyncClient() as client:
+        verification_response = await client.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+            data={
+                "secret": TURNSTILE_SECRET_KEY,
+                "response": cf_turnstile_response,
+            }
+        )
+    verification_data = verification_response.json()
+
+    if verification_data.get("success"):
+        # Generate JWT token if verification succeeds
+        payload = {
+            "path": download_path,
+            "exp": time.time() + TOKEN_EXPIRY_SECONDS
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+        return RedirectResponse(url=f"/file?download={download_path}&token={token}")
+
+    return JSONResponse({"error": "Turnstile verification failed. Please try again."}, status_code=400)
+
     
 @app.get("/file")
 async def dl_file(request: Request):
