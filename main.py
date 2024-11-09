@@ -67,7 +67,7 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
         )'''
 
 SECRET_KEY = secrets.token_urlsafe(32)  # Replace with a secure key
-TOKEN_EXPIRY_SECONDS = 3600 
+TOKEN_EXPIRY_SECONDS = 21600 
 TURNSTILE_SECRET_KEY = "0x4AAAAAAAzlMli8bi3JNb93TAutfAHmPp4"
 ruix = "mongodb+srv://anidl:encodes@cluster0.oobfx33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 mongo_client = MongoClient(ruix)
