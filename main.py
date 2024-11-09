@@ -340,7 +340,7 @@ async def verify_turnstile(download_path: str = Form(...), cf_turnstile_response
         "exp": time.time() + TOKEN_EXPIRY_SECONDS
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    download_url = f"/file?download={download_path}&token={token}"
+    download_url = f"/file?hash={token}"
     
     # Increment download count
     file_stats_collection.update_one(
@@ -359,17 +359,17 @@ async def dl_file(request: Request):
     if "bot" in user_agent.lower() or "crawler" in user_agent.lower():
         raise HTTPException(status_code=403, detail="Bot activity detected. Download blocked.")
 
-    path = request.query_params.get("download")
-    token = request.query_params.get("token")
+    #path = request.query_params.get("download")
+    hash = request.query_params.get("hash")
 
-    if not path or not token:
+    if not hash:
         raise HTTPException(status_code=400, detail="Missing parameters")
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-
-        if payload.get("path") != path:
-            raise HTTPException(status_code=403, detail="Invalid path in token")
+        payload = jwt.decode(hash, SECRET_KEY, algorithms=["HS256"])
+        path = payload.get("path")
+        # if payload.get("path") != path:
+           # raise HTTPException(status_code=403, detail="Invalid path in token")
 
         file = DRIVE_DATA.get_file(path)
         if file:
