@@ -211,6 +211,7 @@ async def dl_file(request: Request):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=403, detail="Invalid token")'''
 
+# real start
 async def get_or_create_file_stats(download_path: str):
     stats = file_stats_collection.find_one({"download_path": download_path})
     if not stats:
@@ -235,6 +236,7 @@ async def verify_turnstile_token(response_token: str) -> bool:
     return result.get("success", False)
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
+    from utils.directoryHandler import DRIVE_DATA
     # Fetch file details and increment view count
     file = DRIVE_DATA.get_file(download_path)
     if file is None:
