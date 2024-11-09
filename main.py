@@ -28,6 +28,7 @@ import httpx
 from pymongo import MongoClient
 from bson import ObjectId
 import os
+from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
 # Startup Event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -66,8 +67,9 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
 SECRET_KEY = secrets.token_urlsafe(32)  # Replace with a secure key
 TOKEN_EXPIRY_SECONDS = 3600 
 TURNSTILE_SECRET_KEY = "0x4AAAAAAAzlMli8bi3JNb93TAutfAHmPp4"
-client = "mongodb+srv://anidl:encodes@cluster0.oobfx33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-dbx = client.drive
+ruix = "mongodb+srv://anidl:encodes@cluster0.oobfx33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+mongo_client = MongoClient(ruix)
+dbx = mongo_client["drive"]
 file_stats_collection = dbx["file_stats"]
 @app.get("/")
 async def home_page():
