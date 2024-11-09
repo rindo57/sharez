@@ -99,40 +99,47 @@ function showDirectory(data) {
     }
 }
 
-window.addEventListener('load', function () {
+window.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('file-search');
+
+    // Check if 'query' parameter is in the URL
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('query');
+
+    // If there's a query, set it in the search input field
     if (query) {
-        document.getElementById('search-form').value = query;
+        searchInput.value = decodeURIComponent(query);
     }
 });
 
-document.getElementById('search-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const query = document.getElementById('file-search').value;
-    console.log(query);
+
+document.getElementById('search-form').addEventListener('submit', function (event) {
+    event.preventDefault();  // Prevent default form submission
+
+    const searchInput = document.getElementById('file-search');
+    const query = searchInput.value.trim();
 
     if (query === '') {
         alert('Search field is empty');
         return;
     }
 
-    let currentPath = getCurrentPath();
-    let path;  // Declare path outside of the if-else blocks
+    let currentPath = getCurrentPath();  // Function to get the current path
+    let path;
 
-    // Check if the current path contains "/share_"
-    if (currentPath.includes('/share_')) {
-        currentPath = currentPath.replace(/\/query_.+$/, '');
+    // Check if the current path starts with "/share_"
+    if (currentPath.startsWith('/share_')) {
+        currentPath = currentPath.replace(/\/query_.+$/, '');  // Remove any query after "/share_"
         path = '/?path=' + currentPath + '&auth=' + getFolderAuthFromPath() + '&query=' + encodeURIComponent(query);
     } else {
-        // Remove "share_" and anything after "search_" from currentPath
-        currentPath = currentPath.replace('share_', '');
-        currentPath = currentPath.replace(/\/search_.+$/, '');
+        // Remove "share_" only if it starts the path and anything after "search_" from the path
+        currentPath = currentPath.replace(/^share_/, '');
+        currentPath = currentPath.replace(/\/search_.+$/, '');  // Remove any previous search segment
         path = '/?path=' + currentPath + '/search_' + encodeURIComponent(query);
     }
 
-    console.log(path);
-    window.location = path;  // Redirect to the constructed path
+    // Redirect to the constructed path with the query
+    window.location.href = path;
 });
 
 // Loading Main Page
