@@ -131,15 +131,7 @@ async def generate_link_page(download_path: str):
     </html>
     """)
 
-async def verify_turnstile_token(response_token: str) -> bool:
-    url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-    data = {
-        "secret": TURNSTILE_SECRET_KEY,
-        "response": response_token
-    }
-    async with httpx.AsyncClient() as client:
-        response = await client.post(url, data=data)
-        result = response.json()
+
     return result.get("success", False)
     
 @app.post("/verify-turnstile")
@@ -212,7 +204,15 @@ async def dl_file(request: Request):
         raise HTTPException(status_code=403, detail="Invalid token")'''
 
 
-
+async def verify_turnstile_token(response_token: str) -> bool:
+    url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+    data = {
+        "secret": TURNSTILE_SECRET_KEY,
+        "response": response_token
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, data=data)
+        result = response.json()
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
     return HTMLResponse(content=f"""
