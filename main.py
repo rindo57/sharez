@@ -80,7 +80,7 @@ async def static_files(file_path):
         return Response(content=content, media_type="application/javascript")
     return FileResponse(f"website/static/{file_path}")
 
-@app.get("/generate-link", response_class=HTMLResponse)
+@app.get("/generate-link")
 async def generate_link_page(download_path: str):
     # HTML page with Turnstile form
     return FileResponse("captcha.html")
