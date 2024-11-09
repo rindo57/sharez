@@ -87,7 +87,7 @@ logging.basicConfig(level=logging.INFO)
 
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
-    # HTML page with Turnstile form
+    # HTML page with Turnstile form and additional JavaScript
     return HTMLResponse(content=f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -106,13 +106,27 @@ async def generate_link_page(download_path: str):
     <body>
       <div class="container">
         <h2>Verify You're Human</h2>
-        <form action="/verify-turnstile" method="POST">
+        <form id="verificationForm" action="/verify-turnstile" method="POST">
           <input type="hidden" name="download_path" value="{download_path}">
-          <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5"></div>
+          <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
           <button type="submit">Continue to Download Link</button>
         </form>
       </div>
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+      <script>
+        function setTurnstileResponse(token) {{
+          document.getElementById('cf_turnstile_response').value = token;
+        }}
+
+        document.getElementById("verificationForm").addEventListener("submit", function(event) {{
+          const token = document.getElementById('cf_turnstile_response').value;
+          if (!token) {{
+            event.preventDefault();
+            alert("Please complete the CAPTCHA verification.");
+          }}
+        }});
+      </script>
     </body>
     </html>
     """)
