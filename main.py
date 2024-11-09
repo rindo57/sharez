@@ -276,7 +276,7 @@ async def generate_link_page(download_path: str):
         body {{ font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #25293c; }}
         .container {{ background: #1b1f2f; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
         h2 {{ margin-bottom: 1rem; color: white; }}
-        p {{ margin-bottom: 1rem; color: white; }}
+        p {{ margin-bottom: 1rem; color: #c0c0c0; }}
         button {{ padding: 0.7rem; background-color: #ff79c6; color: white; border: none; border-radius: 4px; cursor: pointer; }}
         button:hover {{ background-color: #f06292; }}
       </style>
