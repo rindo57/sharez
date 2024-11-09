@@ -131,6 +131,17 @@ async def generate_link_page(download_path: str):
     </html>
     """)
 
+async def verify_turnstile_token(response_token: str) -> bool:
+    url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+    data = {
+        "secret": TURNSTILE_SECRET_KEY,
+        "response": response_token
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, data=data)
+        result = response.json()
+    return result.get("success", False)
+    
 @app.post("/verify-turnstile")
 async def verify_turnstile(request: Request, download_path: str = Form(...), cf_turnstile_response: str = Form(None)):
     # Log incoming form data for debugging
