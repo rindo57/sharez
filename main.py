@@ -132,7 +132,7 @@ async def generate_link_page(download_path: str):
     """)
 
 
-    return result.get("success", False)
+
     
 @app.post("/verify-turnstile")
 async def verify_turnstile(request: Request, download_path: str = Form(...), cf_turnstile_response: str = Form(None)):
@@ -213,6 +213,7 @@ async def verify_turnstile_token(response_token: str) -> bool:
     async with httpx.AsyncClient() as client:
         response = await client.post(url, data=data)
         result = response.json()
+    return result.get("success", False)
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
     return HTMLResponse(content=f"""
