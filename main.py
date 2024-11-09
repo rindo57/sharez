@@ -25,6 +25,9 @@ import jwt
 import time
 import secrets
 import httpx
+from pymongo import MongoClient
+from bson import ObjectId
+import os
 # Startup Event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -63,6 +66,9 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
 SECRET_KEY = secrets.token_urlsafe(32)  # Replace with a secure key
 TOKEN_EXPIRY_SECONDS = 3600 
 TURNSTILE_SECRET_KEY = "0x4AAAAAAAzlMli8bi3JNb93TAutfAHmPp4"
+client = "mongodb+srv://anidl:encodes@cluster0.oobfx33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+db = client["drive"]
+file_stats_collection = db["file_stats"]
 @app.get("/")
 async def home_page():
     return FileResponse("website/home.html")
@@ -203,7 +209,18 @@ async def dl_file(request: Request):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=403, detail="Invalid token")'''
 
-
+async def get_or_create_file_stats(download_path: str):
+    stats = file_stats_collection.find_one({"download_path": download_path})
+    if not stats:
+        stats = {
+            "download_path": download_path,
+            "views": 0,
+            "downloads": 0,
+            "filename": "",
+            "filesize": 0
+        }
+        file_stats_collection.insert_one(stats)
+    return stats
 async def verify_turnstile_token(response_token: str) -> bool:
     url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
     data = {
@@ -216,6 +233,24 @@ async def verify_turnstile_token(response_token: str) -> bool:
     return result.get("success", False)
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
+    # Fetch file details and increment view count
+    file = DRIVE_DATA.get_file(download_path)
+    if file is None:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Get or create file stats and increment views
+    stats = await get_or_create_file_stats(download_path)
+    file_stats_collection.update_one(
+        {"download_path": download_path},
+        {"$set": {"filename": file.name, "filesize": file.size},
+         "$inc": {"views": 1}}
+    )
+
+    filename = file.name
+    filesize = file.size
+    views = stats["views"] + 1  # Increment view for this request
+    downloads = stats["downloads"]
+
     return HTMLResponse(content=f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -227,12 +262,18 @@ async def generate_link_page(download_path: str):
         body {{ font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; }}
         .container {{ background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
         h2 {{ margin-bottom: 1rem; color: #333; }}
+        p {{ margin-bottom: 1rem; color: #666; }}
         button {{ padding: 0.7rem; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }}
         button:hover {{ background-color: #0056b3; }}
       </style>
     </head>
     <body>
       <div class="container">
+        <h2>File Information</h2>
+        <p><strong>Filename:</strong> {filename}</p>
+        <p><strong>Filesize:</strong> {filesize} bytes</p>
+        <p><strong>Views:</strong> {views}</p>
+        <p><strong>Downloads:</strong> {downloads}</p>
         <h2>Verify You're Human</h2>
         <form id="verificationForm" action="/verify-turnstile" method="POST">
           <input type="hidden" name="download_path" value="{download_path}">
@@ -271,6 +312,12 @@ async def verify_turnstile(download_path: str = Form(...), cf_turnstile_response
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     download_url = f"/file?download={download_path}&token={token}"
+    
+    # Increment download count
+    file_stats_collection.update_one(
+        {"download_path": download_path},
+        {"$inc": {"downloads": 1}}
+    )
     
     # Redirect to the download link
     return RedirectResponse(url=download_url, status_code=303)
