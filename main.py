@@ -257,8 +257,8 @@ async def generate_link_page(request: Request):
     # Parse the URL and extract the query string (after ?)
     parsed_url = urlparse(full_url)
     download_pat = parsed_url.query
-    //xyz = b64_to_str(download_pat)
-    //abc = b64_to_str(xyz)
+    #xyz = b64_to_str(download_pat)
+    #abc = b64_to_str(xyz)
     download_path = b64_to_str(download_pat)
     print(download_path)
     # Fetch file details and increment view count
