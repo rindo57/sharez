@@ -1,56 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Link with hCaptcha</title>
-    <!-- Include the hCaptcha script -->
-    <script src="https://hcaptcha.com/1/api.js" async defer></script>
-</head>
-<body>
-    <h1>Generate Expirable Download Link</h1>
-
-    <!-- Button to generate the link with hCaptcha -->
-    <button 
-        class="h-captcha" 
-        data-sitekey="ES_78811960b0754887ac8fd8e3ac83bca1" 
-        data-callback="onSubmit">Generate Link</button>
-
-    <script>
-        // Callback function called by hCaptcha when CAPTCHA is completed
-        async function onSubmit(token) {
-            // token is the captcha_token provided by hCaptcha
-
-            // Prepare data to send to FastAPI endpoint
-            const data = {
-                download_path: '/path/to/file',  // Update with your actual download path
-                captcha_token: token  // Token from hCaptcha
-            };
-
-            try {
-                // Send request to FastAPI
-                const response = await fetch('/generate-link', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                });
-
-                // Handle response from FastAPI
-                const result = await response.json();
-                if (response.ok) {
-                    alert(`Link generated: ${result.link}`);
-                    console.log("Link generated:", result.link);
-                } else {
-                    console.error("Error:", result.detail);
-                    alert(`Error: ${result.detail}`);
-                }
-            } catch (error) {
-                console.error("Error connecting to server:", error);
-                alert("Error connecting to server. Please try again.");
-            }
-        }
-    </script>
-</body>
-</html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>URL Verification</title>
+      <style>
+        body {{ font-family: 'Arial', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; }}
+        .container {{ background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
+        h2 {{ margin-bottom: 1rem; color: #333; }}
+        button {{ padding: 0.7rem; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }}
+        button:hover {{ background-color: #0056b3; }}
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Verify You're Human</h2>
+        <form action="/verify-turnstile" method="POST">
+          <input type="hidden" name="download_path" value="{download_path}">
+          <div class="cf-turnstile" data-sitekey="your_turnstile_site_key"></div>
+          <button type="submit">Continue to Download Link</button>
+        </form>
+      </div>
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    </body>
+    </html>
