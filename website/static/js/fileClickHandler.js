@@ -29,7 +29,7 @@ function openFile() {
         let pathSuffix = this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
         
         // Encode pathSuffix to Base64
-        const encodedPathSuffix = btoa(pathSuffix).split('').reverse().join('');;
+        const encodedPathSuffix = btoa(pathSuffix).split('').reverse().join('');
 
         let path = '/generate-link?' + encodedPathSuffix;
 
