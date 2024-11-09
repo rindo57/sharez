@@ -85,7 +85,7 @@ async def static_files(file_path):
 
 logging.basicConfig(level=logging.INFO)
 
-@app.get("/generate-link", response_class=HTMLResponse)
+'''@app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(download_path: str):
     # HTML page with Turnstile form and additional JavaScript
     return HTMLResponse(content=f"""
@@ -198,8 +198,110 @@ async def dl_file(request: Request):
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=403, detail="Token has expired")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=403, detail="Invalid token")
+        raise HTTPException(status_code=403, detail="Invalid token")'''
 
+from fastapi import FastAPI, Request, HTTPException, Form, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
+import jwt
+import time
+from your_utils import verify_turnstile_token, media_streamer, DRIVE_DATA  # Ensure correct imports
+
+app = FastAPI()
+
+SECRET_KEY = "your_secret_key"
+TOKEN_EXPIRY_SECONDS = 3600  # 1 hour expiry
+
+@app.get("/generate-link", response_class=HTMLResponse)
+async def generate_link_page(download_path: str):
+    return HTMLResponse(content=f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>URL Verification</title>
+      <style>
+        body {{ font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; }}
+        .container {{ background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
+        h2 {{ margin-bottom: 1rem; color: #333; }}
+        button {{ padding: 0.7rem; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }}
+        button:hover {{ background-color: #0056b3; }}
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Verify You're Human</h2>
+        <form id="verificationForm" action="/verify-turnstile" method="POST">
+          <input type="hidden" name="download_path" value="{download_path}">
+          <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
+          <div class="cf-turnstile" data-sitekey="your_turnstile_site_key" data-callback="setTurnstileResponse"></div>
+          <button type="submit">Continue to Download Link</button>
+        </form>
+      </div>
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+      <script>
+        function setTurnstileResponse(token) {{
+          document.getElementById('cf_turnstile_response').value = token;
+        }}
+
+        document.getElementById("verificationForm").addEventListener("submit", function(event) {{
+          const token = document.getElementById('cf_turnstile_response').value;
+          if (!token) {{
+            event.preventDefault();
+            alert("Please complete the CAPTCHA verification.");
+          }}
+        }});
+      </script>
+    </body>
+    </html>
+    """)
+
+@app.post("/verify-turnstile")
+async def verify_turnstile(download_path: str = Form(...), cf_turnstile_response: str = Form(...)):
+    if not await verify_turnstile_token(cf_turnstile_response):
+        raise HTTPException(status_code=400, detail="Turnstile verification failed")
+    
+    # Generate the token
+    payload = {
+        "path": download_path,
+        "exp": time.time() + TOKEN_EXPIRY_SECONDS
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    download_url = f"/file?download={download_path}&token={token}"
+    
+    # Redirect to the download link
+    return RedirectResponse(url=download_url, status_code=303)
+
+@app.get("/file")
+async def dl_file(request: Request):
+    from utils.directoryHandler import DRIVE_DATA
+
+    user_agent = request.headers.get("User-Agent", "")
+    if "bot" in user_agent.lower() or "crawler" in user_agent.lower():
+        raise HTTPException(status_code=403, detail="Bot activity detected. Download blocked.")
+
+    path = request.query_params.get("download")
+    token = request.query_params.get("token")
+
+    if not path or not token:
+        raise HTTPException(status_code=400, detail="Missing parameters")
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+
+        if payload.get("path") != path:
+            raise HTTPException(status_code=403, detail="Invalid path in token")
+
+        file = DRIVE_DATA.get_file(path)
+        if file:
+            return await media_streamer(file.file_id, file.name, request)
+        else:
+            raise HTTPException(status_code=404, detail="File not found")
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid token")
 
 
 # Api Routes
