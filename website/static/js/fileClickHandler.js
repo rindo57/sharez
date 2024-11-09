@@ -26,7 +26,12 @@ function openFile() {
     // Ensure that the action is from a user click, not programmatically triggered
     if (!this.hasAttribute('data-clicked')) {
         const fileName = this.getAttribute('data-name').toLowerCase();
-        let path = '/generate-link?' + encodeBase64(this.getAttribute('data-path')) + encodeBase64('/') + encodeBase64(this.getAttribute('data-id'))
+        let pathSuffix = this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
+        
+        // Encode pathSuffix to Base64
+        const encodedPathSuffix = btoa(pathSuffix);
+
+        let path = '/generate-link?' + encodedPathSuffix;
 
         if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
             path = path;
