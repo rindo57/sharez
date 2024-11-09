@@ -16,6 +16,7 @@ from utils.streamer import media_streamer
 from utils.uploader import start_file_uploader
 from utils.logger import Logger
 import urllib.parse
+import logging
 import re
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
