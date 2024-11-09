@@ -248,7 +248,7 @@ async def verify_turnstile_token(response_token: str) -> bool:
 async def generate_link_page(request: Request):
     from utils.directoryHandler import DRIVE_DATA
     full_url = str(request.url)
-    
+    print(full_url)
     # Parse the URL and extract the query string (after ?)
     parsed_url = urlparse(full_url)
     download_path = parsed_url.query
