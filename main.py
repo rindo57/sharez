@@ -106,7 +106,7 @@ async def generate_link_page(download_path: str):
     <body>
       <div class="container">
         <h2>Verify You're Human</h2>
-        <form id="verificationForm" action="/verify-turnstile" method="POST">
+        <form id="verificationForm" action="/verify-turnstile" method="GET">
           <input type="hidden" name="download_path" value="{download_path}">
           <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
           <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
@@ -164,7 +164,7 @@ async def verify_turnstile(request: Request, download_path: str = Form(...), cf_
 
 
     
-@app.post("/file")
+@app.get("/file")
 async def dl_file(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
