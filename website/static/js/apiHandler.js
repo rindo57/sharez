@@ -29,6 +29,27 @@ document.getElementById('pass-login').addEventListener('click', async () => {
     }
 });
 
+function hideMoreColumnIfSharedPath() {
+    // Check if the current path starts with '/share'
+    if (getCurrentPath().startsWith('/share')) {
+        // Select the "More" column header
+        const moreColumnHeader = document.querySelector('.directory th:last-child');
+        
+        // Hide the "More" header cell
+        if (moreColumnHeader) {
+            moreColumnHeader.style.display = 'none';
+        }
+
+        // Select all cells in the "More" column
+        const rows = document.querySelectorAll('.directory tbody tr');
+        rows.forEach(row => {
+            const moreColumnCell = row.querySelector('td:last-child');
+            if (moreColumnCell) {
+                moreColumnCell.style.display = 'none';
+            }
+        });
+    }
+}
 async function getCurrentDirectory() {
     let path = getCurrentPath();
     if (path === 'redirect') {
@@ -50,6 +71,7 @@ async function getCurrentDirectory() {
                     sections[0].setAttribute('class', 'unselected-item');
                 }
                 sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
+                hideMoreColumnIfSharedPath(); 
                 console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`)
             }// else if (getCurrentPath().includes('/search_')) {
                 //const sidebarmenu = document.querySelector('.sidebar-menu');
