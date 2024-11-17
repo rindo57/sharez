@@ -123,7 +123,7 @@ def format_media_info(file_path):
             output.append(f"Frame rate                               : {safe_get(track.other_frame_rate) or 'N/A'}")
             output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
             output.append(f"Encoding settings                        : {track.encoding_settings or 'N/A'}")
-        print("VIDEO END")
+    print("VIDEO END")
     # Audio Tracks
     for track in media_info.tracks:
         if track.track_type == "Audio":
@@ -138,7 +138,7 @@ def format_media_info(file_path):
             output.append(f"Channel(s)                               : {track.channel_s or 'N/A'}")
             output.append(f"Sampling rate                            : {safe_get(track.other_sampling_rate) or 'N/A'}")
             output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
-        print("audio END")
+    print("audio END")
         
     # Subtitle Tracks
     for track in media_info.tracks:
@@ -152,7 +152,7 @@ def format_media_info(file_path):
             output.append(f"Compression Mode                         : {track.compression_mode or 'N/A'}")
             output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate) or 'N/A'}")
             output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
-        print("SUBSTITLE END")
+    print("SUBSTITLE END")
     return "\n".join(output)
 
 
