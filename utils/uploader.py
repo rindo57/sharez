@@ -138,7 +138,7 @@ def format_media_info(file_path):
             output.append(f"Channel(s)                               : {track.channel_s or 'N/A'}")
             output.append(f"Sampling rate                            : {safe_get(track.other_sampling_rate) or 'N/A'}")
             output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
-        print("audio END"))
+        print("audio END")
         
     # Subtitle Tracks
     for track in media_info.tracks:
