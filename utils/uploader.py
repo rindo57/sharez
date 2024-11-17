@@ -2,7 +2,6 @@ from utils.clients import get_client
 from pyrogram import Client
 from pyrogram.types import Message
 from config import STORAGE_CHANNEL
-import os
 from utils.logger import Logger
 from urllib.parse import unquote_plus
 from pymediainfo import MediaInfo
@@ -77,7 +76,7 @@ def get_rentry_link(text):
     url, edit_code = '', ''
     response = new(url, edit_code, text)
     if response['status'] == '200':
-        return f"https://rentry.co/{response['url']}"
+        return response['url']
     else:
         raise Exception(f"Rentry API Error: {response['content']}")
         
@@ -93,9 +92,7 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
 
         # Prepare data for rentry.co
     content = (
-        f"Filename: {file_info['filename']}\n"
-        f"File Size: {file_info['total_size']} bytes\n"
-        f"\nMedia Info:\n{media_details}"
+        f"Media Info:\n{media_details}"
     )
 
     rentry_link = get_rentry_link(content)
