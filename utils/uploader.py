@@ -86,7 +86,7 @@ def safe_get(attr, default="N/A"):
 def format_media_info(file_path):
     media_info = MediaInfo.parse(file_path)
     output = []
-
+    print("BEGINING")
     # General Information
     general_track = next((track for track in media_info.tracks if track.track_type == "General"), None)
     if general_track:
@@ -95,10 +95,10 @@ def format_media_info(file_path):
         output.append(f"Complete name                            : {general_track.complete_name or 'N/A'}")
         output.append(f"Format                                   : {general_track.format or 'N/A'}")
         output.append(f"Format version                           : {general_track.format_version or 'N/A'}")
-        output.append(f"File size                                : {safe_get(general_track.other_file_size)}")
-        output.append(f"Duration                                 : {safe_get(general_track.other_duration)}")
-        output.append(f"Overall bit rate                         : {safe_get(general_track.other_overall_bit_rate)}")
-        output.append(f"Frame rate                               : {safe_get(general_track.other_frame_rate)}")
+        output.append(f"File size                                : {safe_get(general_track.other_file_size)  or 'N/A'}")
+        output.append(f"Duration                                 : {safe_get(general_track.other_duration) or 'N/A'}")
+        output.append(f"Overall bit rate                         : {safe_get(general_track.other_overall_bit_rate) or 'N/A'}")
+        output.append(f"Frame rate                               : {safe_get(general_track.other_frame_rate) or 'N/A'}")
         output.append(f"Encoded date                             : {general_track.encoded_date or 'N/A'}")
         output.append(f"Writing application                      : {general_track.writing_application or 'N/A'}")
         output.append(f"Writing library                          : {general_track.writing_library or 'N/A'}")
@@ -114,16 +114,16 @@ def format_media_info(file_path):
             output.append(f"Format/Info                              : {track.format_info or 'N/A'}")
             output.append(f"Format Profile                           : {track.format_profile or 'N/A'}")
             output.append(f"Codec ID                                 : {track.codec_id or 'N/A'}")
-            output.append(f"Bit Depth                                : {safe_get(track.other_bit_depth)}")
-            output.append(f"Duration                                 : {safe_get(track.other_duration)}")
-            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate)}")
+            output.append(f"Bit Depth                                : {safe_get(track.other_bit_depth) or 'N/A'}")
+            output.append(f"Duration                                 : {safe_get(track.other_duration) or 'N/A'}")
+            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate) or 'N/A'}")
             output.append(f"Width                                    : {track.width or 'N/A'} pixels")
             output.append(f"Height                                   : {track.height or 'N/A'} pixels")
-            output.append(f"Display aspect ratio                     : {safe_get(track.other_display_aspect_ratio)}")
-            output.append(f"Frame rate                               : {safe_get(track.other_frame_rate)}")
-            output.append(f"Language                                 : {safe_get(track.other_language)}")
+            output.append(f"Display aspect ratio                     : {safe_get(track.other_display_aspect_ratio) or 'N/A'}")
+            output.append(f"Frame rate                               : {safe_get(track.other_frame_rate) or 'N/A'}")
+            output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
             output.append(f"Encoding settings                        : {track.encoding_settings or 'N/A'}")
-        print("video output: ", output)
+        print("VIDEO END")
     # Audio Tracks
     for track in media_info.tracks:
         if track.track_type == "Audio":
@@ -133,12 +133,13 @@ def format_media_info(file_path):
             output.append(f"Format                                   : {track.format or 'N/A'}")
             output.append(f"Format/Info                              : {track.format_info or 'N/A'}")
             output.append(f"Codec ID                                 : {track.codec_id or 'N/A'}")
-            output.append(f"Duration                                 : {safe_get(track.other_duration)}")
-            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate)}")
+            output.append(f"Duration                                 : {safe_get(track.other_duration) or 'N/A'}")
+            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate) or 'N/A'}")
             output.append(f"Channel(s)                               : {track.channel_s or 'N/A'}")
-            output.append(f"Sampling rate                            : {safe_get(track.other_sampling_rate)}")
+            output.append(f"Sampling rate                            : {safe_get(track.other_sampling_rate) or 'N/A'}")
             output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
-        print("audio output: ", output)
+        print("audio END"))
+        
     # Subtitle Tracks
     for track in media_info.tracks:
         if track.track_type == "Text":
@@ -147,11 +148,11 @@ def format_media_info(file_path):
             output.append(f"Format                                   : {track.format or 'N/A'}")
             output.append(f"Title                                    : {track.title or 'N/A'}")
             output.append(f"Codec ID                                 : {track.codec_id or 'N/A'}")
-            output.append(f"Duration                                 : {safe_get(track.other_duration)}")
+            output.append(f"Duration                                 : {safe_get(track.other_duration) or 'N/A'}")
             output.append(f"Compression Mode                         : {track.compression_mode or 'N/A'}")
-            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate)}")
+            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate) or 'N/A'}")
             output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
-        print("subtitle output: ", output)
+        print("SUBSTITLE END")
     return "\n".join(output)
 
 
