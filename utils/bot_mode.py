@@ -7,17 +7,15 @@ from pathlib import Path
 
 logger = Logger(__name__)
 
-START_CMD = """🚀 **Welcome To TG Drive's Bot Mode**
+START_CMD = """🚀 **Welcome To AniDL Drive's Bot Mode**
 
-You can use this bot to upload files to your TG Drive website directly instead of doing it from website.
+You can use this bot to upload files to your AniDL Drive website directly instead of doing it from website.
 
 🗄 **Commands:**
 /set_folder - Set folder for file uploads
 /current_folder - Check current folder
 
 📤 **How To Upload Files:** Send a file to this bot and it will be uploaded to your TG Drive website. You can also set a folder for file uploads using /set_folder command.
-
-Read more about [TG Drive's Bot Mode](https://github.com/TechShreyash/TGDrive#tg-drives-bot-mode)
 """
 
 SET_FOLDER_PATH_CACHE = {}  # Cache to store folder path for each folder id
@@ -70,7 +68,7 @@ async def set_folder_handler(client: Client, message: Message):
             return
 
         folder_name = folder_name.text.strip()
-        search_result = DRIVE_DATA.search_file_folder(folder_name)
+        search_result = DRIVE_DATA.search_file_folderx(folder_name)
 
         # Get folders from search result
         folders = {}
@@ -191,7 +189,7 @@ async def start_bot_mode(d, b):
     await main_bot.start()
 
     await main_bot.send_message(
-        config.STORAGE_CHANNEL, "Main Bot Started -> TG Drive's Bot Mode Enabled"
+        config.STORAGE_CHANNEL, "Main Bot Started -> AniDL Drive's Bot Mode Enabled"
     )
     logger.info("Main Bot Started")
     logger.info("TG Drive's Bot Mode Enabled")
