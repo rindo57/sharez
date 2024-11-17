@@ -114,7 +114,7 @@ async def dmca(request: Request):
   <title>DMCA Takedown Notices</title>
 <style>
   body {{ font-family: 'Arial', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #25293c; }}
-  .container {{ background: #25293c; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%; color: white; }}
+  .container {{ background: #1b1f2f; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%; color: white; }}
   h2 {{ margin-bottom: 1rem; color: #ff79c6; }}
   ul {{margin: 0; padding-left: 1.5rem; }}
   li {{ margin-bottom: 0.5rem; }}
