@@ -6,7 +6,7 @@ import os
 from utils.logger import Logger
 from urllib.parse import unquote_plus
 from pymediainfo import MediaInfo
-
+import requests
 logger = Logger(__name__)
 PROGRESS_CACHE = {}
 STOP_TRANSMISSION = []
