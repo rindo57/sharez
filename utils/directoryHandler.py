@@ -91,10 +91,10 @@ class NewDriveData:
 
         self.save()
 
-    def new_file(self, path: str, name: str, file_id: int, size: int) -> None:
+    def new_file(self, path: str, name: str, file_id: int, size: int, rentry_link: str) -> None:
         logger.info(f"Creating new file {name} in {path}")
 
-        file = File(name, file_id, size, path)
+        file = File(name, file_id, size, path, rentry_link)
         if path == "/":
             directory_folder: Folder = self.contents[path]
             directory_folder.contents[file.id] = file
