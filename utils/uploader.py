@@ -76,35 +76,98 @@ def get_rentry_link(text):
     url, edit_code = '', ''
     response = new(url, edit_code, text)
     if response['status'] == '200':
-        return response['url']
+        return f"{response['url']}/raw"
     else:
         raise Exception(f"Rentry API Error: {response['content']}")
         
+def format_media_info(file_path):
+    media_info = MediaInfo.parse(file_path)
+    output = []
+
+    # General Information
+    general_track = next((track for track in media_info.tracks if track.track_type == "General"), None)
+    if general_track:
+        output.append("General")
+        output.append(f"Unique ID                                : {general_track.unique_id}")
+        output.append(f"Complete name                            : {general_track.complete_name}")
+        output.append(f"Format                                   : {general_track.format}")
+        output.append(f"Format version                           : {general_track.format_version}")
+        output.append(f"File size                                : {general_track.other_file_size[0]}")
+        output.append(f"Duration                                 : {general_track.other_duration[0]}")
+        output.append(f"Overall bit rate                         : {general_track.other_overall_bit_rate[0]}")
+        output.append(f"Frame rate                               : {general_track.other_frame_rate[0]}")
+        output.append(f"Encoded date                             : {general_track.encoded_date}")
+        output.append(f"Writing application                      : {general_track.writing_application}")
+        output.append(f"Writing library                          : {general_track.writing_library}")
+        if general_track.attachments:
+            output.append(f"Attachments                              : {', '.join(general_track.attachments)}")
+
+    # Video Tracks
+    for track in media_info.tracks:
+        if track.track_type == "Video":
+            output.append("\nVideo")
+            output.append(f"ID                                       : {track.stream_identifier}")
+            output.append(f"Format                                   : {track.format}")
+            output.append(f"Format/Info                              : {track.format_info}")
+            output.append(f"Codec ID                                 : {track.codec_id}")
+            output.append(f"Duration                                 : {track.other_duration[0]}")
+            output.append(f"Bit rate                                 : {track.other_bit_rate[0]}")
+            output.append(f"Width                                    : {track.width} pixels")
+            output.append(f"Height                                   : {track.height} pixels")
+            output.append(f"Display aspect ratio                     : {track.other_display_aspect_ratio[0]}")
+            output.append(f"Frame rate                               : {track.other_frame_rate[0]}")
+            output.append(f"Language                                 : {track.language}")
+
+    # Audio Tracks
+    for track in media_info.tracks:
+        if track.track_type == "Audio":
+            output.append("\nAudio")
+            output.append(f"ID                                       : {track.stream_identifier}")
+            output.append(f"Format                                   : {track.format}")
+            output.append(f"Format/Info                              : {track.format_info}")
+            output.append(f"Codec ID                                 : {track.codec_id}")
+            output.append(f"Duration                                 : {track.other_duration[0]}")
+            output.append(f"Bit rate                                 : {track.other_bit_rate[0]}")
+            output.append(f"Channel(s)                               : {track.channel_s}")
+            output.append(f"Sampling rate                            : {track.other_sampling_rate[0]}")
+            output.append(f"Language                                 : {track.language}")
+
+    # Subtitle Tracks
+    for track in media_info.tracks:
+        if track.track_type == "Text":
+            output.append("\nText")
+            output.append(f"ID                                       : {track.stream_identifier}")
+            output.append(f"Format                                   : {track.format}")
+            output.append(f"Codec ID                                 : {track.codec_id}")
+            output.append(f"Duration                                 : {track.other_duration[0]}")
+            output.append(f"Bit rate                                 : {track.other_bit_rate[0]}")
+            output.append(f"Language                                 : {track.language}")
+    
+    return "\n".join(output)
+
 async def start_file_uploader(file_path, id, directory_path, filename, file_size):
     global PROGRESS_CACHE
     from utils.directoryHandler import DRIVE_DATA
 
     logger.info(f"Uploading file {file_path} {id}")
-    media_info = MediaInfo.parse(file_path)
-    media_details = "\n".join(
-        [f"{track.track_type}: {track.to_data()}" for track in media_info.tracks]
-    )
-
-        # Prepare data for rentry.co
-    content = (
-        f"Media Info:\n{media_details}"
-    )
-
+    
+    # Format media info using the provided function
+    media_details = format_media_info(file_path)
+    
+    # Prepare data for rentry.co
+    content = f"Media Info:\n\n{media_details}"
     rentry_link = get_rentry_link(content)
     print(rentry_link)
+
+    # Select appropriate client based on file size
     if file_size > 1.98 * 1024 * 1024 * 1024:
-        # Use premium client for files larger than 2 GB
         client: Client = get_client(premium_required=True)
     else:
         client: Client = get_client()
 
     PROGRESS_CACHE[id] = ("running", 0, 0)
 
+    # Upload the file and save its metadata
     message: Message = await client.send_document(
         STORAGE_CHANNEL,
         file_path,
@@ -125,8 +188,10 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     DRIVE_DATA.new_file(directory_path, filename, message.id, size, rentry_link)
     PROGRESS_CACHE[id] = ("completed", size, size)
 
+    # Cleanup local file
     try:
         os.remove(file_path)
-    except:
-        pass
+    except Exception as e:
+        logger.error(f"Failed to remove file {file_path}: {e}")
+
     logger.info(f"Uploaded file {file_path} {id}")
