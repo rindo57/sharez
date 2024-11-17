@@ -368,7 +368,7 @@ async def generate_link_page(request: Request):
         <p><strong>Filesize:</strong> {filesize}</p>  <!-- Display formatted size -->
         <p><strong>Views:</strong> {views}</p>
         <p><strong>Downloads:</strong> {downloads}</p>
-        <p><strong>Media Info:</strong> {media_info}</p>
+        <p><strong><a href="{media_info}">Media Info</a></strong></p>
         <h2>Verify You're Human</h2>
         <form id="verificationForm" action="/verify-turnstile" method="POST">
           <input type="hidden" name="download_path" value="{download_path}">
