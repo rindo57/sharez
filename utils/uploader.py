@@ -80,6 +80,9 @@ def get_rentry_link(text):
     else:
         raise Exception(f"Rentry API Error: {response['content']}")
         
+def safe_get(attr, default="N/A"):
+    """Safely get a value or return a default."""
+    return attr[0] if attr else default
 def format_media_info(file_path):
     media_info = MediaInfo.parse(file_path)
     output = []
@@ -88,62 +91,68 @@ def format_media_info(file_path):
     general_track = next((track for track in media_info.tracks if track.track_type == "General"), None)
     if general_track:
         output.append("General")
-        output.append(f"Unique ID                                : {general_track.unique_id}")
-        output.append(f"Complete name                            : {general_track.complete_name}")
-        output.append(f"Format                                   : {general_track.format}")
-        output.append(f"Format version                           : {general_track.format_version}")
-        output.append(f"File size                                : {general_track.other_file_size[0]}")
-        output.append(f"Duration                                 : {general_track.other_duration[0]}")
-        output.append(f"Overall bit rate                         : {general_track.other_overall_bit_rate[0]}")
-        output.append(f"Frame rate                               : {general_track.other_frame_rate[0]}")
-        output.append(f"Encoded date                             : {general_track.encoded_date}")
-        output.append(f"Writing application                      : {general_track.writing_application}")
-        output.append(f"Writing library                          : {general_track.writing_library}")
+        output.append(f"Unique ID                                : {general_track.unique_id or 'N/A'}")
+        output.append(f"Complete name                            : {general_track.complete_name or 'N/A'}")
+        output.append(f"Format                                   : {general_track.format or 'N/A'}")
+        output.append(f"Format version                           : {general_track.format_version or 'N/A'}")
+        output.append(f"File size                                : {safe_get(general_track.other_file_size)}")
+        output.append(f"Duration                                 : {safe_get(general_track.other_duration)}")
+        output.append(f"Overall bit rate                         : {safe_get(general_track.other_overall_bit_rate)}")
+        output.append(f"Frame rate                               : {safe_get(general_track.other_frame_rate)}")
+        output.append(f"Encoded date                             : {general_track.encoded_date or 'N/A'}")
+        output.append(f"Writing application                      : {general_track.writing_application or 'N/A'}")
+        output.append(f"Writing library                          : {general_track.writing_library or 'N/A'}")
         if general_track.attachments:
-            output.append(f"Attachments                              : {', '.join(general_track.attachments)}")
+            output.append(f"Attachments                              : {general_track.attachments}")
 
     # Video Tracks
     for track in media_info.tracks:
         if track.track_type == "Video":
             output.append("\nVideo")
-            output.append(f"ID                                       : {track.stream_identifier}")
-            output.append(f"Format                                   : {track.format}")
-            output.append(f"Format/Info                              : {track.format_info}")
-            output.append(f"Codec ID                                 : {track.codec_id}")
-            output.append(f"Duration                                 : {track.other_duration[0]}")
-            output.append(f"Bit rate                                 : {track.other_bit_rate[0]}")
-            output.append(f"Width                                    : {track.width} pixels")
-            output.append(f"Height                                   : {track.height} pixels")
-            output.append(f"Display aspect ratio                     : {track.other_display_aspect_ratio[0]}")
-            output.append(f"Frame rate                               : {track.other_frame_rate[0]}")
-            output.append(f"Language                                 : {track.language}")
-
+            output.append(f"ID                                       : {track.stream_identifier or 'N/A'}")
+            output.append(f"Format                                   : {track.format or 'N/A'}")
+            output.append(f"Format/Info                              : {track.format_info or 'N/A'}")
+            output.append(f"Format Profile                           : {track.format_profile or 'N/A'}")
+            output.append(f"Codec ID                                 : {track.codec_id or 'N/A'}")
+            output.append(f"Bit Depth                                : {safe_get(track.other_bit_depth) or 'N/A'}")
+            output.append(f"Duration                                 : {safe_get(track.other_duration)}")
+            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate)}")
+            output.append(f"Width                                    : {track.width or 'N/A'} pixels")
+            output.append(f"Height                                   : {track.height or 'N/A'} pixels")
+            output.append(f"Display aspect ratio                     : {safe_get(track.other_display_aspect_ratio)}")
+            output.append(f"Frame rate                               : {safe_get(track.other_frame_rate)}")
+            output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
+            output.append(f"Encoding settings                        : {track.encoding_settings or 'N/A'}")
     # Audio Tracks
     for track in media_info.tracks:
         if track.track_type == "Audio":
             output.append("\nAudio")
-            output.append(f"ID                                       : {track.stream_identifier}")
-            output.append(f"Format                                   : {track.format}")
-            output.append(f"Format/Info                              : {track.format_info}")
-            output.append(f"Codec ID                                 : {track.codec_id}")
-            output.append(f"Duration                                 : {track.other_duration[0]}")
-            output.append(f"Bit rate                                 : {track.other_bit_rate[0]}")
-            output.append(f"Channel(s)                               : {track.channel_s}")
-            output.append(f"Sampling rate                            : {track.other_sampling_rate[0]}")
-            output.append(f"Language                                 : {track.language}")
+            output.append(f"ID                                       : {track.stream_identifier or 'N/A'}")
+            output.append(f"Title                                    : {track.title or 'N/A'}")
+            output.append(f"Format                                   : {track.format or 'N/A'}")
+            output.append(f"Format/Info                              : {track.format_info or 'N/A'}")
+            output.append(f"Codec ID                                 : {track.codec_id or 'N/A'}")
+            output.append(f"Duration                                 : {safe_get(track.other_duration)}")
+            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate)}")
+            output.append(f"Channel(s)                               : {track.channel_s or 'N/A'}")
+            output.append(f"Sampling rate                            : {safe_get(track.other_sampling_rate)}")
+            output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
 
     # Subtitle Tracks
     for track in media_info.tracks:
         if track.track_type == "Text":
             output.append("\nText")
-            output.append(f"ID                                       : {track.stream_identifier}")
-            output.append(f"Format                                   : {track.format}")
-            output.append(f"Codec ID                                 : {track.codec_id}")
-            output.append(f"Duration                                 : {track.other_duration[0]}")
-            output.append(f"Bit rate                                 : {track.other_bit_rate[0]}")
-            output.append(f"Language                                 : {track.language}")
-    
+            output.append(f"ID                                       : {track.stream_identifier or '0'}")
+            output.append(f"Format                                   : {track.format or 'N/A'}")
+            output.append(f"Title                                    : {track.title or 'N/A'}")
+            output.append(f"Codec ID                                 : {track.codec_id or 'N/A'}")
+            output.append(f"Duration                                 : {safe_get(track.other_duration)}")
+            output.append(f"Compression Mode                         : {track.compression_mode or 'N/A'}")
+            output.append(f"Bit rate                                 : {safe_get(track.other_bit_rate)}")
+            output.append(f"Language                                 : {safe_get(track.other_language) or 'N/A'}")
+
     return "\n".join(output)
+
 
 async def start_file_uploader(file_path, id, directory_path, filename, file_size):
     global PROGRESS_CACHE
