@@ -344,7 +344,7 @@ async def generate_link_page(request: Request):
     filesize = convert_size(file.size)  # Convert to MB/GB/etc.
     views = stats["views"] + 1  # Increment view for this request
     downloads = stats["downloads"]
-
+    media_info = file.rentry_link
     return HTMLResponse(content=f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -368,6 +368,7 @@ async def generate_link_page(request: Request):
         <p><strong>Filesize:</strong> {filesize}</p>  <!-- Display formatted size -->
         <p><strong>Views:</strong> {views}</p>
         <p><strong>Downloads:</strong> {downloads}</p>
+        <p><strong>Media Info:</strong> {media_info}</p>
         <h2>Verify You're Human</h2>
         <form id="verificationForm" action="/verify-turnstile" method="POST">
           <input type="hidden" name="download_path" value="{download_path}">
