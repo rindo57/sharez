@@ -48,6 +48,7 @@ class File:
         file_id: int,
         size: int,
         path: str,
+        rentry_link: str
     ) -> None:
         self.name = name
         self.type = type
@@ -58,6 +59,8 @@ class File:
         self.trash = False
         self.path = path[:-1] if path[-1] == "/" else path
         self.upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.rentry_link = rentry_link
+        
 
 
 class NewDriveData:
