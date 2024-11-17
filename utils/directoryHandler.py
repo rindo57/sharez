@@ -270,7 +270,19 @@ class NewDriveData:
                     search_results[item.id] = item
                 if item.type == "folder":
                     traverse_directory(item)
+    def search_file_folderx(self, query: str):
+        root_dir = self.get_directory("/")
+        search_results = {}
 
+        def traverse_directory(folder):
+            for item in folder.contents.values():
+                if query.lower() in item.name.lower():
+                    search_results[item.id] = item
+                if item.type == "folder":
+                    traverse_directory(item)
+
+        traverse_directory(root_dir)
+        return search_results
         traverse_directory(root_dir)
         return search_results
     def search_file_folder2(self, query: str, path: str, is_admin: bool, auth: str):
