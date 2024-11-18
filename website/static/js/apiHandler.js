@@ -231,8 +231,14 @@ function removeFile(fileToRemove) {
 
 }
 
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB per chunk
+const MAX_FILE_SIZE = 2126008811.52; // 2 GB for now, change as needed
+
 async function uploadFile(file) {
-    activeUploads++;
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    let currentChunk = 0;
+    let offset = 0; // Track the offset for the current chunk
+    const id = getRandomId();
 
     // Show uploader UI
     document.getElementById('bg-blur').style.zIndex = '2';
@@ -244,39 +250,58 @@ async function uploadFile(file) {
     document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
     document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('path', getCurrentPath());
-    formData.append('password', getPassword());
-    const id = getRandomId();
-    formData.append('id', id);
-    formData.append('total_size', file.size);
+    while (offset < file.size) {
+        const chunk = file.slice(offset, offset + CHUNK_SIZE); // Create a chunk
+        const formData = new FormData();
+        formData.append('file', chunk);
+        formData.append('id', id);
+        formData.append('chunk_number', currentChunk);
+        formData.append('total_chunks', totalChunks);
+        formData.append('total_size', file.size);
 
-    const uploadRequest = new XMLHttpRequest();
-    uploadRequest.open('POST', '/api/upload', true);
-    uploadRequest.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    uploadRequest.setRequestHeader('Pragma', 'no-cache');
-    uploadRequest.setRequestHeader('Expires', '0');
+        try {
+            const response = await fetch('/api/uploadChunk', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
 
-    uploadRequest.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
+            if (data.status === 'ok') {
+                currentChunk++;
+                offset += CHUNK_SIZE;
+
+                // Update progress bar
+                const percentComplete = (offset / file.size) * 100;
+                progressBar.style.width = percentComplete + '%';
+                uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
+
+                // Check if all chunks are uploaded
+                if (currentChunk === totalChunks) {
+                    await finalizeUpload(id);
+                    break;
+                }
+            } else {
+                alert('Chunk upload failed');
+                break;
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Upload failed');
+            break;
         }
-    });
+    }
+}
 
-    uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id);
-    });
+async function finalizeUpload(id) {
+    document.getElementById('upload-status').innerText = 'Status: Finalizing Upload';
 
-    uploadRequest.upload.addEventListener('error', () => {
-        alert(`Upload of ${file.name} failed`);
-        activeUploads--;
-        processUploadQueue();
-    });
-
-    uploadRequest.send(formData);
+    // Notify server to finalize file after all chunks are uploaded
+    const response = await postJson('/api/finalizeUpload', { id });
+    if (response.status === 'ok') {
+        await handleUpload2(id); // Continue with the next steps if the file is finalized
+    } else {
+        alert('Failed to finalize upload');
+    }
 }
 
 cancelButton.addEventListener('click', () => {
