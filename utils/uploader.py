@@ -196,7 +196,7 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
 
     filename = unquote_plus(filename)
 
-    DRIVE_DATA.new_file(directory_path, filename, message.id, size, rentry_link)
+    DRIVE_DATA.new_file(directory_path, filename, message.id, size)
     PROGRESS_CACHE[id] = ("completed", size, size)
 
     # Cleanup local file
