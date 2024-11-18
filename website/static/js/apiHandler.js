@@ -254,7 +254,7 @@ async function uploadFile(file) {
     const uploadRequest = new XMLHttpRequest();
     uploadRequest.open('POST', '/api/upload', true);
     uploadRequest.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0"); 
-    uploadRequest.setRequestHeader("Pragma", "no-cache");
+    //uploadRequest.setRequestHeader("Pragma", "no-cache");
 
     uploadRequest.upload.addEventListener('progress', (e) => {
         if (e.lengthComputable) {
