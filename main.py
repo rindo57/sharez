@@ -576,35 +576,57 @@ async def api_get_directory(request: Request):
 
 
 SAVE_PROGRESS = {}
-@app.post("/api/upload")
-async def upload_file(
-    file: UploadFile = File(...),
+
+@app.post("/api/upload_chunk")
+async def upload_chunk(
+    file_chunk: UploadFile = File(...),
+    chunk_index: int = Form(...),
+    total_chunks: int = Form(...),
+    file_name: str = Form(...),
     path: str = Form(...),
     password: str = Form(...),
     id: str = Form(...),
-    chunk_index: int = Form(...),
-    total_chunks: int = Form(...),
 ):
     global SAVE_PROGRESS
 
     if password != ADMIN_PASSWORD:
         return JSONResponse({"status": "Invalid password"})
 
-    # Handle chunked uploads
-    ext = file.filename.lower().split(".")[-1]
-    cache_dir = Path("./cache")
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    file_location = cache_dir / f"{id}.{ext}"
+    # Create a directory for this upload ID to store chunks
+    upload_dir = Path("./cache") / id
+    upload_dir.mkdir(parents=True, exist_ok=True)
 
-    async with aiofiles.open(file_location, "ab") as buffer:  # Append mode
-        chunk = await file.read()  # Read the chunk
-        await buffer.write(chunk)
+    chunk_path = upload_dir / f"{chunk_index}.chunk"
 
-    # Check if all chunks are uploaded
-    if chunk_index == total_chunks - 1:  # Last chunk
-        SAVE_PROGRESS[id] = ("completed", file.size, file.size)
+    # Save the uploaded chunk to disk
+    async with aiofiles.open(chunk_path, "wb") as buffer:
+        while chunk := await file_chunk.read(1024 * 1024):  # Read in 1MB chunks
+            await buffer.write(chunk)
 
-    return JSONResponse({"id": id, "status": "ok"})
+    # Update progress
+    if id not in SAVE_PROGRESS:
+        SAVE_PROGRESS[id] = ("running", 0, int(total_chunks))
+    SAVE_PROGRESS[id] = ("running", chunk_index + 1, int(total_chunks))
+
+    # Check if all chunks are received
+    if len(list(upload_dir.glob("*.chunk"))) == total_chunks:
+        # Assemble chunks into the final file
+        final_file_path = upload_dir / file_name
+        async with aiofiles.open(final_file_path, "wb") as final_file:
+            for chunk_file in sorted(upload_dir.glob("*.chunk"), key=lambda x: int(x.stem)):
+                async with aiofiles.open(chunk_file, "rb") as chunk:
+                    await final_file.write(await chunk.read())
+                chunk_file.unlink()  # Remove chunk file after merging
+
+        SAVE_PROGRESS[id] = ("completed", total_chunks, total_chunks)
+
+        # Start uploading to the final destination (e.g., storage service)
+        asyncio.create_task(
+            start_file_uploader(final_file_path, id, path, file_name, final_file_path.stat().st_size)
+        )
+
+    return JSONResponse({"status": "ok", "chunk_index": chunk_index})
+
 
 
         
