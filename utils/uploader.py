@@ -84,7 +84,7 @@ def safe_get(attr, default="N/A"):
     """Safely get a value or return a default."""
     return attr[0] if attr else default
 def format_media_info(file_path):
-    media_info = MediaInfo.parse(file_path)
+    media_info = MediaInfo.parse(file_path, filename)
     output = []
     print("BEGINING")
     # General Information
@@ -92,7 +92,7 @@ def format_media_info(file_path):
     if general_track:
         output.append("General")
         output.append(f"Unique ID                                : {general_track.unique_id or 'N/A'}")
-        output.append(f"Complete name                            : {general_track.complete_name or 'N/A'}")
+        output.append(f"Complete name                            : {filename})
         output.append(f"Format                                   : {general_track.format or 'N/A'}")
         output.append(f"Format version                           : {general_track.format_version or 'N/A'}")
         output.append(f"File size                                : {safe_get(general_track.other_file_size)  or 'N/A'}")
@@ -164,7 +164,7 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     
     # Format media info using the provided function
     if filename.endswith(".mkv"):
-        media_details = format_media_info(file_path)
+        media_details = format_media_info(file_path, filename)
         content = f"Media Info:\n\n{media_details}"
         rentry_link = get_rentry_link(content)
         print(rentry_link)
