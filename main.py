@@ -573,12 +573,16 @@ async def api_get_directory(request: Request):
     return JSONResponse({"status": "ok", "data": folder_data, "auth_home_path": None})
 
 
+
+
 SAVE_PROGRESS = {}
-
-
-@app.post("/api/upload")
-async def upload_file(
-    file: UploadFile = File(...),
+MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024  # 5GB (for example)
+@app.post("/api/uploadChunk")
+async def upload_chunk(
+    chunk: UploadFile = File(...),
+    chunkIndex: int = Form(...),
+    totalChunks: int = Form(...),
+    fileName: str = Form(...),
     path: str = Form(...),
     password: str = Form(...),
     id: str = Form(...),
@@ -590,40 +594,37 @@ async def upload_file(
         return JSONResponse({"status": "Invalid password"})
 
     total_size = int(total_size)
-    SAVE_PROGRESS[id] = ("running", 0, total_size)
+    if id not in SAVE_PROGRESS:
+        SAVE_PROGRESS[id] = ("running", 0, total_size)
 
-    ext = file.filename.lower().split(".")[-1]
-
+    # Create cache directory if it doesn't exist
     cache_dir = Path("./cache")
     cache_dir.mkdir(parents=True, exist_ok=True)
-    file_location = cache_dir / f"{id}.{ext}"
+    
+    # Define the file path for this specific file
+    file_location = cache_dir / f"{id}.part"
 
-    file_size = 0
+    # Save the uploaded chunk to the file
+    async with aiofiles.open(file_location, "ab") as buffer:  # Append mode for chunked writes
+        chunk_data = await chunk.read()
+        await buffer.write(chunk_data)
 
-    async with aiofiles.open(file_location, "wb") as buffer:
-        while chunk := await file.read(1024 * 1024):  # Read file in chunks of 1MB
-            SAVE_PROGRESS[id] = ("running", file_size, total_size)
-            file_size += len(chunk)
-            if file_size > MAX_FILE_SIZE:
-                await buffer.close()
-                file_location.unlink()  # Delete the partially written file
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"File size exceeds {MAX_FILE_SIZE} bytes limit",
-                )
-            await buffer.write(chunk)
+    # Update progress
+    file_size = len(chunk_data) + SAVE_PROGRESS[id][1]
+    SAVE_PROGRESS[id] = ("running", file_size, total_size)
 
-    SAVE_PROGRESS[id] = ("completed", file_size, file_size)
+    # Check if the file size exceeds the limit
+    if file_size > MAX_FILE_SIZE:
+        await buffer.close()
+        file_location.unlink()  # Delete the partially written file
+        raise HTTPException(status_code=400, detail=f"File size exceeds {MAX_FILE_SIZE} bytes limit")
 
-    asyncio.create_task(
-        start_file_uploader(file_location, id, path, file.filename, file_size)
-    )
-    headers = {
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-        "Pragma": "no-cache",
-    }
-    return Response(content='{"id": "' + id + '", "status": "ok"}', headers=headers, media_type="application/json")
+    if file_size == total_size:
+        SAVE_PROGRESS[id] = ("completed", file_size, file_size)
+        # Once upload is complete, you can process the file or move it to its final destination
+        asyncio.create_task(start_file_uploader(file_location, id, path, fileName, file_size))
 
+    return JSONResponse({"status": "ok", "chunkIndex": chunkIndex, "totalChunks": totalChunks})
         
 @app.post("/api/getSaveProgress")
 async def get_save_progress(request: Request):
