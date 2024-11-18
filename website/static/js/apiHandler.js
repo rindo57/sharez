@@ -231,127 +231,7 @@ function removeFile(fileToRemove) {
 
 }
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
-
-async function uploadFileInChunks(file) {
-    activeUploads++;
-
-    // Show uploader UI
-    document.getElementById('bg-blur').style.zIndex = '2';
-    document.getElementById('bg-blur').style.opacity = '0.1';
-    document.getElementById('file-uploader').style.zIndex = '3';
-    document.getElementById('file-uploader').style.opacity = '1';
-
-    document.getElementById('upload-filename').innerText = 'Filename: ' + file.name;
-    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-    document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
-
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-    const id = getRandomId();
-
-    for (let i = 0; i < totalChunks; i++) {
-        const start = i * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, file.size);
-        const chunk = file.slice(start, end);
-
-        const formData = new FormData();
-        formData.append("chunk", chunk);
-        formData.append("chunkIndex", i);
-        formData.append("totalChunks", totalChunks);
-        formData.append("fileName", file.name);
-        formData.append("path", getCurrentPath());
-        formData.append("password", getPassword());
-        formData.append("id", id);
-        formData.append("total_size", file.size);
-
-        const response = await fetch("/api/uploadChunk", {
-            method: "POST",
-            body: formData,
-        });
-
-        if (!response.ok) {
-            alert(`Chunk ${i + 1} upload failed`);
-            activeUploads--;
-            processUploadQueue();
-            return;
-        }
-
-        const progress = ((i + 1) / totalChunks) * 100;
-        progressBar.style.width = progress + '%';
-        uploadPercent.innerText = 'Progress : ' + progress.toFixed(2) + '%';
-        console.log(`Progress: ${progress.toFixed(2)}%`);
-    }
-
-    console.log("File upload complete");
-    await updateSaveProgress(id);
-}
-
-async function updateSaveProgress(id) {
-    console.log('save progress');
-    progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%';
-    document.getElementById('upload-status').innerText = 'Status: Processing File On Backend Server';
-
-    const interval = setInterval(async () => {
-        const response = await postJson('/api/getSaveProgress', { 'id': id });
-        const data = response['data'];
-
-        if (data[0] === 'running') {
-            const current = data[1];
-            const total = data[2];
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
-
-            const percentComplete = (current / total) * 100;
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-        else if (data[0] === 'completed') {
-            clearInterval(interval);
-            uploadPercent.innerText = 'Progress : 100%';
-            progressBar.style.width = '100%';
-
-            await handleUpload2(id);
-        }
-    }, 3000);
-}
-
-async function handleUpload2(id) {
-    document.getElementById('upload-status').innerText = 'Status: Uploading To Telegram Server';
-    progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%';
-
-    const interval = setInterval(async () => {
-        const response = await postJson('/api/getUploadProgress', { 'id': id });
-        const data = response['data'];
-
-        if (data[0] === 'running') {
-            const current = data[1];
-            const total = data[2];
-            document.getElementById('upload-filesize').innerText = 'Filesize: ' + (total / (1024 * 1024)).toFixed(2) + ' MB';
-
-            let percentComplete;
-            if (total === 0) {
-                percentComplete = 0;
-            } else {
-                percentComplete = (current / total) * 100;
-            }
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-        else if (data[0] === 'completed') {
-            clearInterval(interval);
-            activeUploads--; // Decrement active uploads counter after uploading
-            processUploadQueue(); // Check for the next file in the queue
-        }
-    }, 3000);
-}
-
-cancelButton.addEventListener('click', () => {
-    alert('Upload canceled');
-    window.location.reload();
-});
-
-/* async function uploadFile(file) {
+async function uploadFile(file) {
     activeUploads++;
 
     // Show uploader UI
@@ -463,8 +343,7 @@ async function handleUpload2(id) {
             processUploadQueue(); // Check for the next file in the queue
         }
     }, 3000);
-} */
-
+}
 // File Uploader End
 // URL Uploader Start
 
