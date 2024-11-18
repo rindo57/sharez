@@ -597,10 +597,11 @@ async def upload_chunk(
     upload_dir.mkdir(parents=True, exist_ok=True)
 
     chunk_path = upload_dir / f"{chunk_index}.chunk"
-
+    file_size = 0
     # Save the uploaded chunk to disk
     async with aiofiles.open(chunk_path, "wb") as buffer:
         while chunk := await file_chunk.read(1024 * 1024):  # Read in 1MB chunks
+            file_size += len(chunk)
             await buffer.write(chunk)
 
     # Update progress
@@ -622,7 +623,7 @@ async def upload_chunk(
 
         # Start uploading to the final destination (e.g., storage service)
         asyncio.create_task(
-            start_file_uploader(final_file_path, id, path, file_name, final_file_path.stat().st_size)
+            start_file_uploader(final_file_path, id, path, file_name, file_size)
         )
 
     return JSONResponse({"status": "ok", "chunk_index": chunk_index})
