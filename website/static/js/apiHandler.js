@@ -255,7 +255,10 @@ async function uploadFile(file) {
     formData.append('id', getRandomId());
     formData.append('total_size', file.size);
 
-    while (currentChunk < totalChunks) {
+    // Track chunk progress and upload completion status
+    let isUploading = true;
+
+    while (currentChunk < totalChunks && isUploading) {
         const chunkStart = currentChunk * CHUNK_SIZE;
         const chunkEnd = Math.min((currentChunk + 1) * CHUNK_SIZE, file.size);
         const chunk = file.slice(chunkStart, chunkEnd);
@@ -264,6 +267,7 @@ async function uploadFile(file) {
         formData.set('chunk_index', currentChunk);
         formData.set('total_chunks', totalChunks);
 
+        // Create a new XMLHttpRequest for each chunk
         const uploadRequest = new XMLHttpRequest();
         uploadRequest.open('POST', '/api/upload_chunk', true);
         
@@ -276,11 +280,13 @@ async function uploadFile(file) {
         });
 
         uploadRequest.onload = () => {
+            // Once the chunk is uploaded, increase the chunk counter
             currentChunk++;
             if (currentChunk === totalChunks) {
-                alert('Upload completed!');
-                activeUploads--;
-                processUploadQueue();
+                // All chunks have been uploaded, trigger the processing phase
+                document.getElementById('upload-status').innerText = 'Status: Processing File On Backend Server';
+                // You can call a function to notify the backend to process the file here
+                isUploading = false;
             }
         };
 
@@ -289,10 +295,13 @@ async function uploadFile(file) {
             // Retry upload logic can be added here
         };
 
+        // Send the chunk to the server
         uploadRequest.send(formData);
-        await new Promise(resolve => uploadRequest.onloadend = resolve); // Wait for chunk upload to complete before moving to the next one
+        // Wait for the current chunk to finish before continuing to the next
+        await new Promise(resolve => uploadRequest.onloadend = resolve); 
     }
 }
+
 
 cancelButton.addEventListener('click', () => {
     alert('Upload canceled');
