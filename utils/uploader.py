@@ -163,7 +163,7 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     logger.info(f"Uploading file {file_path} {id}")
     
     # Format media info using the provided function
-    if filename.endwith(".mkv"):
+    if filename.endswith(".mkv"):
         media_details = format_media_info(file_path)
         content = f"Media Info:\n\n{media_details}"
         rentry_link = get_rentry_link(content)
