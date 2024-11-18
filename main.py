@@ -576,69 +576,50 @@ async def api_get_directory(request: Request):
 
 
 SAVE_PROGRESS = {}
-MAX_FILE_SIZE = 2126008811.52
-@app.post("/api/uploadChunk")
-async def upload_chunk(
+@app.post("/api/upload")
+async def upload_file(
     file: UploadFile = File(...),
+    path: str = Form(...),
+    password: str = Form(...),
     id: str = Form(...),
-    chunk_number: int = Form(...),
-    total_chunks: int = Form(...),
-    total_size: int = Form(...),
+    total_size: str = Form(...),
 ):
     global SAVE_PROGRESS
 
-    # Save progress data for each file
-    if id not in SAVE_PROGRESS:
-        SAVE_PROGRESS[id] = {"chunks": [], "total_size": total_size, "status": "running"}
+    if password != ADMIN_PASSWORD:
+        return JSONResponse({"status": "Invalid password"})
 
-    # Ensure the chunk directory exists
-    chunk_dir = Path("./chunks")
-    chunk_dir.mkdir(parents=True, exist_ok=True)
+    total_size = int(total_size)
+    SAVE_PROGRESS[id] = ("running", 0, total_size)
 
-    # Save the chunk temporarily
-    chunk_location = chunk_dir / f"{id}_chunk_{chunk_number}"
+    ext = file.filename.lower().split(".")[-1]
 
-    async with aiofiles.open(chunk_location, "wb") as buffer:
-        while chunk := await file.read(1024 * 1024):  # Read in 1 MB chunks
+    cache_dir = Path("./cache")
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    file_location = cache_dir / f"{id}.{ext}"
+
+    file_size = 0
+
+    async with aiofiles.open(file_location, "wb") as buffer:
+        while chunk := await file.read(1024 * 1024):  # Read file in chunks of 1MB
+            SAVE_PROGRESS[id] = ("running", file_size, total_size)
+            file_size += len(chunk)
+            if file_size > MAX_FILE_SIZE:
+                await buffer.close()
+                file_location.unlink()  # Delete the partially written file
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File size exceeds {MAX_FILE_SIZE} bytes limit",
+                )
             await buffer.write(chunk)
 
-    # Add chunk progress
-    SAVE_PROGRESS[id]["chunks"].append(chunk_number)
+    SAVE_PROGRESS[id] = ("completed", file_size, file_size)
 
-    # Check if all chunks are uploaded
-    if len(SAVE_PROGRESS[id]["chunks"]) == total_chunks:
-        await combine_chunks(id, total_size)
+    asyncio.create_task(
+        start_file_uploader(file_location, id, path, file.filename, file_size)
+    )
 
-    return JSONResponse({"status": "ok"})
-
-async def combine_chunks(id: str, total_size: int):
-    chunk_dir = Path("./chunks")
-    file_location = Path(f"./final_files/{id}.tmp")
-    
-    # Ensure final directory exists
-    final_dir = Path("./final_files")
-    final_dir.mkdir(parents=True, exist_ok=True)
-
-    async with aiofiles.open(file_location, "wb") as output_file:
-        for chunk_num in range(total_size // CHUNK_SIZE + 1):  # Iterate over chunk numbers
-            chunk_path = chunk_dir / f"{id}_chunk_{chunk_num}"
-            if chunk_path.exists():
-                async with aiofiles.open(chunk_path, "rb") as chunk_file:
-                    chunk_data = await chunk_file.read()
-                    await output_file.write(chunk_data)
-                chunk_path.unlink()  # Remove the chunk after appending
-
-    SAVE_PROGRESS[id]["status"] = "completed"
-    # Rename the final file after combining chunks
-    final_file = file_location.rename(final_dir / f"{id}.mp4")  # Or whatever your file type is
-    print(f"File saved as {final_file}")
-
-@app.post("/api/finalizeUpload")
-async def finalize_upload(id: str):
-    # You can return a success response or handle any post-processing tasks
-    if id not in SAVE_PROGRESS or SAVE_PROGRESS[id]["status"] != "completed":
-        return JSONResponse({"status": "error", "message": "Upload not completed"})
-    return JSONResponse({"status": "ok"})
+    return JSONResponse({"id": id, "status": "ok"})
         
 @app.post("/api/getSaveProgress")
 async def get_save_progress(request: Request):
