@@ -163,12 +163,12 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     logger.info(f"Uploading file {file_path} {id}")
     
     # Format media info using the provided function
-    media_details = format_media_info(file_path)
+   # media_details = format_media_info(file_path)
     
     # Prepare data for rentry.co
-    content = f"Media Info:\n\n{media_details}"
-    rentry_link = get_rentry_link(content)
-    print(rentry_link)
+   # content = f"Media Info:\n\n{media_details}"
+    #rentry_link = get_rentry_link(content)
+   # print(rentry_link)
 
     # Select appropriate client based on file size
     if file_size > 1.98 * 1024 * 1024 * 1024:
