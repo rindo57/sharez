@@ -233,57 +233,77 @@ function removeFile(fileToRemove) {
 
 
 
-const CHUNK_SIZE = 95 * 1024 * 1024; // 100 MB
 
 async function uploadFile(file) {
-    activeUploads++;
+    const CHUNK_SIZE = 10 * 1024 * 1024; // 10 MB per chunk
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-    
-    for (let i = 0; i < totalChunks; i++) {
-        const start = i * CHUNK_SIZE;
+    const id = getRandomId();
+    let currentChunkIndex = 0;
+
+    activeUploads++;
+
+    // Show uploader UI
+    document.getElementById('bg-blur').style.zIndex = '2';
+    document.getElementById('bg-blur').style.opacity = '0.1';
+    document.getElementById('file-uploader').style.zIndex = '3';
+    document.getElementById('file-uploader').style.opacity = '1';
+
+    document.getElementById('upload-filename').innerText = 'Filename: ' + file.name;
+    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+    document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
+
+    for (let start = 0; start < file.size; start += CHUNK_SIZE) {
         const end = Math.min(start + CHUNK_SIZE, file.size);
         const chunk = file.slice(start, end);
-        
+
         const formData = new FormData();
-        formData.append('file', chunk, file.name);
+        formData.append('file_chunk', chunk);
+        formData.append('chunk_index', currentChunkIndex);
+        formData.append('total_chunks', totalChunks);
+        formData.append('file_name', file.name);
         formData.append('path', getCurrentPath());
         formData.append('password', getPassword());
-        formData.append('id', getRandomId());
-        formData.append('chunkIndex', i);
-        formData.append('totalChunks', totalChunks);
+        formData.append('id', id);
 
-        await sendChunk(formData);
+        await uploadChunk(formData, currentChunkIndex, totalChunks);
+        currentChunkIndex++;
     }
 
+    document.getElementById('upload-status').innerText = 'Status: File Upload Complete';
+    progressBar.style.width = '100%';
+    uploadPercent.innerText = 'Progress : 100%';
     activeUploads--;
     processUploadQueue();
 }
 
-async function sendChunk(formData) {
-    const uploadRequest = new XMLHttpRequest();
-    uploadRequest.open('POST', '/api/upload', true);
-    
-    uploadRequest.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-    });
+async function uploadChunk(formData, chunkIndex, totalChunks) {
+    return new Promise((resolve, reject) => {
+        const uploadRequest = new XMLHttpRequest();
+        uploadRequest.open('POST', '/api/upload_chunk', true);
 
-    uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id);
-    });
+        uploadRequest.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percentComplete = (((chunkIndex + (e.loaded / e.total)) / totalChunks) * 100).toFixed(2);
+                progressBar.style.width = percentComplete + '%';
+                uploadPercent.innerText = `Progress : ${percentComplete}%`;
+            }
+        });
 
-    uploadRequest.upload.addEventListener('error', () => {
-        alert('Upload failed');
-        activeUploads--;
-        processUploadQueue();
-    });
+        uploadRequest.addEventListener('load', () => {
+            if (uploadRequest.status === 200) {
+                resolve();
+            } else {
+                reject(`Chunk ${chunkIndex + 1} failed to upload.`);
+            }
+        });
 
-    uploadRequest.send(formData);
+        uploadRequest.addEventListener('error', () => {
+            reject(`Chunk ${chunkIndex + 1} failed to upload due to an error.`);
+        });
+
+        uploadRequest.send(formData);
+    });
 }
-
 
 
 
