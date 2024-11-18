@@ -592,7 +592,8 @@ async def upload_chunk(
         return JSONResponse({"status": "Invalid password"})
 
     # Handle chunk upload
-    chunk_size = len(await file.read())  # File chunk size in bytes
+    chunk_data = await file.read()  # Read the chunk once
+    chunk_size = len(chunk_data)  # File chunk size in bytes
     total_size = int(total_size)
 
     ext = file.filename.lower().split(".")[-1]
@@ -602,7 +603,7 @@ async def upload_chunk(
 
     # Write the chunk to the file
     async with aiofiles.open(file_location, "ab") as buffer:  # 'ab' mode for appending
-        await buffer.write(await file.read())
+        await buffer.write(chunk_data)
 
     # Check if all chunks have been uploaded
     if chunk_index == total_chunks - 1:
@@ -611,6 +612,7 @@ async def upload_chunk(
         asyncio.create_task(start_file_uploader(file_location, id, path, file.filename, total_size))
 
     return JSONResponse({"status": "ok", "chunk_index": chunk_index})
+
 
         
 @app.post("/api/getSaveProgress")
