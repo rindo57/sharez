@@ -424,17 +424,17 @@ async def generate_link_page(request: Request):
   </div>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script>
-    function setTurnstileResponse(token) {
+    function setTurnstileResponse(token) {{
       document.getElementById('cf_turnstile_response').value = token;
-    }
+    }}
 
-    document.getElementById("verificationForm").addEventListener("submit", function(event) {
+    document.getElementById("verificationForm").addEventListener("submit", function(event) {{
       const token = document.getElementById('cf_turnstile_response').value;
-      if (!token) {
+      if (!token) {{
         event.preventDefault();
         alert("Please complete the CAPTCHA verification.");
-      }
-    });
+      }}
+    }});
   </script>
 </body>
 </html>""")
