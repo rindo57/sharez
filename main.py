@@ -352,7 +352,7 @@ async def generate_link_page(request: Request):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ filename }}</title>
+  <title>{ filename }</title>
   <style>
     body {{
       font-family: 'Arial', sans-serif;
@@ -409,14 +409,14 @@ async def generate_link_page(request: Request):
 <body>
   <div class="container">
     <h2>File Information</h2>
-    <p><strong>Filename:</strong> {{ filename }}</p>
-    <p><strong>Filesize:</strong> {{ filesize }}</p>  <!-- Display formatted size -->
-    <p><strong>Views:</strong> {{ views }}</p>
-    <p><strong>Downloads:</strong> {{ downloads }}</p>
-    <p><strong><a href="{{ media_info }}">Media Info</a></strong></p>
+    <p><strong>Filename:</strong> {filename}</p>
+    <p><strong>Filesize:</strong> {filesize}</p>  <!-- Display formatted size -->
+    <p><strong>Views:</strong> {views}</p>
+    <p><strong>Downloads:</strong> {downloads}</p>
+    <p><strong><a href="{ media_info }">Media Info</a></strong></p>
     <h2>Verify You're Human</h2>
     <form id="verificationForm" action="/verify-turnstile" method="POST">
-      <input type="hidden" name="download_path" value="{{ download_path }}">
+      <input type="hidden" name="download_path" value="{download_path}">
       <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
       <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
       <button type="submit">Continue to Download Link</button>
