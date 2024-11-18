@@ -92,7 +92,7 @@ def format_media_info(file_path):
     if general_track:
         output.append("General")
         output.append(f"Unique ID                                : {general_track.unique_id or 'N/A'}")
-        output.append(f"Complete name                            : {filename})
+        output.append(f"Complete name                            : {filename}")
         output.append(f"Format                                   : {general_track.format or 'N/A'}")
         output.append(f"Format version                           : {general_track.format_version or 'N/A'}")
         output.append(f"File size                                : {safe_get(general_track.other_file_size)  or 'N/A'}")
