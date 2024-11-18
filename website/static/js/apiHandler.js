@@ -282,13 +282,14 @@ cancelButton.addEventListener('click', () => {
 });
 
 async function updateSaveProgress(id) {
+    console.log('save progress')
     progressBar.style.width = '0%';
-    uploadPercent.innerText = 'Progress : 0%';
+    uploadPercent.innerText = 'Progress : 0%'
     document.getElementById('upload-status').innerText = 'Status: Processing File On Backend Server';
 
     const interval = setInterval(async () => {
-        const response = await postJson('/api/getSaveProgress', { 'id': id });
-        const data = response['data'];
+        const response = await postJson('/api/getSaveProgress', { 'id': id })
+        const data = response['data']
 
         if (data[0] === 'running') {
             const current = data[1];
@@ -301,9 +302,13 @@ async function updateSaveProgress(id) {
         }
         else if (data[0] === 'completed') {
             clearInterval(interval);
-            await handleUpload2(id); // Proceed to the next phase after saving progress
+            uploadPercent.innerText = 'Progress : 100%'
+            progressBar.style.width = '100%';
+
+            await handleUpload2(id)
         }
-    }, 3000);
+    }, 3000)
+
 }
 
 async function handleUpload2(id) {
