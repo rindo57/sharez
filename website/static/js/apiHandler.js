@@ -248,26 +248,20 @@ async function uploadFile(file) {
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     let currentChunk = 0;
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('path', getCurrentPath());
-    formData.append('password', getPassword());
-    formData.append('id', getRandomId());
-    formData.append('total_size', file.size);
-
-    // Track chunk progress and upload completion status
-    let isUploading = true;
-
-    while (currentChunk < totalChunks && isUploading) {
+    while (currentChunk < totalChunks) {
         const chunkStart = currentChunk * CHUNK_SIZE;
         const chunkEnd = Math.min((currentChunk + 1) * CHUNK_SIZE, file.size);
         const chunk = file.slice(chunkStart, chunkEnd);
-        
-        formData.set('chunk', chunk);
-        formData.set('chunk_index', currentChunk);
-        formData.set('total_chunks', totalChunks);
 
-        // Create a new XMLHttpRequest for each chunk
+        const formData = new FormData(); // Create a new FormData for each chunk
+        formData.append('file', chunk); // Append only the chunk data
+        formData.append('path', getCurrentPath());
+        formData.append('password', getPassword());
+        formData.append('id', getRandomId());
+        formData.append('total_size', file.size);
+        formData.append('chunk_index', currentChunk);
+        formData.append('total_chunks', totalChunks);
+
         const uploadRequest = new XMLHttpRequest();
         uploadRequest.open('POST', '/api/upload_chunk', true);
         
@@ -280,13 +274,11 @@ async function uploadFile(file) {
         });
 
         uploadRequest.onload = () => {
-            // Once the chunk is uploaded, increase the chunk counter
             currentChunk++;
             if (currentChunk === totalChunks) {
-                // All chunks have been uploaded, trigger the processing phase
-                document.getElementById('upload-status').innerText = 'Status: Processing File On Backend Server';
-                // You can call a function to notify the backend to process the file here
-                isUploading = false;
+                alert('Upload completed!');
+                activeUploads--;
+                processUploadQueue();
             }
         };
 
@@ -295,12 +287,11 @@ async function uploadFile(file) {
             // Retry upload logic can be added here
         };
 
-        // Send the chunk to the server
         uploadRequest.send(formData);
-        // Wait for the current chunk to finish before continuing to the next
-        await new Promise(resolve => uploadRequest.onloadend = resolve); 
+        await new Promise(resolve => uploadRequest.onloadend = resolve); // Wait for chunk upload to complete before moving to the next one
     }
 }
+
 
 
 cancelButton.addEventListener('click', () => {
