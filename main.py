@@ -611,6 +611,7 @@ async def upload_chunk(
         asyncio.create_task(start_file_uploader(file_location, id, path, file.filename, total_size))
 
     return JSONResponse({"status": "ok", "chunk_index": chunk_index})
+
         
 @app.post("/api/getSaveProgress")
 async def get_save_progress(request: Request):
