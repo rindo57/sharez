@@ -619,7 +619,7 @@ async def upload_file(
         start_file_uploader(file_location, id, path, file.filename, file_size)
     )
 
-    return JSONResponse({"id": id, "status": "ok"})
+    return JSONResponse({"id": id, "status": "ok"}, headers={"Cache-Control:" "no-cache, no-store, max-age=0"})
         
 @app.post("/api/getSaveProgress")
 async def get_save_progress(request: Request):
@@ -651,7 +651,7 @@ async def get_upload_progress(request: Request):
 
     try:
         progress = PROGRESS_CACHE[data["id"]]
-        return JSONResponse({"status": "ok", "data": progress})
+        return JSONResponse({"status": "ok", "data": progress}, headers={"Cache-Control:" "no-cache, no-store, max-age=0"})
     except:
         return JSONResponse({"status": "not found"})
 
