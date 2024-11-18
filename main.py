@@ -576,50 +576,41 @@ async def api_get_directory(request: Request):
 
 
 SAVE_PROGRESS = {}
-@app.post("/api/upload")
-async def upload_file(
+@app.post("/api/upload_chunk")
+async def upload_chunk(
     file: UploadFile = File(...),
     path: str = Form(...),
     password: str = Form(...),
     id: str = Form(...),
     total_size: str = Form(...),
+    chunk_index: int = Form(...),
+    total_chunks: int = Form(...),
 ):
     global SAVE_PROGRESS
 
     if password != ADMIN_PASSWORD:
         return JSONResponse({"status": "Invalid password"})
 
+    # Handle chunk upload
+    chunk_size = len(await file.read())  # File chunk size in bytes
     total_size = int(total_size)
-    SAVE_PROGRESS[id] = ("running", 0, total_size)
 
     ext = file.filename.lower().split(".")[-1]
-
     cache_dir = Path("./cache")
     cache_dir.mkdir(parents=True, exist_ok=True)
     file_location = cache_dir / f"{id}.{ext}"
 
-    file_size = 0
+    # Write the chunk to the file
+    async with aiofiles.open(file_location, "ab") as buffer:  # 'ab' mode for appending
+        await buffer.write(await file.read())
 
-    async with aiofiles.open(file_location, "wb") as buffer:
-        while chunk := await file.read(1024 * 1024):  # Read file in chunks of 1MB
-            SAVE_PROGRESS[id] = ("running", file_size, total_size)
-            file_size += len(chunk)
-            if file_size > MAX_FILE_SIZE:
-                await buffer.close()
-                file_location.unlink()  # Delete the partially written file
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"File size exceeds {MAX_FILE_SIZE} bytes limit",
-                )
-            await buffer.write(chunk)
+    # Check if all chunks have been uploaded
+    if chunk_index == total_chunks - 1:
+        SAVE_PROGRESS[id] = ("completed", total_size, total_size)
+        # Call your file processing function here (e.g., start file uploader)
+        asyncio.create_task(start_file_uploader(file_location, id, path, file.filename, total_size))
 
-    SAVE_PROGRESS[id] = ("completed", file_size, file_size)
-
-    asyncio.create_task(
-        start_file_uploader(file_location, id, path, file.filename, file_size)
-    )
-
-    return JSONResponse({"id": id, "status": "ok"}, headers={"Cache-Control:" "no-cache, no-store, max-age=0"})
+    return JSONResponse({"status": "ok", "chunk_index": chunk_index})
         
 @app.post("/api/getSaveProgress")
 async def get_save_progress(request: Request):
