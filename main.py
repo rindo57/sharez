@@ -577,56 +577,63 @@ async def api_get_directory(request: Request):
 
 SAVE_PROGRESS = {}
 
+CHUNK_DIR = Path("./cache/chunks")  # Directory to store chunks
+
 @app.post("/api/upload_chunk")
 async def upload_chunk(
-    file_chunk: UploadFile = File(...),
-    chunk_index: int = Form(...),
-    total_chunks: int = Form(...),
-    file_name: str = Form(...),
-    path: str = Form(...),
-    password: str = Form(...),
+    chunk: UploadFile = File(...),
     id: str = Form(...),
+    part_number: int = Form(...),
+    total_parts: int = Form(...),
+    total_size: int = Form(...),
+    password: str = Form(...),
+    extension: str = Form(...),  # New form data for file extension
 ):
     global SAVE_PROGRESS
 
     if password != ADMIN_PASSWORD:
         return JSONResponse({"status": "Invalid password"})
 
-    # Create a directory for this upload ID to store chunks
-    upload_dir = Path("./cache") / id
-    upload_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure chunk directory exists
+    chunk_dir = CHUNK_DIR / id
+    chunk_dir.mkdir(parents=True, exist_ok=True)
 
-    chunk_path = upload_dir / f"{chunk_index}.chunk"
-    file_size = 0
-    # Save the uploaded chunk to disk
-    async with aiofiles.open(chunk_path, "wb") as buffer:
-        while chunk := await file_chunk.read(1024 * 1024):  # Read in 1MB chunks
-            file_size += len(chunk)
-            await buffer.write(chunk)
+    chunk_file = chunk_dir / f"chunk_{part_number}"
 
-    # Update progress
-    if id not in SAVE_PROGRESS:
-        SAVE_PROGRESS[id] = ("running", 0, int(total_chunks))
-    SAVE_PROGRESS[id] = ("running", chunk_index + 1, int(total_chunks))
+    # Save the chunk
+    async with aiofiles.open(chunk_file, "wb") as buffer:
+        while content := await chunk.read(1024 * 1024):  # Read chunk in 1MB parts
+            await buffer.write(content)
 
-    # Check if all chunks are received
-    if len(list(upload_dir.glob("*.chunk"))) == total_chunks:
-        # Assemble chunks into the final file
-        final_file_path = upload_dir / file_name
-        async with aiofiles.open(final_file_path, "wb") as final_file:
-            for chunk_file in sorted(upload_dir.glob("*.chunk"), key=lambda x: int(x.stem)):
-                async with aiofiles.open(chunk_file, "rb") as chunk:
-                    await final_file.write(await chunk.read())
-                chunk_file.unlink()  # Remove chunk file after merging
+    # Update save progress
+    SAVE_PROGRESS[id] = ("running", part_number, total_parts)
 
-        SAVE_PROGRESS[id] = ("completed", total_chunks, total_chunks)
+    # Check if all chunks have been uploaded
+    if len(list(chunk_dir.iterdir())) == int(total_parts):
+        # Assemble chunks into a single file with the correct extension
+        assembled_file = CHUNK_DIR / f"{id}_assembled{extension}"  # Use the original extension
+        with open(assembled_file, "wb") as output:
+            for i in range(1, int(total_parts) + 1):
+                chunk_path = chunk_dir / f"chunk_{i}"
+                with open(chunk_path, "rb") as chunk_file:
+                    output.write(chunk_file.read())
+                os.remove(chunk_path)  # Delete the chunk after writing
 
-        # Start uploading to the final destination (e.g., storage service)
+        # Validate file size
+        if assembled_file.stat().st_size != total_size:
+            assembled_file.unlink()  # Delete the corrupted file
+            return JSONResponse(
+                {"status": "error", "message": "File size mismatch after assembly"}
+            )
+
+        # All chunks processed, proceed with further processing
+        SAVE_PROGRESS[id] = ("completed", total_size, total_size)
         asyncio.create_task(
-            start_file_uploader(final_file_path, id, path, file_name, file_size)
+            start_file_uploader(assembled_file, id, "uploaded", "uploaded_file", total_size)
         )
 
-    return JSONResponse({"status": "ok", "chunk_index": chunk_index})
+    return JSONResponse({"status": "ok", "part_number": part_number})
+
 
 
 
