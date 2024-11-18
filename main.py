@@ -575,7 +575,7 @@ async def api_get_directory(request: Request):
 SAVE_PROGRESS = {}
 
 
-@app.post("/api/upload")
+"""@app.post("/api/upload")
 async def upload_file(
     file: UploadFile = File(...),
     path: str = Form(...),
@@ -618,9 +618,59 @@ async def upload_file(
         start_file_uploader(file_location, id, path, file.filename, file_size)
     )
 
-    return JSONResponse({"id": id, "status": "ok"})
+    return JSONResponse({"id": id, "status": "ok"})"""
 
+@app.post("/api/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    path: str = Form(...),
+    password: str = Form(...),
+    id: str = Form(...),
+    total_size: str = Form(...),
+):
+    global SAVE_PROGRESS
 
+    if password != ADMIN_PASSWORD:
+        return JSONResponse({"status": "Invalid password"})
+
+    total_size = int(total_size)
+    SAVE_PROGRESS[id] = ("running", 0, total_size)
+
+    ext = file.filename.lower().split(".")[-1]
+    cache_dir = Path("./cache")
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    file_location = cache_dir / f"{id}.{ext}"
+
+    file_size = 0
+
+    try:
+        async with aiofiles.open(file_location, "wb") as buffer:
+            while chunk := await file.read(5 * 1024 * 1024):  # 5 MB chunks
+                file_size += len(chunk)
+                SAVE_PROGRESS[id] = ("running", file_size, total_size)
+                if file_size > MAX_FILE_SIZE:
+                    await buffer.close()
+                    file_location.unlink()
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"File size exceeds {MAX_FILE_SIZE} bytes limit",
+                    )
+                await buffer.write(chunk)
+                await buffer.flush()
+
+        SAVE_PROGRESS[id] = ("completed", file_size, file_size)
+
+        # Trigger asynchronous file processing
+        asyncio.create_task(
+            safe_start_file_uploader(file_location, id, path, file.filename, file_size)
+        )
+
+        return JSONResponse({"id": id, "status": "ok"})
+
+    except Exception as e:
+        logger.error(f"Error during file upload: {e}")
+        return JSONResponse({"status": "error", "detail": str(e)})
+        
 @app.post("/api/getSaveProgress")
 async def get_save_progress(request: Request):
     global SAVE_PROGRESS
