@@ -47,13 +47,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(docs_url=None, redoc_url=None, lifespan=lifespan)
-@app.middleware("http")
-async def add_cache_control_headers(request, call_next):
-    response = await call_next(request)
-    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "0"
-    return response
+
 logger = Logger(__name__)
 
 '''security = HTTPBasic()
@@ -624,8 +618,11 @@ async def upload_file(
     asyncio.create_task(
         start_file_uploader(file_location, id, path, file.filename, file_size)
     )
-
-    return JSONResponse({"id": id, "status": "ok"})
+    headers = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+    }
+    return Response(content='{"id": "' + id + '", "status": "ok"}', headers=headers, media_type="application/json")
 
         
 @app.post("/api/getSaveProgress")
