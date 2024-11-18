@@ -347,54 +347,97 @@ async def generate_link_page(request: Request):
     downloads = stats["downloads"]
     media_info = file.rentry_link
     return HTMLResponse(content=f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>{filename}</title>
-      <style>
-        body {{ font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #25293c; }}
-        .container {{ background: #1b1f2f; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; width: 100%; }}
-        h2 {{ margin-bottom: 1rem; color: white; }}
-        p {{ margin-bottom: 1rem; color: #c0c0c0; }}
-        button {{ padding: 0.7rem; background-color: #ff79c6; color: white; border: none; border-radius: 4px; cursor: pointer; }}
-        button:hover {{ background-color: #f06292; }}
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h2>File Information</h2>
-        <p><strong>Filename:</strong> {filename}</p>
-        <p><strong>Filesize:</strong> {filesize}</p>  <!-- Display formatted size -->
-        <p><strong>Views:</strong> {views}</p>
-        <p><strong>Downloads:</strong> {downloads}</p>
-        <p><strong><a href="{media_info}">Media Info</a></strong></p>
-        <h2>Verify You're Human</h2>
-        <form id="verificationForm" action="/verify-turnstile" method="POST">
-          <input type="hidden" name="download_path" value="{download_path}">
-          <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
-          <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
-          <button type="submit">Continue to Download Link</button>
-        </form>
-      </div>
-      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-      <script>
-        function setTurnstileResponse(token) {{
-          document.getElementById('cf_turnstile_response').value = token;
-        }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ filename }}</title>
+  <style>
+    body {{
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #25293c;
+    }}
 
-        document.getElementById("verificationForm").addEventListener("submit", function(event) {{
-          const token = document.getElementById('cf_turnstile_response').value;
-          if (!token) {{
-            event.preventDefault();
-            alert("Please complete the CAPTCHA verification.");
-          }}
-        }});
-      </script>
-    </body>
-    </html>
-    """)
+    .container {{
+      background: #1b1f2f;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }}
+
+    h2 {{
+      margin-bottom: 1rem;
+      color: white;
+    }}
+
+    p {{
+      margin-bottom: 1rem;
+      color: #c0c0c0;
+    }}
+
+    button {{
+      padding: 0.7rem;
+      background-color: #ff79c6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }}
+
+    button:hover {{
+      background-color: #f06292;
+    }}
+
+    /* Styling for Media Info link */
+    a {{
+      color: #f06292; /* Set the color of the link to pink */
+      text-decoration: none; /* Remove underline by default */
+    }}
+
+    a:hover {{
+      text-decoration: underline; /* Underline the link on hover */
+    }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>File Information</h2>
+    <p><strong>Filename:</strong> {{ filename }}</p>
+    <p><strong>Filesize:</strong> {{ filesize }}</p>  <!-- Display formatted size -->
+    <p><strong>Views:</strong> {{ views }}</p>
+    <p><strong>Downloads:</strong> {{ downloads }}</p>
+    <p><strong><a href="{{ media_info }}">Media Info</a></strong></p>
+    <h2>Verify You're Human</h2>
+    <form id="verificationForm" action="/verify-turnstile" method="POST">
+      <input type="hidden" name="download_path" value="{{ download_path }}">
+      <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
+      <button type="submit">Continue to Download Link</button>
+    </form>
+  </div>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script>
+    function setTurnstileResponse(token) {
+      document.getElementById('cf_turnstile_response').value = token;
+    }
+
+    document.getElementById("verificationForm").addEventListener("submit", function(event) {
+      const token = document.getElementById('cf_turnstile_response').value;
+      if (!token) {
+        event.preventDefault();
+        alert("Please complete the CAPTCHA verification.");
+      }
+    });
+  </script>
+</body>
+</html>""")
 
 @app.post("/verify-turnstile")
 async def verify_turnstile(download_path: str = Form(...), cf_turnstile_response: str = Form(...)):
