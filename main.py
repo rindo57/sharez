@@ -576,63 +576,50 @@ async def api_get_directory(request: Request):
 
 
 SAVE_PROGRESS = {}
-
-CHUNK_DIR = Path("./cache/chunks")  # Directory to store chunks
-
-@app.post("/api/upload_chunk")
-async def upload_chunk(
-    chunk: UploadFile = File(...),
-    id: str = Form(...),
-    part_number: int = Form(...),
-    total_parts: int = Form(...),
-    total_size: int = Form(...),
+@app.post("/api/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    path: str = Form(...),
     password: str = Form(...),
-    extension: str = Form(...),  # New form data for file extension
+    id: str = Form(...),
+    total_size: str = Form(...),
 ):
     global SAVE_PROGRESS
 
     if password != ADMIN_PASSWORD:
         return JSONResponse({"status": "Invalid password"})
 
-    # Ensure chunk directory exists
-    chunk_dir = CHUNK_DIR / id
-    chunk_dir.mkdir(parents=True, exist_ok=True)
+    total_size = int(total_size)
+    SAVE_PROGRESS[id] = ("running", 0, total_size)
 
-    chunk_file = chunk_dir / f"chunk_{part_number}"
+    ext = file.filename.lower().split(".")[-1]
 
-    # Save the chunk
-    async with aiofiles.open(chunk_file, "wb") as buffer:
-        while content := await chunk.read(1024 * 1024):  # Read chunk in 1MB parts
-            await buffer.write(content)
+    cache_dir = Path("./cache")
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    file_location = cache_dir / f"{id}.{ext}"
 
-    # Update save progress
-    SAVE_PROGRESS[id] = ("running", part_number, total_parts)
+    file_size = 0
 
-    # Check if all chunks have been uploaded
-    if len(list(chunk_dir.iterdir())) == int(total_parts):
-        # Assemble chunks into a single file with the correct extension
-        assembled_file = CHUNK_DIR / f"{id}_assembled{extension}"  # Use the original extension
-        with open(assembled_file, "wb") as output:
-            for i in range(1, int(total_parts) + 1):
-                chunk_path = chunk_dir / f"chunk_{i}"
-                with open(chunk_path, "rb") as chunk_file:
-                    output.write(chunk_file.read())
-                os.remove(chunk_path)  # Delete the chunk after writing
+    async with aiofiles.open(file_location, "wb") as buffer:
+        while chunk := await file.read(1024 * 1024):  # Read file in chunks of 1MB
+            SAVE_PROGRESS[id] = ("running", file_size, total_size)
+            file_size += len(chunk)
+            if file_size > MAX_FILE_SIZE:
+                await buffer.close()
+                file_location.unlink()  # Delete the partially written file
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File size exceeds {MAX_FILE_SIZE} bytes limit",
+                )
+            await buffer.write(chunk)
 
-        # Validate file size
-        if assembled_file.stat().st_size != total_size:
-            assembled_file.unlink()  # Delete the corrupted file
-            return JSONResponse(
-                {"status": "error", "message": "File size mismatch after assembly"}
-            )
+    SAVE_PROGRESS[id] = ("completed", file_size, file_size)
 
-        # All chunks processed, proceed with further processing
-        SAVE_PROGRESS[id] = ("completed", total_size, total_size)
-        asyncio.create_task(
-            start_file_uploader(assembled_file, id, "uploaded", "uploaded_file", total_size)
-        )
+    asyncio.create_task(
+        start_file_uploader(file_location, id, path, file.filename, file_size)
+    )
 
-    return JSONResponse({"status": "ok", "part_number": part_number})
+    return JSONResponse({"id": id, "status": "ok"})
 
 
 
