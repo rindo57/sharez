@@ -260,7 +260,7 @@ async function uploadFile(file) {
         formData.append('path', getCurrentPath());
         formData.append('password', getPassword());
         
-        formData.append('id', id);
+        formData.append('id', "testing");
         
         formData.append('file', chunk, `${id}_${currentChunk}.part`);
         
