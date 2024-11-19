@@ -234,7 +234,7 @@ function removeFile(fileToRemove) {
 
 
 
-async function uploadFile(file) {
+async function uploadFile(file, path, password, id) {
     activeUploads++;
 
     // Show uploader UI
@@ -247,41 +247,91 @@ async function uploadFile(file) {
     document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
     document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
 
+    const chunkSize = 50 * 1024 * 1024; // 50MB
+    const totalChunks = Math.ceil(file.size / chunkSize);
+    let currentChunk = 0;
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('path', getCurrentPath());
-    formData.append('password', getPassword());
-    const id = getRandomId();
-    formData.append('id', id);
-    formData.append('total_size', file.size);
 
-    const uploadRequest = new XMLHttpRequest();
-    uploadRequest.open('POST', '/api/upload', true);
-    uploadRequest.setRequestHeader('Cache-Control', 'no-cache, must-revalidate');
-   //uploadRequest.setRequestHeader('Pragma', 'no-cache');
- //   uploadRequest.setRequestHeader('Expires', '0');
+    function uploadChunk() {
+        const start = currentChunk * chunkSize;
+        const end = Math.min(start + chunkSize, file.size);
+        const chunk = file.slice(start, end);
 
-    uploadRequest.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            progressBar.style.width = percentComplete + '%';
-            uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
-        }
-    });
+        formData.append('file', chunk, `${id}_${currentChunk}.part`);
+        formData.append('path', path);
+        formData.append('password', password);
+        formData.append('id', id);
+        formData.append('total_chunks', totalChunks);
+        formData.append('chunk_number', currentChunk);
+        formData.append('total_size', file.size);
 
-    uploadRequest.upload.addEventListener('load', async () => {
-        await updateSaveProgress(id);
-    });
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/upload_chunk');
+        xhr.upload.addEventListener('progress', function(e) {
+            // Update progress bar or display progress
+            if (e.lengthComputable) {
+                const percentComplete = ((currentChunk * chunkSize + e.loaded) / file.size) * 100;
+                progressBar.style.width = percentComplete + '%';
+                uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
+            }
+        });
 
-    uploadRequest.upload.addEventListener('error', () => {
-        alert(`Upload of ${file.name} failed`);
-        activeUploads--;
-        processUploadQueue();
-    });
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                currentChunk++;
+                if (currentChunk < totalChunks) {
+                    uploadChunk();
+                } else {
+                    // All chunks uploaded, trigger final assembly
+                    fetch(`/api/assemble/${id}`, {
+                        method: 'POST',
+                        body: JSON.stringify({ password: password }),
+                    }).then(response => {
+                        if (response.ok) {
+                            console.log('File assembled successfully!');
+                            activeUploads--;
+                            processUploadQueue();
+                            document.getElementById('bg-blur').style.zIndex = '-1';
+                            document.getElementById('bg-blur').style.opacity = '0';
+                            document.getElementById('file-uploader').style.zIndex = '-1';
+                            document.getElementById('file-uploader').style.opacity = '0';
+                        } else {
+                            console.error('Error assembling file.');
+                            activeUploads--;
+                            processUploadQueue();
+                            document.getElementById('bg-blur').style.zIndex = '-1';
+                            document.getElementById('bg-blur').style.opacity = '0';
+                            document.getElementById('file-uploader').style.zIndex = '-1';
+                            document.getElementById('file-uploader').style.opacity = '0';
+                        }
+                    });
+                }
+            } else {
+                console.error('Error uploading chunk:', xhr.status);
+                activeUploads--;
+                processUploadQueue();
+                document.getElementById('bg-blur').style.zIndex = '-1';
+                document.getElementById('bg-blur').style.opacity = '0';
+                document.getElementById('file-uploader').style.zIndex = '-1';
+                document.getElementById('file-uploader').style.opacity = '0';
+            }
+        };
 
-    uploadRequest.send(formData);
+        xhr.onerror = function() {
+            console.error('Error uploading chunk:', xhr.status);
+            activeUploads--;
+            processUploadQueue();
+            document.getElementById('bg-blur').style.zIndex = '-1';
+            document.getElementById('bg-blur').style.opacity = '0';
+            document.getElementById('file-uploader').style.zIndex = '-1';
+            document.getElementById('file-uploader').style.opacity = '0';
+        };
+
+        xhr.send(formData);
+    }
+
+    uploadChunk();
 }
-
 
 
 cancelButton.addEventListener('click', () => {
