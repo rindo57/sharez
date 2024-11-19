@@ -251,7 +251,7 @@ async function uploadFile(file) {
     const totalChunks = Math.ceil(file.size / chunkSize);
     let currentChunk = 0;
     const formData = new FormData();
-
+    const id = getRandomId();
     function uploadChunk() {
         const start = currentChunk * chunkSize;
         const end = Math.min(start + chunkSize, file.size);
@@ -259,7 +259,7 @@ async function uploadFile(file) {
 
         formData.append('path', getCurrentPath());
         formData.append('password', getPassword());
-        const id = getRandomId();
+        
         formData.append('id', id);
         
         formData.append('file', chunk, `${id}_${currentChunk}.part`);
