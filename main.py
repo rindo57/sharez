@@ -678,6 +678,7 @@ async def upload_file(
     file: UploadFile = Form(...),
     path: str = Form(...),
     password: str = Form(...),
+    filenamex: str = Form(...),
     id: str = Form(...),
     chunkIndex: int = Form(...),
     totalChunks: int = Form(...),
@@ -711,7 +712,7 @@ async def upload_file(
 
     # If all chunks are received, assemble the final file
     if chunkIndex + 1 == totalChunks:
-        final_file_path = upload_dir / filename
+        final_file_path = upload_dir / filenamex
 
         async with aiofiles.open(final_file_path, "wb") as final_file:
             async with aiofiles.open(temp_file_path, "rb") as temp_file:
@@ -721,7 +722,7 @@ async def upload_file(
         # Remove temporary file
         os.remove(temp_file_path)
         asyncio.create_task(
-            start_file_uploader(final_file_path, id, path, file.filename, total_size)
+            start_file_uploader(final_file_path, id, path, filenamex, total_size)
         )
         SAVE_PROGRESS[id] = {
             "status": "completed",
