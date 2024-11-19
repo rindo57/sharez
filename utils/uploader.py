@@ -83,8 +83,8 @@ def get_rentry_link(text):
 def safe_get(attr, default="N/A"):
     """Safely get a value or return a default."""
     return attr[0] if attr else default
-def format_media_info(file_path):
-    media_info = MediaInfo.parse(file_path, filename)
+def format_media_info(file_path, filename):
+    media_info = MediaInfo.parse(file_path)
     output = []
     print("BEGINING")
     # General Information
