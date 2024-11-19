@@ -235,107 +235,82 @@ function removeFile(fileToRemove) {
 
 
 async function uploadFile(file) {
+    const CHUNK_SIZE = 50 * 1024 * 1024; // 50 MB
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
     activeUploads++;
 
     // Show uploader UI
-    document.getElementById('bg-blur').style.zIndex = '2';
-    document.getElementById('bg-blur').style.opacity = '0.1';
-    document.getElementById('file-uploader').style.zIndex = '3';
-    document.getElementById('file-uploader').style.opacity = '1';
+    document.getElementById("bg-blur").style.zIndex = "2";
+    document.getElementById("bg-blur").style.opacity = "0.1";
+    document.getElementById("file-uploader").style.zIndex = "3";
+    document.getElementById("file-uploader").style.opacity = "1";
 
-    document.getElementById('upload-filename').innerText = 'Filename: ' + file.name;
-    document.getElementById('upload-filesize').innerText = 'Filesize: ' + (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-    document.getElementById('upload-status').innerText = 'Status: Uploading To Backend Server';
+    document.getElementById("upload-filename").innerText =
+        "Filename: " + file.name;
+    document.getElementById("upload-filesize").innerText =
+        "Filesize: " + (file.size / (1024 * 1024)).toFixed(2) + " MB";
+    document.getElementById("upload-status").innerText =
+        "Status: Uploading To Backend Server";
 
-    const chunkSize = 50 * 1024 * 1024; // 50MB
-    const totalChunks = Math.ceil(file.size / chunkSize);
-    let currentChunk = 0;
-    const formData = new FormData();
     const id = getRandomId();
-    function uploadChunk() {
-        const start = currentChunk * chunkSize;
-        const end = Math.min(start + chunkSize, file.size);
+    const path = getCurrentPath();
+    const password = getPassword();
+
+    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(file.size, start + CHUNK_SIZE);
         const chunk = file.slice(start, end);
 
-        formData.append('path', getCurrentPath());
-        formData.append('password', getPassword());
-        
-        formData.append('id', "testing");
-        
-        formData.append('file', chunk, `${id}_${currentChunk}.part`);
-        
-        formData.append('total_chunks', totalChunks);
-        formData.append('chunk_number', currentChunk);
-        formData.append('total_size', file.size);
+        const formData = new FormData();
+        formData.append("file", chunk);
+        formData.append("path", path);
+        formData.append("password", password);
+        formData.append("id", id);
+        formData.append("chunkIndex", chunkIndex);
+        formData.append("totalChunks", totalChunks);
+        formData.append("filename", file.name);
+        formData.append("total_size", file.size);
 
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/upload_chunk');
-        xhr.upload.addEventListener('progress', function(e) {
-            // Update progress bar or display progress
+        const uploadRequest = new XMLHttpRequest();
+        uploadRequest.open("POST", "/api/upload", true);
+        uploadRequest.setRequestHeader(
+            "Cache-Control",
+            "no-cache, no-store, must-revalidate"
+        );
+        uploadRequest.setRequestHeader("Pragma", "no-cache");
+        uploadRequest.setRequestHeader("Expires", "0");
+
+        uploadRequest.upload.addEventListener("progress", (e) => {
             if (e.lengthComputable) {
-                const percentComplete = ((currentChunk * chunkSize + e.loaded) / file.size) * 100;
-                progressBar.style.width = percentComplete + '%';
-                uploadPercent.innerText = 'Progress : ' + percentComplete.toFixed(2) + '%';
+                const percentComplete =
+                    ((chunkIndex + e.loaded / e.total) / totalChunks) * 100;
+                progressBar.style.width = percentComplete + "%";
+                uploadPercent.innerText =
+                    "Progress: " + percentComplete.toFixed(2) + "%";
             }
         });
 
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                currentChunk++;
-                if (currentChunk < totalChunks) {
-                    uploadChunk();
+        await new Promise((resolve, reject) => {
+            uploadRequest.onload = () => {
+                if (uploadRequest.status === 200) {
+                    resolve();
                 } else {
-                    // All chunks uploaded, trigger final assembly
-                    fetch(`/api/assemble/${id}`, {
-                        method: 'POST',
-                        body: JSON.stringify({ password: password }),
-                    }).then(response => {
-                        if (response.ok) {
-                            console.log('File assembled successfully!');
-                            activeUploads--;
-                            processUploadQueue();
-                            document.getElementById('bg-blur').style.zIndex = '-1';
-                            document.getElementById('bg-blur').style.opacity = '0';
-                            document.getElementById('file-uploader').style.zIndex = '-1';
-                            document.getElementById('file-uploader').style.opacity = '0';
-                        } else {
-                            console.error('Error assembling file.');
-                            activeUploads--;
-                            processUploadQueue();
-                            document.getElementById('bg-blur').style.zIndex = '-1';
-                            document.getElementById('bg-blur').style.opacity = '0';
-                            document.getElementById('file-uploader').style.zIndex = '-1';
-                            document.getElementById('file-uploader').style.opacity = '0';
-                        }
-                    });
+                    reject(`Chunk ${chunkIndex + 1} failed to upload`);
                 }
-            } else {
-                console.error('Error uploading chunk:', xhr.status);
-                activeUploads--;
-                processUploadQueue();
-                document.getElementById('bg-blur').style.zIndex = '-1';
-                document.getElementById('bg-blur').style.opacity = '0';
-                document.getElementById('file-uploader').style.zIndex = '-1';
-                document.getElementById('file-uploader').style.opacity = '0';
-            }
-        };
+            };
 
-        xhr.onerror = function() {
-            console.error('Error uploading chunk:', xhr.status);
-            activeUploads--;
-            processUploadQueue();
-            document.getElementById('bg-blur').style.zIndex = '-1';
-            document.getElementById('bg-blur').style.opacity = '0';
-            document.getElementById('file-uploader').style.zIndex = '-1';
-            document.getElementById('file-uploader').style.opacity = '0';
-        };
-
-        xhr.send(formData);
+            uploadRequest.onerror = () =>
+                reject(`Network error while uploading chunk ${chunkIndex + 1}`);
+            uploadRequest.send(formData);
+        });
     }
 
-    uploadChunk();
-}
+    activeUploads--;
+    processUploadQueue();
 
+    alert("Upload completed successfully!");
+}
 
 cancelButton.addEventListener('click', () => {
     alert('Upload canceled');
