@@ -234,7 +234,7 @@ function removeFile(fileToRemove) {
 
 
 
-async function uploadFile(file, path, password, id) {
+async function uploadFile(file) {
     activeUploads++;
 
     // Show uploader UI
@@ -257,10 +257,13 @@ async function uploadFile(file, path, password, id) {
         const end = Math.min(start + chunkSize, file.size);
         const chunk = file.slice(start, end);
 
-        formData.append('file', chunk, `${id}_${currentChunk}.part`);
-        formData.append('path', path);
-        formData.append('password', password);
+        formData.append('path', getCurrentPath());
+        formData.append('password', getPassword());
+        const id = getRandomId();
         formData.append('id', id);
+        
+        formData.append('file', chunk, `${id}_${currentChunk}.part`);
+        
         formData.append('total_chunks', totalChunks);
         formData.append('chunk_number', currentChunk);
         formData.append('total_size', file.size);
