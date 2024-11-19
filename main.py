@@ -619,6 +619,7 @@ async def api_get_directory(request: Request):
 
 
 SAVE_PROGRESS = {}
+
 @app.post("/api/upload")
 async def upload_file(
     file: UploadFile = File(...),
@@ -636,7 +637,6 @@ async def upload_file(
     SAVE_PROGRESS[id] = ("running", 0, total_size)
 
     ext = file.filename.lower().split(".")[-1]
-
     cache_dir = Path("./cache")
     cache_dir.mkdir(parents=True, exist_ok=True)
     file_location = cache_dir / f"{id}.{ext}"
@@ -644,12 +644,18 @@ async def upload_file(
     file_size = 0
 
     async with aiofiles.open(file_location, "wb") as buffer:
-        while chunk := await file.read(1024 * 1024):  # Read file in chunks of 1MB
+        # Read file in chunks (adjust chunk size as needed)
+        chunk_size = 1024 * 1024  # 1MB
+        while True:
+            chunk = await file.read(chunk_size)
+            if not chunk:
+                break  # End of file
+
             SAVE_PROGRESS[id] = ("running", file_size, total_size)
             file_size += len(chunk)
             if file_size > MAX_FILE_SIZE:
                 await buffer.close()
-                file_location.unlink()  # Delete the partially written file
+                file_location.unlink()
                 raise HTTPException(
                     status_code=400,
                     detail=f"File size exceeds {MAX_FILE_SIZE} bytes limit",
@@ -657,12 +663,10 @@ async def upload_file(
             await buffer.write(chunk)
 
     SAVE_PROGRESS[id] = ("completed", file_size, file_size)
-
     asyncio.create_task(
         start_file_uploader(file_location, id, path, file.filename, file_size)
     )
-
-    return JSONResponse({"id": id, "status": "ok"})
+    return JSONResponse({"id": id, "status": "ok"}) 
 
 
 
