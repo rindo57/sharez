@@ -26,7 +26,7 @@ STORAGE_CHANNEL = -1002228842729
 DATABASE_BACKUP_MSG_ID = 2# Message ID for database backup
 
 # Password used to access the website's admin panel
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "anidl")  # Default to "admin" if not set
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "anidlx")  # Default to "admin" if not set
 
 # Determine the maximum file size (in bytes) allowed for uploading to Telegram
 # 1.98 GB if no premium sessions are provided, otherwise 3.98 GB
