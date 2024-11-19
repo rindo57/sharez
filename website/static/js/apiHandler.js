@@ -310,7 +310,7 @@ async function uploadFile(file) {
     activeUploads--;
     processUploadQueue();
 
-    alert("Upload completed successfully!");
+    //alert("Upload completed successfully!");
 }
 
 cancelButton.addEventListener('click', () => {
