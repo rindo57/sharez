@@ -618,7 +618,7 @@ async def api_get_directory(request: Request):
 
 
 
-SAVE_PROGRESS = {}
+"""SAVE_PROGRESS = {}
 
 @app.post("/api/upload")
 async def upload_file(
@@ -666,11 +666,57 @@ async def upload_file(
     asyncio.create_task(
         start_file_uploader(file_location, id, path, file.filename, file_size)
     )
-    return JSONResponse({"id": id, "status": "ok"}) 
+    return JSONResponse({"id": id, "status": "ok"}) """
 
 
 
+@app.post("/api/upload_chunk")
+async def upload_chunk(
+    file: UploadFile = File(...),
+    path: str = Form(...),
+    password: str = Form(...),
+    id: str = Form(...),
+    total_chunks: int = Form(...),
+    chunk_number: int = Form(...),
+    total_size: int = Form(...),
+):
+    if password != ADMIN_PASSWORD:
+        return JSONResponse({"status": "Invalid password"})
 
+    cache_dir = Path("./cache")
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    file_location = cache_dir / f"{id}_{chunk_number}.part"
+
+    async with aiofiles.open(file_location, "wb") as buffer:
+        content = await file.read()
+        await buffer.write(content)
+
+    return JSONResponse({"status": "ok"})
+
+
+@app.post("/api/assemble/{id}")
+async def assemble_file(id: str, password: str = Form(...)):
+    if password != ADMIN_PASSWORD:
+        return JSONResponse({"status": "Invalid password"})
+
+    cache_dir = Path("./cache")
+    parts = sorted(cache_dir.glob(f"{id}_*.part"))
+    output_file = cache_dir / f"{id}.assembled"
+
+    async with aiofiles.open(output_file, "wb") as outfile:
+        for part in parts:
+            async with aiofiles.open(part, "rb") as infile:
+                content = await infile.read()
+                await outfile.write(content)
+
+    # Move or process the assembled file
+    # ...
+
+    # Clean up temporary parts
+    for part in parts:
+        part.unlink()
+
+    return JSONResponse({"status": "ok"})
         
 @app.post("/api/getSaveProgress")
 async def get_save_progress(request: Request):
