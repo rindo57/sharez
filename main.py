@@ -705,7 +705,7 @@ async def upload_file(
     path: str = Form(...),
     password: str = Form(...),
     id: str = Form(...),
-    total_size: str = Form(...),
+    total_size: str = Form(...)
 ):
     global SAVE_PROGRESS
 
@@ -762,32 +762,35 @@ async def upload_file(
     chunkIndex: int = Form(...),
     totalChunks: int = Form(...),
     filename: str = Form(...),
-    total_size: int = Form(...)
+    total_size: int = Form(...),
+    session: str = Cookie(None)
 ):
     global SAVE_PROGRESS
 
-    if password != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"}, status_code=403)
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#       return JSONResponse({"status": "Invalid password"}, status_code=403)
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+  # Create upload directory
+        upload_dir = Path(UPLOAD_DIRECTORY) / path
+        upload_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create upload directory
-    upload_dir = Path(UPLOAD_DIRECTORY) / path
-    upload_dir.mkdir(parents=True, exist_ok=True)
-
-    # Temporary file path for chunks
-    temp_file_path = upload_dir / f"{filename}.part"
+        # Temporary file path for chunks
+        temp_file_path = upload_dir / f"{filename}.part"
 
     # Append the chunk to the temporary file
-    async with aiofiles.open(temp_file_path, "ab") as f:
-        chunk = await file.read()
-        await f.write(chunk)
+        async with aiofiles.open(temp_file_path, "ab") as f:
+            chunk = await file.read()
+            await f.write(chunk)
 
-    SAVE_PROGRESS[id] = {
-        "status": "running",
-        "uploaded_chunks": chunkIndex + 1,
-        "total_chunks": totalChunks,
-        "uploaded_size": (chunkIndex + 1) * 50 * 1024 * 1024,
-        "total_size": total_size,
-    }
+        SAVE_PROGRESS[id] = {
+            "status": "running",
+            "uploaded_chunks": chunkIndex + 1,
+            "total_chunks": totalChunks,
+            "uploaded_size": (chunkIndex + 1) * 50 * 1024 * 1024,
+            "total_size": total_size,
+        }
 
     # If all chunks are received, assemble the final file
     if chunkIndex + 1 == totalChunks:
@@ -811,6 +814,10 @@ async def upload_file(
             "total_size": total_size,
         }
 
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")  
     return JSONResponse({"status": "ok", "progress": SAVE_PROGRESS[id]})
 # uploading final file to storage server
 
@@ -818,53 +825,73 @@ async def upload_file(
     return JSONResponse({"id": id, "status": "ok"})
         
 @app.post("/api/getSaveProgress")
-async def get_save_progress(request: Request):
+async def get_save_progress(request: Request, session: str = Cookie(None)):
     global SAVE_PROGRESS
 
     data = await request.json()
 
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"getUploadProgress {data}")
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#       return JSONResponse({"status": "Invalid password"})
     try:
-        progress = SAVE_PROGRESS[data["id"]]
-        return JSONResponse({"status": "ok", "data": progress})
-    except:
-        return JSONResponse({"status": "not found"})
-
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"getUploadProgress {data}")
+        try:
+            progress = SAVE_PROGRESS[data["id"]]
+            return JSONResponse({"status": "ok", "data": progress})
+        except:
+            return JSONResponse({"status": "not found"})
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
+    
 
 @app.post("/api/getUploadProgress")
-async def get_upload_progress(request: Request):
+async def get_upload_progress(request: Request, session: str = Cookie(None)):
     from utils.uploader import PROGRESS_CACHE
 
     data = await request.json()
-
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"getUploadProgress {data}")
-
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#       return JSONResponse({"status": "Invalid password"})
     try:
-        progress = PROGRESS_CACHE[data["id"]]
-        return JSONResponse({"status": "ok", "data": progress})
-    except:
-        return JSONResponse({"status": "not found"})
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"getUploadProgress {data}")
+
+        try:
+            progress = PROGRESS_CACHE[data["id"]]
+            return JSONResponse({"status": "ok", "data": progress})
+        except:
+            return JSONResponse({"status": "not found"})
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
+#    return JSONResponse({"status": "ok"})
+
+
 
 
 @app.post("/api/cancelUpload")
-async def cancel_upload(request: Request):
+async def cancel_upload(request: Request, session: str = Cookie(None)):
     from utils.uploader import STOP_TRANSMISSION
     from utils.downloader import STOP_DOWNLOAD
 
     data = await request.json()
 
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"cancelUpload {data}")
-    STOP_TRANSMISSION.append(data["id"])
-    STOP_DOWNLOAD.append(data["id"])
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#       return JSONResponse({"status": "Invalid password"})
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"cancelUpload {data}")
+        STOP_TRANSMISSION.append(data["id"])
+        STOP_DOWNLOAD.append(data["id"])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
     return JSONResponse({"status": "ok"})
 
 
@@ -928,55 +955,75 @@ async def delete_file_folder(request: Request, session: str = Cookie(None)):
 
 
 @app.post("/api/getFileInfoFromUrl")
-async def getFileInfoFromUrl(request: Request):
+async def getFileInfoFromUrl(request: Request, session: str = Cookie(None):
 
     data = await request.json()
 
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"getFileInfoFromUrl {data}")
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#       return JSONResponse({"status": "Invalid password"})
     try:
-        file_info = await get_file_info_from_url(data["url"])
-        return JSONResponse({"status": "ok", "data": file_info})
-    except Exception as e:
-        return JSONResponse({"status": str(e)})
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"getFileInfoFromUrl {data}")
+        try:
+            file_info = await get_file_info_from_url(data["url"])
+            return JSONResponse({"status": "ok", "data": file_info})
+        except Exception as e:
+            return JSONResponse({"status": str(e)})
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
 
 
 @app.post("/api/startFileDownloadFromUrl")
-async def startFileDownloadFromUrl(request: Request):
+async def startFileDownloadFromUrl(request: Request, session: str = Cookie(None)):
     data = await request.json()
     print("fukin data: ", data)
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"startFileDownloadFromUrl {data}")
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#       return JSONResponse({"status": "Invalid password"})
     try:
-        id = getRandomID()
-        asyncio.create_task(
-            download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
-        )
-        return JSONResponse({"status": "ok", "id": id})
-    except Exception as e:
-        return JSONResponse({"status": str(e)})
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"startFileDownloadFromUrl {data}")
+        try:
+            id = getRandomID()
+            asyncio.create_task(
+                download_file(data["url"], id, data["path"], data["filename"], data["singleThreaded"])
+            )
+            return JSONResponse({"status": "ok", "id": id})
+        except Exception as e:
+            return JSONResponse({"status": str(e)})
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
 
 
 @app.post("/api/getFileDownloadProgress")
-async def getFileDownloadProgress(request: Request):
+async def getFileDownloadProgress(request: Request, session: str = Cookie(None)):
     from utils.downloader import DOWNLOAD_PROGRESS
 
     data = await request.json()
 
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"getFileDownloadProgress {data}")
-
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#       return JSONResponse({"status": "Invalid password"})
     try:
-        progress = DOWNLOAD_PROGRESS[data["id"]]
-        return JSONResponse({"status": "ok", "data": progress})
-    except:
-        return JSONResponse({"status": "not found"})
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"getFileDownloadProgress {data}")
+
+        try:
+            progress = DOWNLOAD_PROGRESS[data["id"]]
+            return JSONResponse({"status": "ok", "data": progress})
+        except:
+            return JSONResponse({"status": "not found"})
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
+
+
 
 
 @app.post("/api/getFolderShareAuth")
