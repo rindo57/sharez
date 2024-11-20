@@ -109,24 +109,39 @@ function getPassword() {
 }
 
 async function posJson(url) {
-  //  data['password'] = getPassword();
+  try {
     const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-        
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Include the session cookie in the request headers
+        'Cookie': document.cookie 
+      }
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     return await response.json();
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null; 
+  }
 }
+
 async function checkAdmin() {
-    const json = await posJson('/api/checkadmin');
-    if (json.status === 'ok') {
-        return "True"
-    }
-    else {
-        return null
-    }
+  const json = await posJson('/api/checkadmin');
+  if (json && json.status === 'ok') {
+    return true; 
+  } else {
+    return false; 
+  }
+} 
+
+// admin, redirect or show an error
+    
+    
 function getRandomId() {
     const length = 30;
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
