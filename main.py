@@ -32,7 +32,7 @@ from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
 import math
 from urllib.parse import urlparse
 from datetime import datetime, timedelta
-
+from httpx import AsyncClient
 # Startup Event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
