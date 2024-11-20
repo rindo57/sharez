@@ -539,7 +539,7 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
 
     # Construct the magic link URL
     base_url = "https://drive.ddlserverv1.me.in"  # Replace with your actual domain
-    magic_link = f"{base_url}/magic-link/{token}"
+    magic_link = f"{base_url}/magic-link/{token}?id={ADMIN_TELEGRAM_ID}"
 
     # Send the magic link via Telegram
     await send_telegram_message(ADMIN_TELEGRAM_ID, f"Click this link to log in: {magic_link}")
@@ -551,6 +551,7 @@ async def validate_magic_link(token: str, response: Response):
     Validate the magic link token and issue a session cookie.
     """
     # Retrieve the token from the database
+    ADMIN_TELEGRAM_ID = request.query_params.get("id")
     token_data = await magic_links_collection.find_one({"token": token})
     if not token_data or datetime.utcnow() > token_data["expires_at"]:
         raise HTTPException(status_code=403, detail="Invalid or expired magic link")
