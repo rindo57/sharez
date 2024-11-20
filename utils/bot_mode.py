@@ -181,7 +181,7 @@ async def file_handler(client: Client, message: Message):
 
 async def send_magic(ADMIN_TELEGRAM_ID, magic_link):
     x = await main_bot.send_message(
-        chat_id= int(ADMIN_TELEGRAM_ID), text=f"Click the below link to log in:\n\n{magic_link}\n\n`ABOVE LINK WILL EXPIRE AFTER 5 MINS`\n\n*__This message will self-destruct after 5 mins__"
+        chat_id= int(ADMIN_TELEGRAM_ID), text=f"Click the below link to log in:\n\n{magic_link}\n\n`ABOVE LINK WILL EXPIRE AFTER 3 MINS`\n\n*__This message will self-destruct after 3 mins__"
     )
     await asyncio.sleep(300)
     await x.delete()
