@@ -560,7 +560,7 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     # Store the token in the database with a use_count of 0
     await magic_links_collection.update_one(
         {"telegram_id": ADMIN_TELEGRAM_ID},
-        {"$set": {"token": token, "expires_at": expiration_time, "use_count": 0}},
+        {"$set": {"token": token, "expires_at": expiration_time, "use_count": 1}},
         upsert=True,
     )
 
