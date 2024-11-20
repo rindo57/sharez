@@ -14,6 +14,7 @@ from utils.directoryHandler import getRandomID
 from utils.extra import auto_ping_website, convert_class_to_dict, reset_cache_dir
 from utils.streamer import media_streamer
 from utils.uploader import start_file_uploader
+from utils.bot_mode import send_magic
 from utils.logger import Logger
 import urllib.parse
 import logging
