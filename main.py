@@ -557,10 +557,10 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     token = secrets.token_urlsafe(32)
     expiration_time = datetime.utcnow() + timedelta(minutes=3)
 
-    # Store the token in the database
+    # Store the token in the database with a use_count of 0
     await magic_links_collection.update_one(
         {"telegram_id": ADMIN_TELEGRAM_ID},
-        {"$set": {"token": token, "expires_at": expiration_time, "used": False}},
+        {"$set": {"token": token, "expires_at": expiration_time, "use_count": 0}},
         upsert=True,
     )
 
@@ -581,8 +581,10 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     # Retrieve the telegram_id from query params
     ADMIN_TELEGRAM_ID = request.query_params.get("id")
     
-    # Check if the token exists in the database
+    # Retrieve token data from the database
     token_data = await magic_links_collection.find_one({"token": token})
+
+    # Check if the token exists in the database
     if not token_data:
         raise HTTPException(status_code=403, detail="Invalid magic link")
 
@@ -590,14 +592,14 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     if datetime.utcnow() > token_data["expires_at"]:
         raise HTTPException(status_code=403, detail="Magic link has expired")
 
-    # Check if the magic link has already been used
-    if token_data.get("used", False):
+    # Check if the magic link has already been used (if use_count is 1)
+    if token_data.get("use_count", 0) >= 1:
         raise HTTPException(status_code=403, detail="Magic link has already been used")
-    
-    # Mark the token as used (once clicked, it cannot be used again)
+
+    # Increment the use_count
     await magic_links_collection.update_one(
         {"token": token},
-        {"$set": {"used": True}}
+        {"$inc": {"use_count": 1}}
     )
 
     # Generate a session token (valid for 3 days)
@@ -609,6 +611,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
     
     return reresponse
+
     
 @app.post("/api/createNewFolder")
 async def api_new_folder(request: Request):
