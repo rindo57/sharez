@@ -579,7 +579,7 @@ async def api_new_folder(request: Request):
 #        return JSONResponse({"status": "Invalid password"})
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
-         logger.info(f"createNewFolder {data}")
+        logger.info(f"createNewFolder {data}")
         folder_data = DRIVE_DATA.get_directory(data["path"]).contents
         for id in folder_data:
             f = folder_data[id]
