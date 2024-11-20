@@ -159,7 +159,9 @@ document.addEventListener('DOMContentLoaded', function () {
        // handleSearchPath()
    // } 
     else {
-        if (checkAdmin() === null) {
+        checkAdmin().then(isAdmin => {
+        if (isAdmin) {
+        
             document.getElementById('bg-blur').style.zIndex = '2';
             document.getElementById('bg-blur').style.opacity = '0.1';
 
