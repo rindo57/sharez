@@ -20,12 +20,11 @@ document.getElementById('pass-login').addEventListener('click', async () => {
     const data = { 'pass': password };
     const json = await postJson('/api/checkPassword', data);
     if (json.status === 'ok') {
-        localStorage.setItem('password', password);
-        alert('Logged In Successfully');
+        alert('Check your inbox babe!');
         window.location.reload();
     }
     else {
-        alert('Wrong Password');
+        alert('Invalid ID');
     }
 });
 
