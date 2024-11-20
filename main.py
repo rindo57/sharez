@@ -853,8 +853,8 @@ async def cancel_upload(request: Request):
     return JSONResponse({"status": "ok"})
 
 
-@app.post("/api/renameFileFolder", session: str = Cookie(None))
-async def rename_file_folder(request: Request):
+@app.post("/api/renameFileFolder")
+async def rename_file_folder(request: Request, session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
@@ -872,8 +872,8 @@ async def rename_file_folder(request: Request):
     return JSONResponse({"status": "ok"})
 
 
-@app.post("/api/trashFileFolder",  session: str = Cookie(None))
-async def trash_file_folder(request: Request):
+@app.post("/api/trashFileFolder")
+async def trash_file_folder(request: Request, session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
@@ -892,8 +892,8 @@ async def trash_file_folder(request: Request):
 
 
 
-@app.post("/api/deleteFileFolder",  session: str = Cookie(None))
-async def delete_file_folder(request: Request):
+@app.post("/api/deleteFileFolder")
+async def delete_file_folder(request: Request, session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
