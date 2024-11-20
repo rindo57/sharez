@@ -119,7 +119,7 @@ async function posJson(url) {
     });
     return await response.json();
 }
-function checkAdmin() {
+async function checkAdmin() {
     const json = await posJson('/api/checkadmin');
     if (json.status === 'ok') {
         return "True"
