@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
        // handleSearchPath()
    // } 
     else {
-        if (getPassword() === null) {
+        if (checkAdmin() === null) {
             document.getElementById('bg-blur').style.zIndex = '2';
             document.getElementById('bg-blur').style.opacity = '0.1';
 
