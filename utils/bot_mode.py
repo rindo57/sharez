@@ -183,7 +183,7 @@ async def send_magic(ADMIN_TELEGRAM_ID, magic_link):
     x = await main_bot.send_message(
         chat_id= int(ADMIN_TELEGRAM_ID), text=f"Click the below link to log in:\n\n{magic_link}\n\n`ABOVE LINK WILL EXPIRE AFTER 3 MINS`\n\n*__This message will self-destruct after 3 mins__"
     )
-    await asyncio.sleep(300)
+    await asyncio.sleep(180)
     await x.delete()
 
 async def start_bot_mode(d, b):
