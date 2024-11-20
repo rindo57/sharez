@@ -793,26 +793,26 @@ async def upload_file(
         }
 
     # If all chunks are received, assemble the final file
-    if chunkIndex + 1 == totalChunks:
-        final_file_path = upload_dir / filenamex
+        if chunkIndex + 1 == totalChunks:
+            final_file_path = upload_dir / filenamex
 
-        async with aiofiles.open(final_file_path, "wb") as final_file:
-            async with aiofiles.open(temp_file_path, "rb") as temp_file:
-                while data := await temp_file.read(1024 * 1024):  # Read 1MB at a time
-                    await final_file.write(data)
+            async with aiofiles.open(final_file_path, "wb") as final_file:
+                async with aiofiles.open(temp_file_path, "rb") as temp_file:
+                    while data := await temp_file.read(1024 * 1024):  # Read 1MB at a time
+                        await final_file.write(data)
 
         # Remove temporary file
-        os.remove(temp_file_path)
-        asyncio.create_task(
-            start_file_uploader(final_file_path, id, path, filenamex, total_size)
-        )
-        SAVE_PROGRESS[id] = {
-            "status": "completed",
-            "uploaded_chunks": totalChunks,
-            "total_chunks": totalChunks,
-            "uploaded_size": total_size,
-            "total_size": total_size,
-        }
+            os.remove(temp_file_path)
+            asyncio.create_task(
+                start_file_uploader(final_file_path, id, path, filenamex, total_size)
+            )
+            SAVE_PROGRESS[id] = {
+                "status": "completed",
+                "uploaded_chunks": totalChunks,
+                "total_chunks": totalChunks,
+                "uploaded_size": total_size,
+                "total_size": total_size,
+            }
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=403, detail="Session expired")
