@@ -606,7 +606,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
 
     
 @app.post("/api/createNewFolder")
-async def api_new_folder(request: Request):
+async def api_new_folder(request: Request,  session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
