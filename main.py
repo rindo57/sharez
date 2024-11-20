@@ -581,8 +581,18 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     # Retrieve the token from the database
     ADMIN_TELEGRAM_ID = request.query_params.get("id")
     token_data = await magic_links_collection.find_one({"token": token})
-    if not token_data or datetime.utcnow() > token_data["expires_at"]:
-        raise HTTPException(status_code=403, detail="Invalid or expired magic link")
+    if not token_data:
+        raise HTTPException(status_code=403, detail="Invalid magic link")
+    if datetime.utcnow() > token_data["expires_at"]:
+        raise HTTPException(status_code=403, detail="Magic link has expired")
+    if token_data.get("used", False):
+        raise HTTPException(status_code=403, detail="Magic link has already been used")
+    
+    # Mark the token as used
+    await magic_links_collection.update_one(
+        {"token": token},
+        {"$set": {"used": True}}
+    )
 
     # Generate a session token (valid for 3 days)
     expiration = datetime.utcnow() + timedelta(minutes=5)
