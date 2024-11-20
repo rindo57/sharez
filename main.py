@@ -560,7 +560,7 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     # Store the token in the database
     await magic_links_collection.update_one(
         {"telegram_id": ADMIN_TELEGRAM_ID},
-        {"$set": {"token": token, "expires_at": expiration_time, "used": "false"}},
+        {"$set": {"token": token, "expires_at": expiration_time, "used": False}},
         upsert=True,
     )
 
@@ -578,30 +578,36 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     """
     Validate the magic link token and issue a session cookie.
     """
-    # Retrieve the token from the database
+    # Retrieve the telegram_id from query params
     ADMIN_TELEGRAM_ID = request.query_params.get("id")
+    
+    # Check if the token exists in the database
     token_data = await magic_links_collection.find_one({"token": token})
     if not token_data:
         raise HTTPException(status_code=403, detail="Invalid magic link")
+
+    # Check if the link is expired
     if datetime.utcnow() > token_data["expires_at"]:
         raise HTTPException(status_code=403, detail="Magic link has expired")
-    if token_data["used"]=="true":
+
+    # Check if the magic link has already been used
+    if token_data.get("used", False):
         raise HTTPException(status_code=403, detail="Magic link has already been used")
     
-    # Mark the token as used
-
-
-    # Generate a session token (valid for 3 days)
-    expiration = datetime.utcnow() + timedelta(minutes=5)
-    session_token = jwt.encode({"telegram_id": int(ADMIN_TELEGRAM_ID), "exp": expiration}, JWT_SECRET, algorithm="HS256")
-
-    # Issue session cookie and redirect to upload page
-    reresponse = RedirectResponse(url="/")
-    reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
+    # Mark the token as used (once clicked, it cannot be used again)
     await magic_links_collection.update_one(
         {"token": token},
-        {"$set": {"used": "false"}}
+        {"$set": {"used": True}}
     )
+
+    # Generate a session token (valid for 3 days)
+    expiration = datetime.utcnow() + timedelta(days=3)
+    session_token = jwt.encode({"telegram_id": int(ADMIN_TELEGRAM_ID), "exp": expiration}, JWT_SECRET, algorithm="HS256")
+
+    # Issue session cookie and redirect to the main page
+    reresponse = RedirectResponse(url="/")
+    reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
+    
     return reresponse
     
 @app.post("/api/createNewFolder")
