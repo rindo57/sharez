@@ -557,7 +557,7 @@ async def validate_magic_link(token: str, response: Response):
 
     # Generate a session token (valid for 3 days)
     expiration = datetime.utcnow() + timedelta(minutes=5)
-    session_token = jwt.encode({"telegram_id": ADMIN_TELEGRAM_ID, "exp": expiration}, JWT_SECRET, algorithm="HS256")
+    session_token = jwt.encode({"telegram_id": int(ADMIN_TELEGRAM_ID), "exp": expiration}, JWT_SECRET, algorithm="HS256")
 
     # Issue session cookie and redirect to upload page
     response = RedirectResponse(url="/")
