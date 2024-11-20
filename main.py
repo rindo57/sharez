@@ -81,7 +81,7 @@ file_stats_collection = dbx["file_stats"]
 JWT_SECRET = secrets.token_hex(16)  # Secure random key
 
 # MongoDB integration
-magic_links_collection = mongo_client['magic_links'] 
+magic_links_collection = dbx['magic_links'] 
 @app.get("/")
 async def home_page():
     return FileResponse("website/home.html")
