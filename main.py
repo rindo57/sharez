@@ -515,14 +515,40 @@ async def dl_file(request: Request):
 # Api Routes
 
 
+
+
 @app.post("/api/checkPassword")
 async def check_password(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-    if data["pass"] == ADMIN_PASSWORD:
+
+    # Verify that the CAPTCHA token is included
+    turnstile_token = data.get("turnstileToken")
+    if not turnstile_token:
+        raise HTTPException(status_code=400, detail="CAPTCHA token is missing.")
+
+    # Verify the CAPTCHA token with Cloudflare
+    async with httpx.AsyncClient() as client:
+        turnstile_response = await client.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+            data={
+                "secret": TURNSTILE_SECRET_KEY,
+                "response": turnstile_token,
+            },
+        )
+    turnstile_result = turnstile_response.json()
+
+    # Check if the CAPTCHA is valid
+    if not turnstile_result.get("success"):
+        return JSONResponse({"status": "Captcha Verification Failed"})
+
+    # Check the admin password
+    if data.get("pass") == ADMIN_PASSWORD:
         background_tasks.add_task(generate_magic_link, ADMIN_PASSWORD)
         return JSONResponse({"status": "ok"})
-    return JSONResponse({"status": "Invalid password"})
 
+    # Return invalid password response
+    return JSONResponse({"status": "Invalid password"})
+    
 async def generate_magic_link(ADMIN_TELEGRAM_ID):
     """
     Generate a magic link and send it to the admin via Telegram.
