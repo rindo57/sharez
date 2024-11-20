@@ -108,8 +108,19 @@ function getPassword() {
     return localStorage.getItem('password')
 }
 
+async function posJson(url, data) {
+  //  data['password'] = getPassword();
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    return await response.json();
+}
 function checkAdmin() {
-    const json = await postJson('/api/checkadmin');
+    const json = await posJson('/api/checkadmin');
     if (json.status === 'ok') {
         return "True"
     }
