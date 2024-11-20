@@ -955,7 +955,7 @@ async def delete_file_folder(request: Request, session: str = Cookie(None)):
 
 
 @app.post("/api/getFileInfoFromUrl")
-async def getFileInfoFromUrl(request: Request, session: str = Cookie(None):
+async def getFileInfoFromUrl(request: Request, session: str = Cookie(None)):
 
     data = await request.json()
 
