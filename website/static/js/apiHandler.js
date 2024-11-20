@@ -15,9 +15,10 @@ async function postJson(url, data) {
     return await response.json();
 }
 
+let attempts = 0; // Declare attempts outside the event listener
+const maxAttempts = 5;
 document.getElementById('pass-login').addEventListener('click', async () => {
-    let attempts = 0;
-    const maxAttempts = 5;
+
     const loginButton = document.getElementById("pass-login");
     const password = document.getElementById('auth-pass').value;
     const errorMessage = document.getElementById('error-message');
