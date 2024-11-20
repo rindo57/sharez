@@ -1,5 +1,7 @@
 /*#ff79c6 pink*/
 /*FF5733*/
+/*#ff79c6 pink*/
+/*FF5733*/
 * {
     margin: 0;
     padding: 0;
@@ -224,10 +226,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: end;
-    gap: 0px;
+    gap: 10px;
 }
-
-
 
 .create-new-folder button {
     background-color: transparent;
