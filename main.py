@@ -585,7 +585,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
         raise HTTPException(status_code=403, detail="Invalid magic link")
     if datetime.utcnow() > token_data["expires_at"]:
         raise HTTPException(status_code=403, detail="Magic link has expired")
-    if token_data["used"]=="true":
+    if token_data["used"]=="false":
         raise HTTPException(status_code=403, detail="Magic link has already been used")
     
     # Mark the token as used
@@ -600,7 +600,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
     await magic_links_collection.update_one(
         {"token": token},
-        {"$set": {"used": "true"}}
+        {"$set": {"used": "false"}}
     )
     return reresponse
     
