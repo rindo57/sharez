@@ -962,7 +962,7 @@ async def getFolderShareAuth(request: Request):
     except:
         return JSONResponse({"status": "not found"})
 
-@app.get("/api/checkadmin")
+@app.post("/api/checkadmin")
 async def admin(session: str = Cookie(None)):
     """
     Secure file upload page. Requires a valid session.
