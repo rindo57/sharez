@@ -108,6 +108,14 @@ function getPassword() {
     return localStorage.getItem('password')
 }
 
+function checkAdmin() {
+    const json = await postJson('/api/checkadmin');
+    if (json.status === 'ok') {
+        return "True"
+    }
+    else {
+        return null
+    }
 function getRandomId() {
     const length = 30;
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
