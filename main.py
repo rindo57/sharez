@@ -585,7 +585,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
         raise HTTPException(status_code=403, detail="Invalid magic link")
     if datetime.utcnow() > token_data["expires_at"]:
         raise HTTPException(status_code=403, detail="Magic link has expired")
-    if token_data["used"]=="false":
+    if token_data["used"]=="true":
         raise HTTPException(status_code=403, detail="Magic link has already been used")
     
     # Mark the token as used
