@@ -22,7 +22,16 @@ document.getElementById('pass-login').addEventListener('click', async () => {
     const loginButton = document.getElementById("pass-login");
     const password = document.getElementById('auth-pass').value;
     const errorMessage = document.getElementById('error-message');
-    const data = { 'pass': password };
+    const turnstileToken = document.querySelector('[name="cf-turnstile-response"]').value; // Get Turnstile token
+
+    if (!turnstileToken) {
+        alert('Please complete the CAPTCHA.');
+        return;
+    }
+    const data = { 
+        pass: password,
+        turnstileToken: turnstileToken
+    };
     const json = await postJson('/api/checkPassword', data);
     
     if (json.status === 'ok') {
