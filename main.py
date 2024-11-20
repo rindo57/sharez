@@ -6,7 +6,7 @@ import asyncio
 from pathlib import Path
 from contextlib import asynccontextmanager
 import aiofiles
-from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends
+from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends, Cookie
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse, RedirectResponse
 from config import ADMIN_PASSWORD, MAX_FILE_SIZE, STORAGE_CHANNEL, MAIN_BOT_TOKEN
 from utils.clients import initialize_clients
@@ -31,6 +31,8 @@ import os
 from motor.motor_asyncio import AsyncIOMotorClient as MongoClient
 import math
 from urllib.parse import urlparse
+from datetime import datetime, timedelta
+
 # Startup Event
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -526,7 +528,7 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     """
     # Generate a unique token
     token = secrets.token_urlsafe(32)
-    expiration_time = datetime.utcnow() + timedelta(minutes=15)
+    expiration_time = datetime.utcnow() + timedelta(minutes=3)
 
     # Store the token in the database
     await magic_links_collection.update_one(
@@ -554,12 +556,13 @@ async def validate_magic_link(token: str, response: Response):
         raise HTTPException(status_code=403, detail="Invalid or expired magic link")
 
     # Generate a session token (valid for 3 days)
-    expiration = datetime.utcnow() + timedelta(days=3)
+    expiration = datetime.utcnow() + timedelta(minutes=5)
     session_token = jwt.encode({"telegram_id": ADMIN_TELEGRAM_ID, "exp": expiration}, JWT_SECRET, algorithm="HS256")
 
     # Issue session cookie and redirect to upload page
     response = RedirectResponse(url="/")
-    response.set_cookie(key="session", value=session_token, httponly=True, max_age=3*24*3600)
+    response.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
+    
     return response
     
 @app.post("/api/createNewFolder")
@@ -958,7 +961,7 @@ async def getFolderShareAuth(request: Request):
     except:
         return JSONResponse({"status": "not found"})
 
-@app.get("/checkadmin")
+@app.get("/api/checkadmin")
 async def admin(session: str = Cookie(None)):
     """
     Secure file upload page. Requires a valid session.
