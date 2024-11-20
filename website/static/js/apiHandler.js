@@ -34,9 +34,9 @@ document.getElementById('pass-login').addEventListener('click', async () => {
             loginButton.disabled = true;
             errorMessage.style.display = "block";
         } 
-        //else {
-          //  alert(`Incorrect password. You have ${maxAttempts - attempts} attempts left.`);
-        //}
+        else {
+            alert(`Incorrect password. You have ${maxAttempts - attempts} attempts left.`);
+        }
     }
 
         // Clear the password field
