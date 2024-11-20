@@ -515,8 +515,8 @@ async def dl_file(request: Request):
 # Api Routes
 
 
-@app.post("/api/checkPassword", background_tasks: BackgroundTasks)
-async def check_password(request: Request):
+@app.post("/api/checkPassword")
+async def check_password(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
     if data["pass"] == ADMIN_PASSWORD:
         background_tasks.add_task(generate_magic_link, ADMIN_PASSWORD)
