@@ -853,45 +853,62 @@ async def cancel_upload(request: Request):
     return JSONResponse({"status": "ok"})
 
 
-@app.post("/api/renameFileFolder")
+@app.post("/api/renameFileFolder", session: str = Cookie(None))
 async def rename_file_folder(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
-
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"renameFileFolder {data}")
-    DRIVE_DATA.rename_file_folder(data["path"], data["name"])
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#        return JSONResponse({"status": "Invalid password"})
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"renameFileFolder {data}")
+        DRIVE_DATA.rename_file_folder(data["path"], data["name"])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
     return JSONResponse({"status": "ok"})
 
 
-@app.post("/api/trashFileFolder")
+@app.post("/api/trashFileFolder",  session: str = Cookie(None))
 async def trash_file_folder(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
-
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"trashFileFolder {data}")
-    DRIVE_DATA.trash_file_folder(data["path"], data["trash"])
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#        return JSONResponse({"status": "Invalid password"})
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"trashFileFolder {data}")
+        DRIVE_DATA.trash_file_folder(data["path"], data["trash"])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
     return JSONResponse({"status": "ok"})
 
 
-@app.post("/api/deleteFileFolder")
+
+@app.post("/api/deleteFileFolder",  session: str = Cookie(None))
 async def delete_file_folder(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
 
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"deleteFileFolder {data}")
-    DRIVE_DATA.delete_file_folder(data["path"])
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#        return JSONResponse({"status": "Invalid password"})
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"deleteFileFolder {data}")
+        DRIVE_DATA.delete_file_folder(data["path"])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
     return JSONResponse({"status": "ok"})
 
 
@@ -980,3 +997,5 @@ async def admin(session: str = Cookie(None)):
         raise HTTPException(status_code=403, detail="Invalid session token")
 
     return JSONResponse({"status": "ok"})
+
+
