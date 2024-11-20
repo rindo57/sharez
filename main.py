@@ -546,7 +546,7 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     return
 
 @app.get("/magic-link/{token}")
-async def validate_magic_link(token: str, response: Response):
+async def validate_magic_link(token: str, request: Request, response: Response):
     """
     Validate the magic link token and issue a session cookie.
     """
@@ -561,10 +561,10 @@ async def validate_magic_link(token: str, response: Response):
     session_token = jwt.encode({"telegram_id": int(ADMIN_TELEGRAM_ID), "exp": expiration}, JWT_SECRET, algorithm="HS256")
 
     # Issue session cookie and redirect to upload page
-    response = RedirectResponse(url="/")
-    response.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
+    reresponse = RedirectResponse(url="/")
+    reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
     
-    return response
+    return reresponse
     
 @app.post("/api/createNewFolder")
 async def api_new_folder(request: Request):
