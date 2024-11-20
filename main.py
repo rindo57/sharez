@@ -573,36 +573,51 @@ async def api_new_folder(request: Request):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
-
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"createNewFolder {data}")
-    folder_data = DRIVE_DATA.get_directory(data["path"]).contents
-    for id in folder_data:
-        f = folder_data[id]
-        if f.type == "folder":
-            if f.name == data["name"]:
-                return JSONResponse(
-                    {
-                        "status": "Folder with the name already exist in current directory"
-                    }
-                )
-
-    DRIVE_DATA.new_folder(data["path"], data["name"])
+    
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#        return JSONResponse({"status": "Invalid password"})
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+         logger.info(f"createNewFolder {data}")
+        folder_data = DRIVE_DATA.get_directory(data["path"]).contents
+        for id in folder_data:
+            f = folder_data[id]
+            if f.type == "folder":
+                if f.name == data["name"]:
+                    return JSONResponse(
+                        {
+                            "status": "Folder with the name already exist in current directory"
+                        }
+                    )
+        DRIVE_DATA.new_folder(data["path"], data["name"])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
     return JSONResponse({"status": "ok"})
+
+   
 
 
 @app.post("/api/getDirectory")
-async def api_get_directory(request: Request):
+async def api_get_directory(request: Request,  session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
 
-    if data["password"] == ADMIN_PASSWORD:
-        is_admin = True
-    else:
+    if not session:
         is_admin = False
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        is_admin = True
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+        is_admin = False
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
+        is_admin = False
+        
 
     #auth = data.get("auth")
     auth = data.get("auth")
@@ -970,16 +985,22 @@ async def getFolderShareAuth(request: Request):
 
     data = await request.json()
 
-    if data["password"] != ADMIN_PASSWORD:
-        return JSONResponse({"status": "Invalid password"})
-
-    logger.info(f"getFolderShareAuth {data}")
-
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+#        return JSONResponse({"status": "Invalid password"})
     try:
-        auth = DRIVE_DATA.get_folder_auth(data["path"])
-        return JSONResponse({"status": "ok", "auth": auth})
-    except:
-        return JSONResponse({"status": "not found"})
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        logger.info(f"getFolderShareAuth {data}")
+        try:
+            auth = DRIVE_DATA.get_folder_auth(data["path"])
+            return JSONResponse({"status": "ok", "auth": auth})
+        except:
+            return JSONResponse({"status": "not found"})
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
+
 
 @app.post("/api/checkadmin")
 async def admin(session: str = Cookie(None)):
