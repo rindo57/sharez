@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 import aiofiles
 from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse, RedirectResponse
-from config import ADMIN_PASSWORD, MAX_FILE_SIZE, STORAGE_CHANNEL
+from config import ADMIN_PASSWORD, MAX_FILE_SIZE, STORAGE_CHANNEL, MAIN_BOT_TOKEN
 from utils.clients import initialize_clients
 from utils.directoryHandler import getRandomID
 from utils.extra import auto_ping_website, convert_class_to_dict, reset_cache_dir
@@ -67,19 +67,35 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
             headers={"WWW-Authenticate": "Basic"},
         )'''
 
-#SECRET_KEY = secrets.token_urlsafe(32)  # Replace with a secure key
-SECRET_KEY = "JHNCA8ER3NbjfCHSA89KJASCAxnjks"
+#SECRET_KEY =   # Replace with a secure key
+SECRET_KEY = secrets.token_urlsafe(32)
 TOKEN_EXPIRY_SECONDS = 21600 
 TURNSTILE_SECRET_KEY = "0x4AAAAAAAzlMli8bi3JNb93TAutfAHmPp4"
 ruix = "mongodb+srv://anidl:encodes@cluster0.oobfx33.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 mongo_client = MongoClient(ruix)
 dbx = mongo_client["drive"]
 file_stats_collection = dbx["file_stats"]
+
+JWT_SECRET = secrets.token_hex(16)  # Secure random key
+
+# MongoDB integration
+magic_links_collection = mongo_client['magic_links'] 
 @app.get("/")
 async def home_page():
     return FileResponse("website/home.html")
 
-
+async def send_telegram_message(chat_id: str, message: str):
+    """
+    Utility function to send a Telegram message using a bot.
+    """
+    async with AsyncClient() as client:
+        response = await client.post(
+            f"https://api.telegram.org/bot{MAIN_BOT_TOKEN}/sendMessage",
+            json={"chat_id": chat_id, "text": message},
+        )
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Failed to send Telegram message")
+            
 @app.get("/stream")
 async def home_page():
     return FileResponse("website/VideoPlayer.html")
@@ -500,10 +516,52 @@ async def dl_file(request: Request):
 async def check_password(request: Request):
     data = await request.json()
     if data["pass"] == ADMIN_PASSWORD:
+        await generate_magic_link(ADMIN_PASSWORD)
         return JSONResponse({"status": "ok"})
     return JSONResponse({"status": "Invalid password"})
 
+async def generate_magic_link(ADMIN_TELEGRAM_ID):
+    """
+    Generate a magic link and send it to the admin via Telegram.
+    """
+    # Generate a unique token
+    token = secrets.token_urlsafe(32)
+    expiration_time = datetime.utcnow() + timedelta(minutes=15)
 
+    # Store the token in the database
+    await magic_links_collection.update_one(
+        {"telegram_id": ADMIN_TELEGRAM_ID},
+        {"$set": {"token": token, "expires_at": expiration_time}},
+        upsert=True,
+    )
+
+    # Construct the magic link URL
+    base_url = "https://drive.ddlserverv1.me.in"  # Replace with your actual domain
+    magic_link = f"{base_url}/magic-link/{token}"
+
+    # Send the magic link via Telegram
+    await send_telegram_message(ADMIN_TELEGRAM_ID, f"Click this link to log in: {magic_link}")
+    return
+
+@app.get("/magic-link/{token}")
+async def validate_magic_link(token: str, response: Response):
+    """
+    Validate the magic link token and issue a session cookie.
+    """
+    # Retrieve the token from the database
+    token_data = await magic_links_collection.find_one({"token": token})
+    if not token_data or datetime.utcnow() > token_data["expires_at"]:
+        raise HTTPException(status_code=403, detail="Invalid or expired magic link")
+
+    # Generate a session token (valid for 3 days)
+    expiration = datetime.utcnow() + timedelta(days=3)
+    session_token = jwt.encode({"telegram_id": ADMIN_TELEGRAM_ID, "exp": expiration}, JWT_SECRET, algorithm="HS256")
+
+    # Issue session cookie and redirect to upload page
+    response = RedirectResponse(url="/")
+    response.set_cookie(key="session", value=session_token, httponly=True, max_age=3*24*3600)
+    return response
+    
 @app.post("/api/createNewFolder")
 async def api_new_folder(request: Request):
     from utils.directoryHandler import DRIVE_DATA
@@ -900,4 +958,19 @@ async def getFolderShareAuth(request: Request):
     except:
         return JSONResponse({"status": "not found"})
 
+@app.get("/checkadmin")
+async def admin(session: str = Cookie(None)):
+    """
+    Secure file upload page. Requires a valid session.
+    """
+    if not session:
+        raise HTTPException(status_code=403, detail="Not authenticated")
 
+    try:
+        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=403, detail="Session expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=403, detail="Invalid session token")
+
+    return JSONResponse({"status": "ok"})
