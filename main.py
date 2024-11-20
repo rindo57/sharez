@@ -980,7 +980,7 @@ async def getFileDownloadProgress(request: Request):
 
 
 @app.post("/api/getFolderShareAuth")
-async def getFolderShareAuth(request: Request):
+async def getFolderShareAuth(request: Request, session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
