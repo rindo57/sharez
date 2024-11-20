@@ -227,6 +227,10 @@ body {
     gap: 10px;
 }
 
+.create-new-folder .cf-turnstile {
+    margin-left: 20px;  /* Adjust the value to move CAPTCHA widget towards the right */
+}
+
 .create-new-folder button {
     background-color: transparent;
     border: none;
