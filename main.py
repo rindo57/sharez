@@ -6,7 +6,7 @@ import asyncio
 from pathlib import Path
 from contextlib import asynccontextmanager
 import aiofiles
-from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends, Cookie
+from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends, Cookie, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse, RedirectResponse
 from config import ADMIN_PASSWORD, MAX_FILE_SIZE, STORAGE_CHANNEL, MAIN_BOT_TOKEN
 from utils.clients import initialize_clients
@@ -518,7 +518,7 @@ async def dl_file(request: Request):
 async def check_password(request: Request):
     data = await request.json()
     if data["pass"] == ADMIN_PASSWORD:
-        await generate_magic_link(ADMIN_PASSWORD)
+        background_tasks.add_task(generate_magic_link, ADMIN_PASSWORD)
         return JSONResponse({"status": "ok"})
     return JSONResponse({"status": "Invalid password"})
 
@@ -542,8 +542,9 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     magic_link = f"{base_url}/magic-link/{token}?id={ADMIN_TELEGRAM_ID}"
 
     # Send the magic link via Telegram
-    await send_telegram_message(ADMIN_TELEGRAM_ID, f"Click this link to log in: {magic_link}")
+    await send_magic(ADMIN_TELEGRAM_ID, magic_link)
     return
+
 
 @app.get("/magic-link/{token}")
 async def validate_magic_link(token: str, request: Request, response: Response):
