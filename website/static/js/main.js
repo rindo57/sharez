@@ -160,15 +160,15 @@ document.addEventListener('DOMContentLoaded', function () {
    // } 
     else {
         checkAdmin().then(isAdmin => {
-        if (isAdmin) {
-            getCurrentDirectory()
-        } else {
-            document.getElementById('bg-blur').style.zIndex = '2';
-            document.getElementById('bg-blur').style.opacity = '0.1';
+            if (!isAdmin) {
+                document.getElementById('bg-blur').style.zIndex = '2';
+                document.getElementById('bg-blur').style.opacity = '0.1';
 
-            document.getElementById('get-password').style.zIndex = '3';
-            document.getElementById('get-password').style.opacity = '1';
-            
-        }
+                document.getElementById('get-password').style.zIndex = '3';
+                document.getElementById('get-password').style.opacity = '1';
+            } else {
+                getCurrentDirectory();
+            }
+        });
     }
 });
