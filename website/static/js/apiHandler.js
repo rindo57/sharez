@@ -16,17 +16,33 @@ async function postJson(url, data) {
 }
 
 document.getElementById('pass-login').addEventListener('click', async () => {
+    let attempts = 0;
+    const maxAttempts = 5;
+    const loginButton = document.getElementById("pass-login");
     const password = document.getElementById('auth-pass').value;
+    const errorMessage = document.getElementById('error-message');
     const data = { 'pass': password };
     const json = await postJson('/api/checkPassword', data);
+    
     if (json.status === 'ok') {
         alert('Check your inbox babe!');
         window.location.reload();
     }
     else {
-        alert('Invalid ID');
+        attempts++;
+        if (attempts >= maxAttempts) {
+            loginButton.disabled = true;
+            errorMessage.style.display = "block";
+        } 
+        //else {
+          //  alert(`Incorrect password. You have ${maxAttempts - attempts} attempts left.`);
+        //}
     }
+
+        // Clear the password field
+    password = "";
 });
+
 
 function hideMoreColumnIfSharedPath() {
     // Check if the current path starts with '/share'
