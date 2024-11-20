@@ -542,8 +542,8 @@ async def check_password(request: Request, background_tasks: BackgroundTasks):
         return JSONResponse({"status": "Captcha Verification Failed"})
 
     # Check the admin password
-    if data.get("pass") == ADMIN_PASSWORD:
-        background_tasks.add_task(generate_magic_link, ADMIN_PASSWORD)
+    if data.get("pass") in ADMIN_PASSWORD:
+        background_tasks.add_task(generate_magic_link, data.get("pass"))
         return JSONResponse({"status": "ok"})
 
     # Return invalid password response
