@@ -585,14 +585,11 @@ async def validate_magic_link(token: str, request: Request, response: Response):
         raise HTTPException(status_code=403, detail="Invalid magic link")
     if datetime.utcnow() > token_data["expires_at"]:
         raise HTTPException(status_code=403, detail="Magic link has expired")
-    if token_data.get("used", False):
+    if token_data["used"]:
         raise HTTPException(status_code=403, detail="Magic link has already been used")
     
     # Mark the token as used
-    await magic_links_collection.update_one(
-        {"token": token},
-        {"$set": {"used": True}}
-    )
+
 
     # Generate a session token (valid for 3 days)
     expiration = datetime.utcnow() + timedelta(minutes=5)
@@ -601,7 +598,10 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     # Issue session cookie and redirect to upload page
     reresponse = RedirectResponse(url="/")
     reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
-    
+    await magic_links_collection.update_one(
+        {"token": token},
+        {"$set": {"used": True}}
+    )
     return reresponse
     
 @app.post("/api/createNewFolder")
