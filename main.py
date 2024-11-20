@@ -515,7 +515,7 @@ async def dl_file(request: Request):
 # Api Routes
 
 
-@app.post("/api/checkPassword")
+@app.post("/api/checkPassword", background_tasks: BackgroundTasks)
 async def check_password(request: Request):
     data = await request.json()
     if data["pass"] == ADMIN_PASSWORD:
