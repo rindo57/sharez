@@ -560,7 +560,7 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     # Store the token in the database with a use_count of 0
     await magic_links_collection.update_one(
         {"telegram_id": ADMIN_TELEGRAM_ID},
-        {"$set": {"token": token, "expires_at": expiration_time, "use_count": 1}},
+        {"$set": {"token": token, "expires_at": expiration_time}},
         upsert=True,
     )
 
@@ -592,15 +592,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
     if datetime.utcnow() > token_data["expires_at"]:
         raise HTTPException(status_code=403, detail="Magic link has expired")
 
-    # Check if the magic link has already been used (if use_count is 1)
-    if token_data.get("use_count", 0) >= 1:
-        raise HTTPException(status_code=403, detail="Magic link has already been used")
-
-    # Increment the use_count
-    await magic_links_collection.update_one(
-        {"token": token},
-        {"$inc": {"use_count": 1}}
-    )
+    # Check if the magic link has already been used (if use_count is 1
 
     # Generate a session token (valid for 3 days)
     expiration = datetime.utcnow() + timedelta(days=3)
