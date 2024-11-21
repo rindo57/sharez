@@ -642,7 +642,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
-
+    is_admin = False
     if not session:
         is_admin = False
     try:
