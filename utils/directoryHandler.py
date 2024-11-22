@@ -27,7 +27,7 @@ def get_current_utc_time():
 
 
 class Folder:
-    def __init__(self, name: str, path) -> None:
+    def __init__(self, name: str, path, uploader: str) -> None:
         self.name = name
         self.contents = {}
         if name == "/":
@@ -38,6 +38,7 @@ class Folder:
         self.trash = False
         self.path = path[:-1] if path[-1] == "/" else path
         self.upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.uploader = uploader
         self.auth_hashes = []
 
 
@@ -48,7 +49,8 @@ class File:
         file_id: int,
         size: int,
         path: str,
-        rentry_link: str
+        rentry_link: str, 
+        uploader: str
     ) -> None:
         self.name = name
         self.type = type
@@ -60,6 +62,7 @@ class File:
         self.path = path[:-1] if path[-1] == "/" else path
         self.upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.rentry_link = rentry_link
+        self.uploader = uploader
         
 
 
@@ -75,8 +78,8 @@ class NewDriveData:
 
         self.isUpdated = True
 
-    def new_folder(self, path: str, name: str) -> None:
-        logger.info(f"Creating new folder {name} in {path}")
+    def new_folder(self, path: str, name: str, uploader: str) -> None:
+        logger.info(f"Creating new folder {name} in {path} ny {uploader}")
 
         folder = Folder(name, path)
         if path == "/":
@@ -91,10 +94,10 @@ class NewDriveData:
 
         self.save()
 
-    def new_file(self, path: str, name: str, file_id: int, size: int, rentry_link: str) -> None:
-        logger.info(f"Creating new file {name} in {path}")
+    def new_file(self, path: str, name: str, file_id: int, size: int, rentry_link: str, uploader: str) -> None:
+        logger.info(f"Creating new file {name} in {path} by {uploader}")
 
-        file = File(name, file_id, size, path, rentry_link)
+        file = File(name, file_id, size, path, rentry_link, uploader)
         if path == "/":
             directory_folder: Folder = self.contents[path]
             directory_folder.contents[file.id] = file
