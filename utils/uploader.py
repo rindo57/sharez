@@ -122,7 +122,7 @@ def format_media_info(fileName):
         boom =  open(txt_file, 'r')
         content = boom.read()
         print("SUBSTITLE END")
-     except Exception as e:
+    except Exception as e:
         print(f"Error processing file: {e}", flush=True)
     return content
 
