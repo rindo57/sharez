@@ -715,11 +715,12 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
                 for item in folder.values():
                     if query.lower() in item["name"].lower():
                         search_results[item['id']] = item
-                    if item['type'] == "folder":
-                        search_results.update(traverse_directory(item["contents"], query))
+             #       if item['type'] == "folder":
+                     #   search_results.update(traverse_directory(item["contents"], query))
                 return search_results
 
             search_data = traverse_directory(folder['contents'], query)
+
             finaldata =  {"contents": search_data}
             print("share seach folder data:", finaldata)
             
