@@ -555,7 +555,7 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     """
     # Generate a unique token
     token = secrets.token_urlsafe(32)
-    expiration_time = datetime.utcnow() + timedelta(minutes=3)
+    expiration_time = datetime.utcnow() + timedelta(minutes=5)
 
     # Store the token in the database with a use_count of 0
     await magic_links_collection.update_one(
@@ -600,7 +600,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
 
     # Issue session cookie and redirect to the main page
     reresponse = RedirectResponse(url="/")
-    reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=5*60)
+    reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=6*5*60)
     
     return reresponse
 
