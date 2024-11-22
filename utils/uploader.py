@@ -106,7 +106,7 @@ def format_media_info(fileName, size):
         bitrate = humanBitrate(bitrate_kbps)
 
         for i in range(len(lines)):
-              if 'File size' in lines[i]:
+            if 'File size' in lines[i]:
                 lines[i] = re.sub(r": .+", f': {readable_size}', lines[i])
             elif 'Overall bit rate' in lines[i] and 'Overall bit rate mode' not in lines[i]:
                 lines[i] = re.sub(r": .+", f': {bitrate}', lines[i])
