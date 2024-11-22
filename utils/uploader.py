@@ -122,7 +122,9 @@ def format_media_info(fileName):
         boom =  open(txt_file, 'r')
         content = boom.read()
         print("SUBSTITLE END")
-        return content
+     except Exception as e:
+        print(f"Error processing file: {e}", flush=True)
+    return content
 
 
 async def start_file_uploader(file_path, id, directory_path, filename, file_size, uploader):
