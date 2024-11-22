@@ -626,6 +626,7 @@ async def api_new_folder(request: Request,  session: str = Cookie(None)):
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
         tgid = payload.get("telegram_id")
+        tggid = str(tgid)
         token_data = await magic_links_collection.find_one({"token": session})
         adminid = await magic_links_collection.find_one({"telegram_id": tgid})
         uploader = adminid["uploader"]
