@@ -292,6 +292,32 @@ async def file_handler(client: Client, message: Message):
         rentry_link = get_rentry_link(content)
         # Send the file back as a document
         print("Telegram file Mediainfo sent", flush=True)
+        copied_message = await message.copy(config.STORAGE_CHANNEL)
+        file = (
+            copied_message.document
+            or copied_message.video
+            or copied_message.audio
+            or copied_message.photo
+            or copied_message.sticker
+        )
+
+        DRIVE_DATA.new_file(
+            BOT_MODE.current_folder,
+            file.file_name,
+            copied_message.id,
+            file.file_size,
+            rentry_link,
+            uploader
+        )
+
+        await message.reply_text(
+            f"""✅ File Uploaded Successfully To Your TG Drive Website
+                             
+    **File Name:** {file.file_name}
+    **Folder:** {BOT_MODE.current_folder_name}
+    """
+        )
+
 
     except Exception as e:
         await message.reply_text("MediaInfo generation failed! Something bad occurred particularly with this file.")
