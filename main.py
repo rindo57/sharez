@@ -556,7 +556,10 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     # Generate a unique token
     token = secrets.token_urlsafe(32)
     expiration_time = datetime.utcnow() + timedelta(minutes=5)
-
+    if ADMIN_TELEGRAM_ID==1498366357:
+        uploader="Diablo"
+    elif ADMIN_TELEGRAM_ID==1498366357:
+        uploader="Diablo"
     # Store the token in the database with a use_count of 0
     await magic_links_collection.update_one(
         {"telegram_id": ADMIN_TELEGRAM_ID},
@@ -616,6 +619,8 @@ async def api_new_folder(request: Request,  session: str = Cookie(None)):
 #        return JSONResponse({"status": "Invalid password"})
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        token_data = await magic_links_collection.find_one({"token": session})
+        uploader = token_data["uploader']
         logger.info(f"createNewFolder {data}")
         folder_data = DRIVE_DATA.get_directory(data["path"]).contents
         for id in folder_data:
@@ -627,7 +632,7 @@ async def api_new_folder(request: Request,  session: str = Cookie(None)):
                             "status": "Folder with the name already exist in current directory"
                         }
                     )
-        DRIVE_DATA.new_folder(data["path"], data["name"])
+        DRIVE_DATA.new_folder(data["path"], data["name"], uploader)
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=403, detail="Session expired")
     except jwt.InvalidTokenError:
