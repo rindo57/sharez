@@ -657,24 +657,15 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
-    is_admin = False
-    if not session:
-        pass
-      #  is_admin = False
-    try:
-        payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
-        is_admin = True
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=403, detail="Session expired")
-        #is_admin = False
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=403, detail="Invalid session token")
-        #is_admin = False
-        
-    if is_admin==True:
-        pass
-    else:
-        is_admin=False
+        is_admin = False
+    if session:
+        try:
+            payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+            is_admin = True  # Validate payload if necessary
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=403, detail="Session expired")
+        except jwt.InvalidTokenError:
+            raise HTTPException(status_code=403, detail="Invalid session token")
 
     #auth = data.get("auth")
     auth = data.get("auth")
