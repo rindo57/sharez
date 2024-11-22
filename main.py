@@ -79,7 +79,7 @@ mongo_client = MongoClient(ruix)
 dbx = mongo_client["drive"]
 file_stats_collection = dbx["file_stats"]
 
-JWT_SECRET = secrets.token_hex(16)  # Secure random key
+JWT_SECRET = secrets.token_hex(16)   #Secure random key
 
 # MongoDB integration
 magic_links_collection = dbx['magic_links'] 
@@ -609,7 +609,7 @@ async def validate_magic_link(token: str, request: Request, response: Response):
 
     # Issue session cookie and redirect to the main page
     reresponse = RedirectResponse(url="/")
-    reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=6*5*60)
+    reresponse.set_cookie(key="session", value=session_token, httponly=True, max_age=259200)
     
     return reresponse
 
