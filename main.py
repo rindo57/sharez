@@ -626,7 +626,7 @@ async def api_new_folder(request: Request,  session: str = Cookie(None)):
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
         token_data = await magic_links_collection.find_one({"token": session})
-        uploader = token_data["uploader']
+        uploader = token_data["uploader"]
         logger.info(f"createNewFolder {data}")
         folder_data = DRIVE_DATA.get_directory(data["path"]).contents
         for id in folder_data:
@@ -822,7 +822,7 @@ async def upload_file(
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
         
         token_data = await magic_links_collection.find_one({"token": session})
-        uploader = token_data["uploader']
+        uploader = token_data["uploader"]
   # Create upload directory
         upload_dir = Path(UPLOAD_DIRECTORY) / path
         upload_dir.mkdir(parents=True, exist_ok=True)
