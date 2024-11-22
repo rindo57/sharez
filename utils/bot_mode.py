@@ -86,7 +86,7 @@ def new(url, edit_code, text):
 
 
 def get_rentry_link(text):
-    url, edit_code = '', ''
+    url, edit_code = '', 'Emina@69'
     response = new(url, edit_code, text)
     if response['status'] == '200':
         return f"{response['url']}/raw"
