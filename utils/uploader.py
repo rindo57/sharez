@@ -87,7 +87,7 @@ def get_rentry_link(text):
 def safe_get(attr, default="N/A"):
     """Safely get a value or return a default."""
     return attr[0] if attr else default
-def format_media_info(fileName):
+def format_media_info(fileName, size):
     try:
         # Run mediainfo commands
         mediainfo = subprocess.check_output(['mediainfo', fileName]).decode("utf-8")
@@ -135,7 +135,7 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     
     # Format media info using the provided function
     if filename.endswith(".mkv"):
-        media_details = format_media_info(file_path)
+        media_details = format_media_info(file_path, file_size)
         content = f"Media Info:\n\n{media_details}"
         rentry_link = get_rentry_link(content)
         print(rentry_link)
