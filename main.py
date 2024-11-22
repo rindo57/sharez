@@ -556,14 +556,18 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
     # Generate a unique token
     token = secrets.token_urlsafe(32)
     expiration_time = datetime.utcnow() + timedelta(minutes=5)
-    if ADMIN_TELEGRAM_ID==1498366357:
+    if ADMIN_TELEGRAM_ID=="1498366357":
         uploader="Diablo"
-    elif ADMIN_TELEGRAM_ID==1498366357:
-        uploader="Diablo"
+    elif ADMIN_TELEGRAM_ID=="162010513":
+        uploader="Knightking"
+    elif ADMIN_TELEGRAM_ID=="590009569":
+        uploader="IAMZERO"
+    elif ADMIN_TELEGRAM_ID=="418494071":
+        uploader="Rain"
     # Store the token in the database with a use_count of 0
     await magic_links_collection.update_one(
         {"telegram_id": ADMIN_TELEGRAM_ID},
-        {"$set": {"token": token, "expires_at": expiration_time}},
+        {"$set": {"token": token, "expires_at": expiration_time, "uploader": uploader}},
         upsert=True,
     )
 
@@ -814,6 +818,9 @@ async def upload_file(
 #       return JSONResponse({"status": "Invalid password"}, status_code=403)
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+        
+        token_data = await magic_links_collection.find_one({"token": session})
+        uploader = token_data["uploader']
   # Create upload directory
         upload_dir = Path(UPLOAD_DIRECTORY) / path
         upload_dir.mkdir(parents=True, exist_ok=True)
@@ -846,7 +853,7 @@ async def upload_file(
         # Remove temporary file
             os.remove(temp_file_path)
             asyncio.create_task(
-                start_file_uploader(final_file_path, id, path, filenamex, total_size)
+                start_file_uploader(final_file_path, id, path, filenamex, total_size, uploader)
             )
             SAVE_PROGRESS[id] = {
                 "status": "completed",
