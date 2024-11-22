@@ -156,7 +156,7 @@ def format_media_info(file_path, filename):
     return "\n".join(output)
 
 
-async def start_file_uploader(file_path, id, directory_path, filename, file_size):
+async def start_file_uploader(file_path, id, directory_path, filename, file_size, uploader):
     global PROGRESS_CACHE
     from utils.directoryHandler import DRIVE_DATA
 
@@ -197,7 +197,7 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
 
     filename = unquote_plus(filename)
 
-    DRIVE_DATA.new_file(directory_path, filename, message.id, size, rentry_link)
+    DRIVE_DATA.new_file(directory_path, filename, message.id, size, rentry_link, uploader)
     PROGRESS_CACHE[id] = ("completed", size, size)
 
     # Cleanup local file
