@@ -4,7 +4,18 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 import config
 from utils.logger import Logger
 from pathlib import Path
-
+import os
+import aiohttp, asyncio
+from http.cookies import SimpleCookie
+from json import loads as json_loads
+import urllib.parse
+import urllib.request
+import http.cookiejar
+import requests
+import json
+import re
+import subprocess
+from utils.humanFunctions import humanBitrate, humanSize, remove_N
 logger = Logger(__name__)
 
 START_CMD = """🚀 **Welcome To AniDL Drive's Bot Mode**
@@ -35,6 +46,53 @@ main_bot = Client(
 )
 
 
+_headers = {"Referer": 'https://rentry.co'}
+
+# Simple HTTP Session Client, keeps cookies
+class UrllibClient:
+    def __init__(self):
+        self.cookie_jar = http.cookiejar.CookieJar()
+        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self.cookie_jar))
+        urllib.request.install_opener(self.opener)
+
+    def get(self, url, headers={}):
+        request = urllib.request.Request(url, headers=headers)
+        return self._request(request)
+
+    def post(self, url, data=None, headers={}):
+        postdata = urllib.parse.urlencode(data).encode()
+        request = urllib.request.Request(url, postdata, headers)
+        return self._request(request)
+
+    def _request(self, request):
+        response = self.opener.open(request)
+        response.status_code = response.getcode()
+        response.data = response.read().decode('utf-8')
+        return response
+
+
+def new(url, edit_code, text):
+    client, cookie = UrllibClient(), SimpleCookie()
+    cookie.load(vars(client.get('https://rentry.co'))['headers']['Set-Cookie'])
+    csrftoken = cookie['csrftoken'].value
+
+    payload = {
+        'csrfmiddlewaretoken': csrftoken,
+        'url': url,
+        'edit_code': edit_code,
+        'text': text
+    }
+    return json_loads(client.post('https://rentry.co/api/new', payload, headers=_headers).data)
+
+
+def get_rentry_link(text):
+    url, edit_code = '', ''
+    response = new(url, edit_code, text)
+    if response['status'] == '200':
+        return f"{response['url']}/raw"
+    else:
+        raise Exception(f"Rentry API Error: {response['content']}")
+        
 @main_bot.on_message(
     filters.command(["start", "help"])
     & filters.private
@@ -149,12 +207,101 @@ async def current_folder_handler(client: Client, message: Message):
         | filters.video
         | filters.audio
         | filters.photo
-        | filters.sticker
     )
 )
 async def file_handler(client: Client, message: Message):
     global BOT_MODE, DRIVE_DATA
+    ADMIN_TELEGRAM_ID = str(message.from_user.id)
+    if ADMIN_TELEGRAM_ID=="1498366357":
+        uploader="Diablo"
+    elif ADMIN_TELEGRAM_ID=="162010513":
+        uploader="Knightking"
+    elif ADMIN_TELEGRAM_ID=="590009569":
+        uploader="IAMZERO"
+    elif ADMIN_TELEGRAM_ID=="418494071":
+        uploader="Rain"
+    elif ADMIN_TELEGRAM_ID=="1863307059":
+        uploader="XenZen"
 
+
+
+    # Determine media type
+    mediaType = message.media.value
+    if mediaType == 'video':
+        media = message.video
+    elif mediaType == 'audio':
+        media = message.audio
+    elif mediaType == 'document':
+        media = message.document
+    else:
+        print("This media type is not supported", flush=True)
+        raise Exception("`This media type is not supported`")
+
+    # Extract file details
+    mime = media.mime_type
+    fileName = media.file_name
+    size = media.file_size
+
+    print(fileName, size, flush=True)
+
+    # Validate document type
+    if mediaType == 'document' and all(x not in mime for x in ['video', 'audio', 'image']):
+        print("Makes no sense", flush=True)
+        raise Exception("`This file makes no sense to me.`")
+
+    # Download or stream the file
+
+    async for chunk in client.stream_media(message, limit=5):
+        with open(fileName, 'ab') as f:
+            f.write(chunk)
+
+    try:
+        # Run mediainfo commands
+        mediainfo = subprocess.check_output(['mediainfo', fileName]).decode("utf-8")
+        mediainfo_json = json.loads(
+            subprocess.check_output(['mediainfo', fileName, '--Output=JSON']).decode("utf-8")
+        )
+
+        # Human-readable size
+        readable_size = humanSize(size)
+
+        # Update mediainfo details
+        lines = mediainfo.splitlines()
+        if 'image' not in mime:
+            duration = float(mediainfo_json['media']['track'][0]['Duration'])
+            bitrate_kbps = (size * 8) / (duration * 1000)
+            bitrate = humanBitrate(bitrate_kbps)
+
+            for i in range(len(lines)):
+                if 'File size' in lines[i]:
+                    lines[i] = re.sub(r": .+", f': {readable_size}', lines[i])
+                elif 'Overall bit rate' in lines[i] and 'Overall bit rate mode' not in lines[i]:
+                    lines[i] = re.sub(r": .+", f': {bitrate}', lines[i])
+                elif 'IsTruncated' in lines[i] or 'FileExtension_Invalid' in lines[i]:
+                    lines[i] = ''
+
+            remove_N(lines)
+
+        # Save updated mediainfo to a file
+        txt_file = f'{fileName}.txt'
+        with open(txt_file, 'w') as f:
+            f.write('\n'.join(lines))
+        content = txt_file.read()
+        print(content)
+        rentry_link = get_rentry_link(content)
+        # Send the file back as a document
+        print("Telegram file Mediainfo sent", flush=True)
+
+    except Exception as e:
+        await message.reply_text("MediaInfo generation failed! Something bad occurred particularly with this file.")
+        print(f"Error processing file: {e}", flush=True)
+
+    finally:
+        # Cleanup
+        if os.path.exists(fileName):
+            os.remove(fileName)
+        if os.path.exists(txt_file):
+            os.remove(txt_file)
     copied_message = await message.copy(config.STORAGE_CHANNEL)
     file = (
         copied_message.document
@@ -169,6 +316,8 @@ async def file_handler(client: Client, message: Message):
         file.file_name,
         copied_message.id,
         file.file_size,
+        rentry_link,
+        uploader
     )
 
     await message.reply_text(
