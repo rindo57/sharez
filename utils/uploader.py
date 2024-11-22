@@ -121,7 +121,7 @@ def format_media_info(fileName):
             f.write('\n'.join(lines))
         boom =  open(txt_file, 'r')
         content = boom.read()
-    print("SUBSTITLE END")
+        print("SUBSTITLE END")
     return content
 
 
