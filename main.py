@@ -709,14 +709,16 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
 
             folder = convert_class_to_dict(fdata, isObject=True, showtrash=False)
+
             def traverse_directory(folder, query):
                 search_results = {}
                 for item in folder.values():
                     if query.lower() in item["name"].lower():
                         search_results[item['id']] = item
                     if item['type'] == "folder":
-                        traverse_directory(item)
+                        search_results.update(traverse_directory(item["contents"], query))
                 return search_results
+
             search_data = traverse_directory(folder['contents'], query)
             finaldata =  {"contents": search_data}
             print("share seach folder data:", finaldata)
