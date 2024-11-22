@@ -625,8 +625,11 @@ async def api_new_folder(request: Request,  session: str = Cookie(None)):
 #        return JSONResponse({"status": "Invalid password"})
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
-        token_data = await magic_links_collection.find_one({"token": session})
-        uploader = token_data["uploader"]
+        tgid = payload.get("telegram_id")
+        token_data = await magic_links_collection.find_one({"token": session}
+        adminid = await magic_links_collection.find_one({"telegram_id": tgid})
+        uploader = adminid["uploader"]
+
         logger.info(f"createNewFolder {data}")
         folder_data = DRIVE_DATA.get_directory(data["path"]).contents
         for id in folder_data:
@@ -821,8 +824,11 @@ async def upload_file(
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
         
+        print("SESSION: ", session)
+        tgid = payload.get("telegram_id")
         token_data = await magic_links_collection.find_one({"token": session})
-        uploader = token_data["uploader"]
+        adminid = await magic_links_collection.find_one({"telegram_id": tgid})
+        uploader = adminid["uploader"]
   # Create upload directory
         upload_dir = Path(UPLOAD_DIRECTORY) / path
         upload_dir.mkdir(parents=True, exist_ok=True)
