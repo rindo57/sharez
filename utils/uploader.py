@@ -100,20 +100,20 @@ def format_media_info(fileName, size):
 
         # Update mediainfo details
         lines = mediainfo.splitlines()
-        if 'image' not in mime:
-            duration = float(mediainfo_json['media']['track'][0]['Duration'])
-            bitrate_kbps = (size * 8) / (duration * 1000)
-            bitrate = humanBitrate(bitrate_kbps)
+        
+        duration = float(mediainfo_json['media']['track'][0]['Duration'])
+        bitrate_kbps = (size * 8) / (duration * 1000) 
+        bitrate = humanBitrate(bitrate_kbps)
 
-            for i in range(len(lines)):
-                if 'File size' in lines[i]:
-                    lines[i] = re.sub(r": .+", f': {readable_size}', lines[i])
-                elif 'Overall bit rate' in lines[i] and 'Overall bit rate mode' not in lines[i]:
-                    lines[i] = re.sub(r": .+", f': {bitrate}', lines[i])
-                elif 'IsTruncated' in lines[i] or 'FileExtension_Invalid' in lines[i]:
-                    lines[i] = ''
+        for i in range(len(lines)):
+              if 'File size' in lines[i]:
+                lines[i] = re.sub(r": .+", f': {readable_size}', lines[i])
+            elif 'Overall bit rate' in lines[i] and 'Overall bit rate mode' not in lines[i]:
+                lines[i] = re.sub(r": .+", f': {bitrate}', lines[i])
+            elif 'IsTruncated' in lines[i] or 'FileExtension_Invalid' in lines[i]:
+                lines[i] = ''
 
-            remove_N(lines)
+        remove_N(lines)
 
         # Save updated mediainfo to a file
         txt_file = f'{fileName}.txt'
