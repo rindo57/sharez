@@ -665,10 +665,10 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
         is_admin = True
     except jwt.ExpiredSignatureError:
-        #raise HTTPException(status_code=403, detail="Session expired")
+        raise HTTPException(status_code=403, detail="Session expired")
         #is_admin = False
     except jwt.InvalidTokenError:
-        #raise HTTPException(status_code=403, detail="Invalid session token")
+        raise HTTPException(status_code=403, detail="Invalid session token")
         #is_admin = False
         
     if is_admin==True:
