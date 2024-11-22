@@ -31,7 +31,7 @@ async def download_progress_callback(status, current, total, id):
     )
 
 
-async def download_file(url, id, path, filename, singleThreaded):
+async def download_file(url, id, path, filename, singleThreaded, uploader):
     global DOWNLOAD_PROGRESS, STOP_DOWNLOAD
 
     logger.info(f"Downloading file from {url}")
@@ -79,7 +79,7 @@ async def download_file(url, id, path, filename, singleThreaded):
 
         asyncio.create_task(
             start_file_uploader(
-                downloader.output_path, id, path, filename, downloader.total_size
+                downloader.output_path, id, path, filename, downloader.total_size, uploader
             )
         )
     except Exception as e:
