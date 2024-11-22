@@ -286,7 +286,8 @@ async def file_handler(client: Client, message: Message):
         txt_file = f'{fileName}.txt'
         with open(txt_file, 'w') as f:
             f.write('\n'.join(lines))
-        content = txt_file.read()
+        boom =  open(txt_file, 'r')
+        content = boom.read()
         print(content)
         rentry_link = get_rentry_link(content)
         # Send the file back as a document
