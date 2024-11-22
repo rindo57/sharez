@@ -222,6 +222,8 @@ async def file_handler(client: Client, message: Message):
         uploader="Rain"
     elif ADMIN_TELEGRAM_ID=="1863307059":
         uploader="XenZen"
+    elif ADMIN_TELEGRAM_ID=="6542409825":
+        uploader="Mr.Born2Help"
 
 
 
