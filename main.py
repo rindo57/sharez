@@ -365,6 +365,7 @@ async def generate_link_page(request: Request):
     views = stats["views"] + 1  # Increment view for this request
     downloads = stats["downloads"]
     media_info = file.rentry_link
+    uploader = file.uploader
     return HTMLResponse(content=f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -430,6 +431,7 @@ async def generate_link_page(request: Request):
     <h2>File Information</h2>
     <p><strong>Filename:</strong> {filename}</p>
     <p><strong>Filesize:</strong> {filesize}</p>  <!-- Display formatted size -->
+    <p><strong>Uploader:</strong> {uploader}</p>
     <p><strong>Views:</strong> {views}</p>
     <p><strong>Downloads:</strong> {downloads}</p>
     <p><strong><a href="{ media_info }">Media Info</a></strong></p>
