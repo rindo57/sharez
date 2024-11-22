@@ -826,8 +826,10 @@ async def upload_file(
         
         print("SESSION: ", session)
         tgid = payload.get("telegram_id")
+        print("Telegram ID: ", tgid)
+        tggid = str(tgid)
         token_data = await magic_links_collection.find_one({"token": session})
-        adminid = await magic_links_collection.find_one({"telegram_id": tgid})
+        adminid = await magic_links_collection.find_one({"telegram_id": tggid})
         uploader = adminid["uploader"]
   # Create upload directory
         upload_dir = Path(UPLOAD_DIRECTORY) / path
