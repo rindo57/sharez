@@ -139,6 +139,11 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
         content = f"Media Info:\n\n{media_details}"
         rentry_link = get_rentry_link(content)
         print(rentry_link)
+    elif filename.endswith(".mp4"):
+        media_details = format_media_info(file_path, file_size)
+        content = f"Media Info:\n\n{media_details}"
+        rentry_link = get_rentry_link(content)
+        print(rentry_link)
     else:
         rentry_link = "https://rentry.co/404"
 
@@ -172,9 +177,12 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     PROGRESS_CACHE[id] = ("completed", size, size)
 
     # Cleanup local file
-    try:
-        os.remove(file_path)
-    except Exception as e:
-        logger.error(f"Failed to remove file {file_path}: {e}")
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        if os.path.exists(txt_file):
+            os.remove(txt_file)
+ #   except Exception as e:
+     #   logger.error(f"Failed to remove file {file_path}: {e}")
 
     logger.info(f"Uploaded file {file_path} {id}")
