@@ -391,7 +391,7 @@ async def generate_link_page(request: Request):
       padding: 2rem;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      max-width: 550px;
+      max-width: 450px;
       width: 100%;
       color: #f0f0f0;
     }}
