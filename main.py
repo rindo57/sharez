@@ -487,8 +487,8 @@ async def generate_link_page(request: Request):
 
     <!-- Stats Section -->
     <div class="actions">
-      <p><i class="fas fa-eye icon"></i>9</p>
-      <p><i class="fas fa-download icon"></i>1</p>
+      <p><i class="fas fa-eye icon"></i>{views}</p>
+      <p><i class="fas fa-download icon"></i>{downloads}</p>
     </div>
 
     <!-- CAPTCHA Form Section -->
