@@ -477,7 +477,7 @@ async def generate_link_page(request: Request):
     <p>
       <i class="fas fa-user"></i>{uploader} |
       <i class="fas fa-file"></i>{filesize} |
-      <i class="fas fa-info-circle"></i><a href={media_info}>Media Info</a>
+      <i class="fas fa-info-circle"></i><a href={media_info} target="_blank">Media Info</a>
     </p>
     <p>
       <i class="fas fa-eye"></i>{views} |
