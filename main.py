@@ -335,7 +335,7 @@ async def verify_turnstile_token(response_token: str) -> bool:
     return result.get("success", False)
 
 
-@app.get("/generate-link", response_class=HTMLResponse)
+@app.get("/f", response_class=HTMLResponse)
 async def generate_link_page(request: Request):
     from utils.directoryHandler import DRIVE_DATA
     full_url = str(request.url)
@@ -372,10 +372,11 @@ async def generate_link_page(request: Request):
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{ filename }</title>
+  <title>{filename}</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     body {{
-      font-family: 'Arial', sans-serif;
+      font-family: 'Comic Sans MS', cursive;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -388,7 +389,7 @@ async def generate_link_page(request: Request):
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
+      max-width: 525px;
       width: 100%;
     }}
 
@@ -400,56 +401,128 @@ async def generate_link_page(request: Request):
     p {{
       margin-bottom: 1rem;
       color: #c0c0c0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
+
+    p strong {{
+      color: white;
+    }}
+
+    .icon {{
+      color: #ff79c6;
     }}
 
     button {{
+      margin-top: 8px;
       padding: 0.7rem;
       background-color: #ff79c6;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 16px;
+      overflow: hidden; /* Needed for ripple effect */
+      position: relative;
     }}
 
     button:hover {{
       background-color: #f06292;
     }}
 
-    /* Styling for Media Info link */
+    button:active {{
+      transform: scale(0.98); /* Slight shrinking effect on click */
+    }}
+
+    /* Ripple effect styles */
+    .ripple {{
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: ripple-animation 0.6s linear;
+      transform: scale(0);
+    }}
+
+    @keyframes ripple-animation {{
+      to {{
+        transform: scale(4);
+        opacity: 0;
+      }}
+    }}
+
     a {{
-      color: #f06292; /* Set the color of the link to pink */
-      text-decoration: none; /* Remove underline by default */
+      color: #00bcd4; /* Light Cyan for links */
+      text-decoration: none; /* Removes underline by default */
+      font-weight: bold; /* Makes the text stand out */
+      transition: color 0.3s ease, text-decoration 0.3s ease; /* Smooth transition for hover effects */
     }}
 
     a:hover {{
-      text-decoration: underline; /* Underline the link on hover */
+      color: #ff79c6; /* Pinkish hover color to grab attention */
+      text-decoration: underline; /* Underline on hover for clarity */
+    }}
+
+    a:active {{
+      color: #ff5722; /* Slightly darker red for active state */
     }}
   </style>
 </head>
 <body>
   <div class="container">
     <h2>File Information</h2>
-    <p><strong>Filename:</strong> {filename}</p>
-    <p><strong>Filesize:</strong> {filesize}</p>  <!-- Display formatted size -->
-    <p><strong>Uploader:</strong> {uploader}</p>
-    <p><strong>Views:</strong> {views}</p>
-    <p><strong>Downloads:</strong> {downloads}</p>
-    <p><strong><a href="{ media_info }">Media Info</a></strong></p>
-    <h2>Verify You're Human</h2>
+    <p><strong>Filename:</strong> <span>{filename}</span></p>
+    <p>
+      <i class="fas fa-user"></i>{uploader} |
+      <i class="fas fa-file"></i>{filesize} |
+      <i class="fas fa-eye"></i>{views} |
+      <i class="fas fa-download"></i>{downloads} |
+      <i class="fas fa-info-circle"></i><a href={media_info}>Media Info</a>
+    </p>
+
     <form id="verificationForm" action="/verify-turnstile" method="POST">
-      <input type="hidden" name="download_path" value="{download_path}">
+      <input type="hidden" name="download_path" value="/JDFDVL/S6cr8oYsz729b2tVix8OCPB86">
       <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
       <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
-      <button type="submit">Continue to Download Link</button>
+      <button type="submit" id="downloadButton">Continue to Download Link</button>
     </form>
   </div>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script>
+    // Add Ripple Effect
+    const button = document.getElementById("downloadButton");
+
+    button.addEventListener("click", function (e) {{
+      // Remove existing ripple if present
+      const existingRipple = button.querySelector(".ripple");
+      if (existingRipple) existingRipple.remove();
+
+      // Get the position of the click
+      const rect = button.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Create a new ripple element
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      ripple.style.left = `${{x}}px`;
+      ripple.style.top = `${{y}}px`;
+
+      // Append to button
+      button.appendChild(ripple);
+
+      // Remove ripple after animation ends
+      ripple.addEventListener("animationend", () => ripple.remove());
+    }});
+
+    // CAPTCHA verification logic
     function setTurnstileResponse(token) {{
       document.getElementById('cf_turnstile_response').value = token;
     }}
 
-    document.getElementById("verificationForm").addEventListener("submit", function(event) {{
+    document.getElementById("verificationForm").addEventListener("submit", function (event) {{
       const token = document.getElementById('cf_turnstile_response').value;
       if (!token) {{
         event.preventDefault();
@@ -458,7 +531,9 @@ async def generate_link_page(request: Request):
     }});
   </script>
 </body>
-</html>""")
+</html>
+
+""")
 
 @app.post("/verify-turnstile")
 async def verify_turnstile(download_path: str = Form(...), cf_turnstile_response: str = Form(...)):
@@ -566,6 +641,8 @@ async def generate_magic_link(ADMIN_TELEGRAM_ID):
         uploader="IAMZERO"
     elif ADMIN_TELEGRAM_ID=="418494071":
         uploader="Rain"
+    elif ADMIN_TELEGRAM_ID=="5419097944":
+        uploader="IAMZERO"
     # Store the token in the database with a use_count of 0
     await magic_links_collection.update_one(
         {"telegram_id": ADMIN_TELEGRAM_ID},
