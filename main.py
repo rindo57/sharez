@@ -423,7 +423,7 @@ async def generate_link_page(request: Request):
       border-radius: 4px;
       cursor: pointer;
       font-size: 16px;
-      overflow: hidden; /* Needed for ripple effect */
+      overflow: hidden; 
       position: relative;
     }}
 
@@ -432,7 +432,7 @@ async def generate_link_page(request: Request):
     }}
 
     button:active {{
-      transform: scale(0.98); /* Slight shrinking effect on click */
+      transform: scale(0.98); 
     }}
 
     /* Ripple effect styles */
@@ -454,19 +454,19 @@ async def generate_link_page(request: Request):
     }}
 
     a {{
-      color: #00bcd4; /* Light Cyan for links */
-      text-decoration: none; /* Removes underline by default */
-      font-weight: bold; /* Makes the text stand out */
-      transition: color 0.3s ease, text-decoration 0.3s ease; /* Smooth transition for hover effects */
+      color: #00bcd4; 
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease, text-decoration 0.3s ease;
     }}
 
     a:hover {{
-      color: #ff79c6; /* Pinkish hover color to grab attention */
-      text-decoration: underline; /* Underline on hover for clarity */
+      color: #ff79c6;
+      text-decoration: underline; 
     }}
 
     a:active {{
-      color: #ff5722; /* Slightly darker red for active state */
+      color: #ff5722; 
     }}
   </style>
 </head>
@@ -477,9 +477,11 @@ async def generate_link_page(request: Request):
     <p>
       <i class="fas fa-user"></i>{uploader} |
       <i class="fas fa-file"></i>{filesize} |
-      <i class="fas fa-eye"></i>{views} |
-      <i class="fas fa-download"></i>{downloads} |
       <i class="fas fa-info-circle"></i><a href={media_info}>Media Info</a>
+    </p>
+    <p>
+      <i class="fas fa-eye"></i>{views} |
+      <i class="fas fa-download"></i>{downloads}
     </p>
 
     <form id="verificationForm" action="/verify-turnstile" method="POST">
