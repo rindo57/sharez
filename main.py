@@ -373,6 +373,7 @@ async def generate_link_page(request: Request):
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{filename}</title>
+    <link rel="icon" href="https://anidl.org/wp-content/uploads/2018/12/photo_2017-01-30_02-14-16-2-e1594649833348.png" type="image/png">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
     body {{
@@ -382,20 +383,24 @@ async def generate_link_page(request: Request):
       align-items: center;
       min-height: 100vh;
       background-color: #25293c;
+      margin: 0;
     }}
 
     .container {{
       background: #1b1f2f;
       padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      max-width: 525px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 550px;
       width: 100%;
+      color: #f0f0f0;
     }}
 
     h2 {{
-      margin-bottom: 1rem;
-      color: white;
+      margin-bottom: 1.5rem;
+      color: #ff79c6;
+      font-size: 24px;
+      text-align: center;
     }}
 
     p {{
@@ -404,27 +409,39 @@ async def generate_link_page(request: Request):
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 16px;
     }}
 
     p strong {{
-      color: white;
+      color: #ffffff;
     }}
 
     .icon {{
       color: #ff79c6;
     }}
 
+    .file-info {{
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #444;
+      padding-bottom: 1rem;
+    }}
+
+    .actions {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }}
+
     button {{
-      margin-top: 8px;
-      padding: 0.7rem;
+      padding: 0.8rem 1.5rem;
       background-color: #ff79c6;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
       font-size: 16px;
-      overflow: hidden; 
-      position: relative;
+      transition: background-color 0.3s;
     }}
 
     button:hover {{
@@ -432,94 +449,82 @@ async def generate_link_page(request: Request):
     }}
 
     button:active {{
-      transform: scale(0.98); 
-    }}
-
-    /* Ripple effect styles */
-    .ripple {{
-      width: 20px;
-      height: 20px;
-      position: absolute;
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      animation: ripple-animation 0.6s linear;
-      transform: scale(0);
-    }}
-
-    @keyframes ripple-animation {{
-      to {{
-        transform: scale(4);
-        opacity: 0;
-      }}
+      transform: scale(0.98);
     }}
 
     a {{
-      color: #00bcd4; 
+      color: #00bcd4;
       text-decoration: none;
       font-weight: bold;
-      transition: color 0.3s ease, text-decoration 0.3s ease;
+      transition: color 0.3s ease;
     }}
 
     a:hover {{
       color: #ff79c6;
-      text-decoration: underline; 
+      text-decoration: underline;
     }}
 
     a:active {{
-      color: #ff5722; 
+      color: #ff5722;
+    }}
+
+    .captcha-container {{
+      text-align: center;
     }}
   </style>
 </head>
 <body>
   <div class="container">
     <h2>File Information</h2>
-    <p><strong>Filename:</strong> <span>{filename}</span></p>
-    <p>
-      <i class="fas fa-user"></i>{uploader} |
-      <i class="fas fa-file"></i>{filesize} |
-      <i class="fas fa-info-circle"></i><a href={media_info} target="_blank">Media Info</a>
-    </p>
-    <p>
-      <i class="fas fa-eye"></i>{views} |
-      <i class="fas fa-download"></i>{downloads}
-    </p>
 
-    <form id="verificationForm" action="/verify-turnstile" method="POST">
-      <input type="hidden" name="download_path" value="/JDFDVL/S6cr8oYsz729b2tVix8OCPB86">
-      <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
-      <button type="submit" id="downloadButton">Continue to Download Link</button>
-    </form>
+    <!-- File Info Section -->
+    <div class="file-info">
+      <p><i class="fas fa-file icon"></i> <span>{filename}</p>
+      <p><i class="fas fa-user icon"></i>{uploader}</p>
+      <p><i class="fas fa-compact-disc icon"></i>{filesize}</p>
+      <p><i class="fas fa-info-circle icon"></i><a href={media_info} target="_blank">Media Info</a></p>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="actions">
+      <p><i class="fas fa-eye icon"></i>9</p>
+      <p><i class="fas fa-download icon"></i>1</p>
+    </div>
+
+    <!-- CAPTCHA Form Section -->
+    <div class="captcha-container">
+      <form id="verificationForm" action="/verify-turnstile" method="POST">
+        <input type="hidden" name="download_path" value="/JDFDVL/S6cr8oYsz729b2tVix8OCPB86">
+        <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
+        <button type="submit" id="downloadButton">Continue to Download Link</button>
+      </form>
+    </div>
   </div>
+
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script>
-    // Add Ripple Effect
+    // Ripple effect on button click
     const button = document.getElementById("downloadButton");
 
     button.addEventListener("click", function (e) {{
-      // Remove existing ripple if present
       const existingRipple = button.querySelector(".ripple");
       if (existingRipple) existingRipple.remove();
 
-      // Get the position of the click
       const rect = button.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
-      // Create a new ripple element
       const ripple = document.createElement("span");
       ripple.className = "ripple";
       ripple.style.left = `${{x}}px`;
       ripple.style.top = `${{y}}px`;
-
-      // Append to button
       button.appendChild(ripple);
 
-      // Remove ripple after animation ends
       ripple.addEventListener("animationend", () => ripple.remove());
     }});
 
-    // CAPTCHA verification logic
+    // CAPTCHA token handling
     function setTurnstileResponse(token) {{
       document.getElementById('cf_turnstile_response').value = token;
     }}
@@ -534,6 +539,7 @@ async def generate_link_page(request: Request):
   </script>
 </body>
 </html>
+
 
 """)
 
