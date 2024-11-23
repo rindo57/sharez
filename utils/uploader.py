@@ -122,11 +122,10 @@ def format_media_info(fileName, size):
         boom =  open(txt_file, 'r')
         content = boom.read()
         print("SUBSTITLE END")
-    except Exception as e:
-        print(f"Error processing file: {e}", flush=True)
-    finally:
         if os.path.exists(txt_file):
             os.remove(txt_file)
+    except Exception as e:
+        print(f"Error processing file: {e}", flush=True)
     return content
     
 
@@ -180,10 +179,8 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     DRIVE_DATA.new_file(directory_path, filename, message.id, size, rentry_link, uploader)
     PROGRESS_CACHE[id] = ("completed", size, size)
 
-    finally:
-        # Cleanup local files
-        if os.path.exists(file_path):
-            os.remove(file_path)
+    if os.path.exists(file_path):
+        os.remove(file_path)
  #   except Exception as e:
      #   logger.error(f"Failed to remove file {file_path}: {e}")
 
