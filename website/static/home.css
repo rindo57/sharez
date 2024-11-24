@@ -451,10 +451,14 @@ body {
     font-size: 1.1em;
     width: 100%;
 }
+.search-bar:hover,
+.search-bar:focus-within {
+    box-shadow: 0 0 10px 1px yellow;
+}
 /* Directory Styling */
 .directory table {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 15px;
     border-collapse: collapse;
     background-color: #25293c;
     border-radius: 10px;
@@ -462,16 +466,33 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
+.download-btn .fas.fa-download {
+            color: #ff79c6;
+         font-size: 1.2rem;
+        }
+.download-btn .fas.fa-download:hover {
+        color: #f06292;
+         font-size: 1.5rem;
+        }
+.body-tr .far.fa-file {
+            color: #ff79c6;
+         font-size: 1.2rem;
+        }
+.body-tr .fas.fa-folder {
+            color: #ff79c6;
+         font-size: 1.2rem;
+        }
+
 .directory th {
-    padding: 10px;
+    padding: 8px;
     text-align: center;
     color: #fff;
     border-bottom: 1px solid #3d405c;
 }
 
 .directory td {
-    padding: 10px;
-    text-align: left;
+    padding: 5px;
+    text-align: center;
     color: #fff;
     border-bottom: 1px solid #3d405c;
 }
@@ -555,7 +576,7 @@ box-shadow: 0 0 10px 1px #FFFF00;
     text-align: center;
     color: #ccbd92;
     border-top: 1px solid #ccbd92;
-    padding: 10px 0; /* Add padding for spacing */
+    padding: 10px; /* Add padding for spacing */
     background-color: #25293c;
 }
 
