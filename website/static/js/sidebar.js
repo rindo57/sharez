@@ -17,6 +17,14 @@ else {
 
 if (isShare) {
     document.getElementById('new-button').style.display = 'none'
+    document.getElementById('new-upload').style.display = 'none'
+    document.getElementById('create-new-folder').style.display = 'none'
+    document.getElementById('rename-file-folder').style.display = 'none'
+    document.getElementById('new-url-upload').style.display = 'none'
+    document.getElementById('get-password').style.display = 'none'
+    document.getElementById('file-uploader').style.display = 'none'
+    document.getElementById('Pending-upload-list').style.display = 'none'
+    document.getElementById('cancel-file-upload').style.display = 'none'
     const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a')
     sections[1].remove()
 }
