@@ -516,18 +516,13 @@ body {
 }
 
 .directory .td-align .download-btn {
-    padding: 8px 1px;
-    border-radius: 20px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 10px 1px #ff1493;   
+    cursor: pointer; 
 }
 
-.directory .td-align .download-btn:hover {
-box-shadow: 0 0 10px 1px #FFFF00;
+.directory .file-tr{
+text-align: left;
 }
 
 .directory .more-btn img {
