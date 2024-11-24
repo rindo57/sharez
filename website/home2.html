@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AniDL Drive</title>
+    <link rel="icon" href="https://anidl.org/wp-content/uploads/2018/12/photo_2017-01-30_02-14-16-2-e1594649833348.png" type="image/png">
+    <link rel="stylesheet" href="static/home.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <!-- Fonts Start -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet" />
+    <!-- Fonts End -->
+</head>
+<body>
+<!-- Get Password Start -->
+        <div id="get-password" class="create-new-folder">
+            <span>Admin Login</span>
+            <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
+            <div>
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5"></div>
+                <button id="pass-login">Login</button>
+                <p id="error-message" style="color: red; display: none;">Maximum attempts reached. Please try again later.</p>
+            </div>
+        </div>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <!-- Get Password End -->
+        <!-- File Uploader Start -->
+        <div id="file-uploader" class="file-uploader">
+            <span class="upload-head">🚀 Uploading File...</span>
+            <span id="upload-filename" class="upload-info">Filename : </span>
+            <span id="upload-filesize" class="upload-info">Filesize :</span>
+            <span id="upload-status" class="upload-info">Status : </span>
+            <span id="upload-percent" class="upload-info">Progress : </span>
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div id="Pending-upload-list" class="pending-upload-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                <h3 id="pending-heading" style="display: none;">⏳ Pending Uploads:</h3> <!-- Initially hidden -->
+                <ul id="pending-files" style="list-style-type: none; padding: 0; margin: 0; display: none;"></ul> <!-- Initially hidden and no padding/margin -->
+            </div>
+
+            <div class="btn-div">
+                <button id="cancel-file-upload">Cancel Upload</button>
+            </div>
+        </div>
+      <script src="static/js/extra.js"></script>
+    <script src="static/js/apiHandler.js"></script>
+    <script src="static/js/sidebar.js"></script>
+    <script src="static/js/fileClickHandler.js"></script>
+    <script src="static/js/main.js"></script>
+        <!-- File Uploader End -->
+</body>
