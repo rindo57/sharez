@@ -18,6 +18,7 @@ else {
 if (isShare) {
     document.getElementById('new-button').style.display = 'none'
     document.getElementById('new-upload').style.display = 'none'
+    document.getElementById('trash-link').style.display = 'none'
     document.getElementById('create-new-folder').style.display = 'none'
     document.getElementById('rename-file-folder').style.display = 'none'
     document.getElementById('new-url-upload').style.display = 'none'
