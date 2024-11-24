@@ -25,6 +25,20 @@ if (isShare) {
     document.getElementById('file-uploader').style.display = 'none'
     document.getElementById('Pending-upload-list').style.display = 'none'
     document.getElementById('cancel-file-upload').style.display = 'none'
+    document.getElementById('upload-head').style.display = 'none'
+        document.getElementById('upload-filename').style.display = 'none'
+        document.getElementById('upload-filesize').style.display = 'none'
+        document.getElementById('upload-status').style.display = 'none'
+        document.getElementById('progress-bar').style.display = 'none'
+        document.getElementById('upload-percent').style.display = 'none'
+        document.getElementById('pass-login').style.display = 'none'
+        document.getElementById('auth-pass').style.display = 'none'
+        document.getElementById('remote-cancel').style.display = 'none'
+        document.getElementById('remote-start').style.display = 'none'
+      document.getElementById('new-folder-name').style.display = 'none'
+      document.getElementById('url-upload-btn').style.display = 'none'
+      document.getElementById('file-upload-btn').style.display = 'none'
+      document.getElementById('rename-name').style.display = 'none'
     const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a')
     sections[1].remove()
 }
