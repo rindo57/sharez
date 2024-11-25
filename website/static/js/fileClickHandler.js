@@ -31,7 +31,7 @@ function openFile() {
         // Encode pathSuffix to Base64
         const encodedPathSuffix = btoa(pathSuffix).split('').reverse().join('');
 
-        let path = '/generate-link?' + encodedPathSuffix;
+        let path = '/f?' + encodedPathSuffix;
 
         if (fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.webm') || fileName.endsWith('.mov') || fileName.endsWith('.avi') || fileName.endsWith('.ts') || fileName.endsWith('.ogv')) {
             path = path;
