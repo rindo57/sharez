@@ -494,7 +494,7 @@ async def generate_link_page(request: Request):
     <!-- CAPTCHA Form Section -->
     <div class="captcha-container">
       <form id="verificationForm" action="/verify-turnstile" method="POST">
-        <input type="hidden" name="download_path" value="/JDFDVL/S6cr8oYsz729b2tVix8OCPB86">
+        <input type="hidden" name="download_path" value={download_path}>
         <input type="hidden" id="cf_turnstile_response" name="cf_turnstile_response" value="">
         <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5" data-callback="setTurnstileResponse"></div>
         <button type="submit" id="downloadButton">Continue to Download Link</button>
