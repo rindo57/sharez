@@ -24,7 +24,7 @@ function encodeBase64(str) {
 
 function openFile() {
     // Ensure that the action is from a user click, not programmatically triggered
- //   if (!this.hasAttribute('data-clicked')) {
+    if (!this.hasAttribute('data-clicked')) {
         const fileName = this.getAttribute('data-name').toLowerCase();
         let pathSuffix = this.getAttribute('data-path') + '/' + this.getAttribute('data-id');
         
@@ -38,7 +38,7 @@ function openFile() {
         }
 
         // Mark this element as clicked, to prevent automated behavior
-        //this.setAttribute('data-clicked', 'true');
+        this.setAttribute('data-clicked', 'true');
 
         window.open(path, '_blank');
   //  }
@@ -51,7 +51,7 @@ document.querySelectorAll('.download-btn').forEach((button) => {
 
 function openFilex(element) {
     // Ensure that the action is from a user click, not programmatically triggered
-//    if (!element.hasAttribute('data-clicked')) {
+    if (!element.hasAttribute('data-clicked')) {
         const fileName = element.getAttribute('data-name').toLowerCase();
         let pathSuffix = element.getAttribute('data-path') + '/' + element.getAttribute('data-id');
         
@@ -65,7 +65,7 @@ function openFilex(element) {
         }
 
         // Mark this element as clicked, to prevent automated behavior
-    //    element.setAttribute('data-clicked', 'true');
+        element.setAttribute('data-clicked', 'true');
 
         window.open(path, '_blank');
     }
