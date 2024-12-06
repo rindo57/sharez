@@ -78,7 +78,7 @@ class NewDriveData:
 
         self.isUpdated = True
 
-    def new_folder(self, path: str, name: str, uploader: str) -> None:
+    def new_folder(self, path: str, name: str, uploader: str = "Unknown") -> None:
         logger.info(f"Creating new folder {name} in {path} ny {uploader}")
 
         folder = Folder(name, path)
@@ -416,7 +416,7 @@ async def loadDriveData():
     except Exception as e:
         logger.warning(e)
         logger.info("Creating new drive.data file")
-        DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [], "X")
+        DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [])
         DRIVE_DATA.save()
 
     # For updating the changes in already existing old backup drive.data file
