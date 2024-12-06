@@ -5,6 +5,7 @@ from utils.downloader import (
 import asyncio
 from pathlib import Path
 from contextlib import asynccontextmanager
+from pydantic import BaseModel
 import aiofiles
 from fastapi import FastAPI, HTTPException, Request, File, UploadFile, Form, Response, status, Depends, Cookie, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse, HTMLResponse, RedirectResponse
@@ -599,10 +600,51 @@ async def dl_file(request: Request):
 
 # Api Routes
 
+from fastapi import FastAPI, Request, BackgroundTasks, HTTPException
+from fastapi.responses import JSONResponse
+import time
 
+app = FastAPI()
 
+# Simulated admin password
+ADMIN_PASSWORD = ["your_secure_password"]
+
+# Helper function to generate a magic link (dummy function for example)
+async def generate_magic_link(passkey: str):
+    # Simulate some background task, like emailing a magic link
+    time.sleep(1)
+    print(f"Magic link generated for: {passkey}")
 
 @app.post("/api/checkPassword")
+async def check_password(request: Request, background_tasks: BackgroundTasks):
+    data = await request.json()
+
+    # Extract interaction data
+    interaction_data = data.get("interactionData", {})
+
+    # Validate interaction data
+    mouse_movements = interaction_data.get("mouseMovements", [])
+    clicks = interaction_data.get("clicks", 0)
+    keypresses = interaction_data.get("keypresses", 0)
+
+    if (
+        len(mouse_movements) < 5 or   # Require at least 5 mouse movements
+        clicks < 1 or                # Require at least 1 click
+        keypresses < 1               # Require at least 1 keypress
+    ):
+        raise HTTPException(status_code=400, detail="Bot detected or insufficient interaction")
+
+    # Check the admin password
+    if data.get("pass") in ADMIN_PASSWORD:
+        background_tasks.add_task(generate_magic_link, data.get("pass"))
+        return JSONResponse({"status": "ok"})
+
+    # Return invalid password response
+    return JSONResponse({"status": "Invalid password"})
+
+
+
+'''@app.post("/api/checkPassword")
 async def check_password(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
 
@@ -632,7 +674,7 @@ async def check_password(request: Request, background_tasks: BackgroundTasks):
         return JSONResponse({"status": "ok"})
 
     # Return invalid password response
-    return JSONResponse({"status": "Invalid password"})
+    return JSONResponse({"status": "Invalid password"})'''
     
 async def generate_magic_link(ADMIN_TELEGRAM_ID):
     """
