@@ -16,7 +16,7 @@ function showDirectory(data) {
     for (const [key, item] of folders) {
         if (item.type === 'folder') {
             html += `<tr data-path="${item.path}" data-id="${item.id}" class="body-tr folder-tr">
-                        <td><div class="td-align"><i class="fas fa-folder icon"></i> ${item.name}</div></td>
+                        <td><div class="file-tr"><i class="fas fa-folder icon"></i> ${item.name}</div></td>
                         <td><div class="td-align"></div></td>
                         <td><div class="download-btn"></div></td>`;
             
@@ -49,7 +49,7 @@ function showDirectory(data) {
         if (item.type === 'file') {
             const size = convertBytes(item.size);
             html += `<tr data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="body-tr file-tr">
-                        <td><div class="td-align"><i class="far fa-file icon"></i> ${item.name}</div></td>
+                        <td><div class="file-tr"><i class="far fa-file icon"></i> ${item.name}</div></td>
                         <td><div class="td-align">${size}</div></td>
                         <td><div class="td-align"><a href="#" onclick="openFilex(this)" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="download-btn"><i class="fas fa-download icon"></i></a></div></td>`;
             
