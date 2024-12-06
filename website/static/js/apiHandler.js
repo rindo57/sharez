@@ -17,40 +17,67 @@ async function postJson(url, data) {
 
 let attempts = 0; // Declare attempts outside the event listener
 const maxAttempts = 5;
-document.getElementById('pass-login').addEventListener('click', async () => {
 
+// Interaction tracking for invisible CAPTCHA
+const interactionData = {
+    mouseMovements: [],
+    clicks: 0,
+    keypresses: 0,
+};
+
+// Track mouse movements
+document.addEventListener("mousemove", (e) => {
+    interactionData.mouseMovements.push({ x: e.clientX, y: e.clientY, time: Date.now() });
+});
+
+// Track button clicks
+document.getElementById("pass-login").addEventListener("click", () => {
+    interactionData.clicks++;
+});
+
+// Track keypresses
+document.getElementById("auth-pass").addEventListener("keypress", () => {
+    interactionData.keypresses++;
+});
+
+document.getElementById('pass-login').addEventListener('click', async () => {
     const loginButton = document.getElementById("pass-login");
     const password = document.getElementById('auth-pass').value;
     const errorMessage = document.getElementById('error-message');
-    const turnstileToken = document.querySelector('[name="cf-turnstile-response"]').value; // Get Turnstile token
 
-    if (!turnstileToken) {
-        alert('Please complete the CAPTCHA.');
+    if (!password) {
+        alert('Please enter your password.');
         return;
     }
+
     const data = { 
         pass: password,
-        turnstileToken: turnstileToken
+        interactionData: interactionData, // Send interaction data to backend
     };
-    const json = await postJson('/api/checkPassword', data);
-    
+
+    const response = await fetch('/api/checkPassword', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+
+    const json = await response.json();
+
     if (json.status === 'ok') {
-        alert('Check your inbox babe!');
+        alert('Check your inbox!');
         window.location.reload();
-    }
-    else {
+    } else {
         attempts++;
         if (attempts >= maxAttempts) {
             loginButton.disabled = true;
             errorMessage.style.display = "block";
-        } 
-        else {
+        } else {
             alert(`Incorrect password. You have ${maxAttempts - attempts} attempts left.`);
         }
     }
 
-        // Clear the password field
-    password = "";
+    // Clear the password field
+    document.getElementById('auth-pass').value = "";
 });
 
 
