@@ -27,7 +27,7 @@ def get_current_utc_time():
 
 
 class Folder:
-    def __init__(self, name: str, path, uploader: str) -> None:
+    def __init__(self, name: str, path,uploader: str = "Unknown") -> None:
         self.name = name
         self.contents = {}
         if name == "/":
