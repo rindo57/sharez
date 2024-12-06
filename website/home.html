@@ -94,7 +94,7 @@
         <!-- Remote Upload End -->
 
         <!-- Get Password Start -->
-<!-- Get Password Start -->
+<!-- Get Password Start 
 <div id="get-password" class="create-new-folder">
     <span>Admin Login</span>
     <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
@@ -105,8 +105,68 @@
     </div>
 </div>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<!-- Get Password End -->
+        Get Password End -->
 
+<div id="get-password" class="create-new-folder">
+    <span>Admin Login</span>
+    <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
+    <div>
+        <button id="pass-login">Login</button>
+        <p id="error-message" style="color: red; display: none;">Maximum attempts reached. Please try again later.</p>
+    </div>
+</div>
+
+<script>
+    // Interaction tracking for invisible CAPTCHA
+    const interactionData = {
+        mouseMovements: [],
+        clicks: 0,
+        keypresses: 0,
+    };
+
+    // Track mouse movements
+    document.addEventListener("mousemove", (e) => {
+        interactionData.mouseMovements.push({ x: e.clientX, y: e.clientY, time: Date.now() });
+    });
+
+    // Track button clicks
+    document.getElementById("pass-login").addEventListener("click", () => {
+        interactionData.clicks++;
+    });
+
+    // Track keypresses
+    document.getElementById("auth-pass").addEventListener("keypress", () => {
+        interactionData.keypresses++;
+    });
+
+    // Login button handler
+    document.getElementById("pass-login").addEventListener("click", async () => {
+        const userInput = document.getElementById("auth-pass").value;
+
+        if (!userInput) {
+            alert("Please enter your ID.");
+            return;
+        }
+
+        // Send interaction data and user input to the backend
+        const response = await fetch("/admin-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                user_id: userInput,
+                interaction_data: interactionData,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("Login successful!");
+        } else {
+            document.getElementById("error-message").style.display = "block";
+        }
+    });
+</script>
 <!-- File Uploader Start -->
         <div id="file-uploader" class="file-uploader">
             <span class="upload-head">🚀 Uploading File...</span>
