@@ -416,7 +416,7 @@ async def loadDriveData():
     except Exception as e:
         logger.warning(e)
         logger.info("Creating new drive.data file")
-        DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [])
+        DRIVE_DATA = NewDriveData({"/": Folder("/", "/")}, [], "X")
         DRIVE_DATA.save()
 
     # For updating the changes in already existing old backup drive.data file
