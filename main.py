@@ -600,20 +600,6 @@ async def dl_file(request: Request):
 
 # Api Routes
 
-from fastapi import FastAPI, Request, BackgroundTasks, HTTPException
-from fastapi.responses import JSONResponse
-import time
-
-app = FastAPI()
-
-# Simulated admin password
-ADMIN_PASSWORD = ["your_secure_password"]
-
-# Helper function to generate a magic link (dummy function for example)
-async def generate_magic_link(passkey: str):
-    # Simulate some background task, like emailing a magic link
-    time.sleep(1)
-    print(f"Magic link generated for: {passkey}")
 
 @app.post("/api/checkPassword")
 async def check_password(request: Request, background_tasks: BackgroundTasks):
