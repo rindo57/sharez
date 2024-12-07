@@ -17,8 +17,12 @@ async function postJson(url, data) {
 
 let attempts = 0; // Declare attempts outside the event listener
 const maxAttempts = 5;
-
+const lockoutDuration = 60 * 60 * 1000; // 12 hours in milliseconds
+const attemptsKey = "loginAttempts";
+const lockoutTimeKey = "lockoutTime";
 // Interaction tracking for invisible CAPTCHA
+
+
 const interactionData = {
     mouseMovements: [],
     clicks: 0,
@@ -26,6 +30,31 @@ const interactionData = {
     touchMovements: [], // New property for touch interactions
 };
 
+function initializeAttempts() {
+    const storedAttempts = localStorage.getItem(attemptsKey);
+    const lockoutTime = localStorage.getItem(lockoutTimeKey);
+
+    if (lockoutTime && Date.now() >= Number(lockoutTime)) {
+        // Reset attempts if the lockout period has expired
+        localStorage.removeItem(attemptsKey);
+        localStorage.removeItem(lockoutTimeKey);
+        return 0;
+    }
+
+    return storedAttempts ? Number(storedAttempts) : 0;
+}
+
+let attempts = initializeAttempts();
+
+// Update attempts in localStorage
+function saveAttempts(attempts) {
+    localStorage.setItem(attemptsKey, attempts);
+
+    if (attempts >= maxAttempts) {
+        // Set lockout expiration time
+        localStorage.setItem(lockoutTimeKey, Date.now() + lockoutDuration);
+    }
+}
 // Track mouse movements
 document.addEventListener("mousemove", (e) => {
     interactionData.mouseMovements.push({ x: e.clientX, y: e.clientY, time: Date.now() });
@@ -54,7 +83,14 @@ document.getElementById('pass-login').addEventListener('click', async () => {
     const loginButton = document.getElementById("pass-login");
     const password = document.getElementById('auth-pass').value;
     const errorMessage = document.getElementById('error-message');
-
+ // Check if user is locked out
+    const lockoutTime = localStorage.getItem(lockoutTimeKey);
+    if (lockoutTime && Date.now() < Number(lockoutTime)) {
+        errorMessage.textContent = "You are locked out. Please try again later.";
+        errorMessage.style.display = "block";
+        return;
+    }
+    
     if (!password) {
         alert('Please enter your password.');
         return;
@@ -74,6 +110,7 @@ document.getElementById('pass-login').addEventListener('click', async () => {
         window.location.reload();
     } else {
         attempts++;
+        saveAttempts(attempts);
         if (attempts >= maxAttempts) {
             loginButton.disabled = true;
             errorMessage.style.display = "block";
