@@ -604,7 +604,7 @@ async def dl_file(request: Request):
 @app.post("/api/checkPassword")
 async def check_password(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
-
+    print(data)
     # Extract interaction data
     interaction_data = data.get("interactionData", {})
 
@@ -1232,7 +1232,7 @@ async def admin(session: str = Cookie(None)):
     Secure file upload page. Requires a valid session.
     """
     if not session:
-        raise HTTPException(status_code=403, detail="Not authenticated")
+       raise HTTPException(status_code=403, detail="Not authenticated")
 
     try:
         payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
