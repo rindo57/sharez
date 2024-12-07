@@ -607,16 +607,16 @@ async def check_password(request: Request, background_tasks: BackgroundTasks):
     print(data)
     # Extract interaction data
     interaction_data = data.get("interactionData", {})
-
-    # Validate interaction data
     mouse_movements = interaction_data.get("mouseMovements", [])
+    touch_movements = interaction_data.get("touchMovements", [])
     clicks = interaction_data.get("clicks", 0)
     keypresses = interaction_data.get("keypresses", 0)
 
+    # Validate interaction data
     if (
-        len(mouse_movements) < 5 or   # Require at least 5 mouse movements
-        clicks < 1 or                # Require at least 1 click
-        keypresses < 1               # Require at least 1 keypress
+        (len(mouse_movements) < 5 and len(touch_movements) < 3) or  # Require 5 movements (mouse or touch)
+        clicks < 1 or                                              # Require at least 1 click
+        keypresses < 1                                             # Require at least 1 keypress/input
     ):
         raise HTTPException(status_code=400, detail="Bot detected or insufficient interaction")
 
