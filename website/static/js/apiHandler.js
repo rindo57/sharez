@@ -57,7 +57,7 @@ document.getElementById('pass-login').addEventListener('click', async () => {
 
     const json = await postJson('/api/checkPassword', data);
 
-    const json = await response.json();
+    //const json = await response.json();
 
     if (json.status === 'ok') {
         alert('Check your inbox!');
