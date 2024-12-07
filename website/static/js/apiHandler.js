@@ -23,6 +23,7 @@ const interactionData = {
     mouseMovements: [],
     clicks: 0,
     keypresses: 0,
+    touchMovements: [], // New property for touch interactions
 };
 
 // Track mouse movements
@@ -33,6 +34,15 @@ document.addEventListener("mousemove", (e) => {
 // Track button clicks
 document.getElementById("pass-login").addEventListener("click", () => {
     interactionData.clicks++;
+});
+
+document.addEventListener("touchmove", (e) => {
+    const touch = e.touches[0];
+    interactionData.touchMovements.push({ x: touch.clientX, y: touch.clientY, time: Date.now() });
+});
+
+document.getElementById("auth-pass").addEventListener("input", () => {
+    interactionData.keypresses++;
 });
 
 // Track keypresses
