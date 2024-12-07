@@ -55,11 +55,7 @@ document.getElementById('pass-login').addEventListener('click', async () => {
         interactionData: interactionData, // Send interaction data to backend
     };
 
-    const response = await fetch('/api/checkPassword', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
+    const json = await postJson('/api/checkPassword', data);
 
     const json = await response.json();
 
