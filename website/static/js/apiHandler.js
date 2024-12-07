@@ -15,7 +15,7 @@ async function postJson(url, data) {
     return await response.json();
 }
 
-let attempts = 0; // Declare attempts outside the event listener
+//let attempts = 0; // Declare attempts outside the event listener
 const maxAttempts = 5;
 const lockoutDuration = 60 * 60 * 1000; // 12 hours in milliseconds
 const attemptsKey = "loginAttempts";
