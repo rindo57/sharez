@@ -16,7 +16,7 @@ function showDirectory(data) {
     for (const [key, item] of folders) {
         if (item.type === 'folder') {
             html += `<tr data-path="${item.path}" data-id="${item.id}" class="body-tr folder-tr">
-                        <td><div class="file-tr"><i class="fas fa-folder icon"></i> ${item.name}</div></td>
+                        <td><div class="td-align"><img src="static/assets/folder-solid-icon.svg"> ${item.name}</div></td>
                         <td><div class="td-align"></div></td>
                         <td><div class="download-btn"></div></td>`;
             
