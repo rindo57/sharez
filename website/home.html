@@ -5,7 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AniDL Drive</title>
+    <link rel="icon" href="https://anidl.org/wp-content/uploads/2018/12/photo_2017-01-30_02-14-16-2-e1594649833348.png" type="image/png">
     <link rel="stylesheet" href="static/home.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
     <!-- Fonts Start -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -50,7 +52,7 @@
 
             <div class="sidebar-menu">
                 <a class="selected-item" href="/?path=/"><img src="static/assets/home-icon.svg" />Home</a>
-                <a class="unselected-item" href="/?path=/trash"><img src="static/assets/trash-icon.svg" />Trash</a>
+                <a id="trash-link" class="unselected-item" href="/?path=/trash"><img src="static/assets/trash-icon.svg" />Trash</a>
             </div>
         </div>
         <!-- Sidebar End -->
@@ -92,16 +94,28 @@
         <!-- Remote Upload End -->
 
         <!-- Get Password Start -->
-        <div id="get-password" class="create-new-folder">
-            <span>Admin Login</span>
-            <input type="text" id="auth-pass" placeholder="Enter Password" autocomplete="off" />
-            <div>
-                <button id="pass-login">Login</button>
-            </div>
-        </div>
-        <!-- Get Password End -->
+<!-- Get Password Start 
+<div id="get-password" class="create-new-folder">
+    <span>Admin Login</span>
+    <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
+    <div>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5"></div>
+        <button id="pass-login">Login</button>
+        <p id="error-message" style="color: red; display: none;">Maximum attempts reached. Please try again later.</p>
+    </div>
+</div>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        Get Password End -->
 
-        <!-- File Uploader Start -->
+<div id="get-password" class="create-new-folder">
+    <span>Admin Login</span>
+    <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
+    <div>
+        <button id="pass-login">Login</button>
+        <p id="error-message" style="color: red; display: none;">Maximum attempts reached. Please try again later.</p>
+    </div>
+</div>
+<!-- File Uploader Start -->
         <div id="file-uploader" class="file-uploader">
             <span class="upload-head">🚀 Uploading File...</span>
             <span id="upload-filename" class="upload-info">Filename : </span>
@@ -121,7 +135,6 @@
             </div>
         </div>
         <!-- File Uploader End -->
-
 
         <!-- Main Content Start -->
         <div class="main-content">
