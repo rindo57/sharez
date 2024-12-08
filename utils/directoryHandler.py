@@ -27,7 +27,7 @@ def get_current_utc_time():
 
 
 class Folder:
-    def __init__(self, name: str, path) -> None:
+    def __init__(self, name: str, path: str, uploader: str) -> None:
         self.name = name
         self.contents = {}
         if name == "/":
@@ -38,7 +38,7 @@ class Folder:
         self.trash = False
         self.path = path[:-1] if path[-1] == "/" else path
         self.upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-     #   self.uploader = uploader
+        self.uploader = uploader
         self.auth_hashes = []
 
 
@@ -78,8 +78,8 @@ class NewDriveData:
 
         self.isUpdated = True
 
-    def new_folder(self, path: str, name: str)-> None:
-        logger.info(f"Creating new folder {name} in {path}")
+    def new_folder(self, path: str, name: str, uploader: str)-> None:
+        logger.info(f"Creating new folder {name} in {path} by {uploader}")
 
         folder = Folder(name, path)
         if path == "/":
