@@ -49,9 +49,9 @@ function showDirectory(data) {
         if (item.type === 'file') {
             const size = convertBytes(item.size);
             html += `<tr data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="body-tr file-tr">
-                        <td><div class="td-align"><i class="far fa-file icon"></i> ${item.name}</div></td>
+                        <td><div class="td-align"><img src="static/assets/file-icon.svg"> ${item.name}</div></td>
                         <td><div class="td-align">${size}</div></td>
-                        <td><div class="td-align"><a href="#" onclick="openFilex(this)" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="download-btn"><i class="fas fa-download icon"></i></a></div></td>`;
+                        <td><div class="td-align"><a href="#" onclick="openFilex(this)" data-path="${item.path}" data-id="${item.id}" data-name="${item.name}" class="download-btn"><img src="static/assets/download-icon.svg" alt="Download"></a></div></td>`;
             
             // Only add the "More" button and options if the path does NOT start with /share
             if (!isShare) {
@@ -143,6 +143,7 @@ document.getElementById('search-form').addEventListener('submit', function (even
 });
 
 // Loading Main Page
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const inputs = ['new-folder-name', 'rename-name', 'file-search']
