@@ -741,9 +741,9 @@ async def api_new_folder(request: Request,  session: str = Cookie(None)):
         tgid = payload.get("telegram_id")
         tggid = str(tgid)
         token_data = await magic_links_collection.find_one({"token": session})
-        adminid = await magic_links_collection.find_one({"telegram_id": tgid})
+        adminid = await magic_links_collection.find_one({"telegram_id": tggid})
+        print(adminid)
         uploader = adminid["uploader"]
-
         logger.info(f"createNewFolder {data}")
         folder_data = DRIVE_DATA.get_directory(data["path"]).contents
         for id in folder_data:
