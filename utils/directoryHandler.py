@@ -81,7 +81,7 @@ class NewDriveData:
     def new_folder(self, path: str, name: str, uploader: str)-> None:
         logger.info(f"Creating new folder {name} in {path} by {uploader}")
 
-        folder = Folder(name, path)
+        folder = Folder(name, path, uploader)
         if path == "/":
             directory_folder: Folder = self.contents[path]
             directory_folder.contents[folder.id] = folder
