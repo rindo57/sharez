@@ -26,7 +26,7 @@ STORAGE_CHANNEL = -1002228842729
 DATABASE_BACKUP_MSG_ID = 1296 #Message ID for database backup
 
 # Password used to access the website's admin panel
-ADMIN_PASSWORD = ["1863307059", "590009569", "162010513", "1498366357"]  # Default to "admin" if not set
+ADMIN_PASSWORD = ["1863307059", "590009569", "162010513", "1498366357", "5419097944"]  # Default to "admin" if not set
 
 # Determine the maximum file size (in bytes) allowed for uploading to Telegram
 # 1.98 GB if no premium sessions are provided, otherwise 3.98 GB
