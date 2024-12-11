@@ -859,9 +859,9 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
         
         folder_data = DRIVE_DATA.get_directory(data["path"])
         print("FOLDER DATA:" , folder_data)
-        folder_data2 = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
-        print("FOLDER DATA 2", folder_data2)
-    return JSONResponse({"status": "ok", "data": folder_data2, "auth_home_path": None})
+        folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
+        print("FOLDER DATA 2", folder_data)
+    return JSONResponse({"status": "ok", "data": folder_data, "auth_home_path": None})
 
 
 
