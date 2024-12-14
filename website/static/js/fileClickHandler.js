@@ -22,6 +22,16 @@ function encodeBase64(str) {
     return btoa(str);  // Converts the string to Base64
 }
 
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const isVisible = sidebar.style.display === 'block';
+
+    if (isVisible) {
+        sidebar.style.display = 'none'; // Hide the sidebar
+    } else {
+        sidebar.style.display = 'block'; // Show the sidebar
+    }
+}
 function openFile() {
     // Ensure that the action is from a user click, not programmatically triggered
  //   if (!this.hasAttribute('data-clicked')) {
