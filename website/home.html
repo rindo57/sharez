@@ -8,20 +8,12 @@
     <link rel="icon" href="https://anidl.org/wp-content/uploads/2018/12/photo_2017-01-30_02-14-16-2-e1594649833348.png" type="image/png">
     <link rel="stylesheet" href="static/home.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-
-    <!-- Fonts Start -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-        rel="stylesheet" />
-    <!-- Fonts End -->
 </head>
 
 <body>
     <div class="container">
         <!-- Sidebar Start -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="https://anidl.org"><img src="https://anidl.org/wp-content/uploads/2020/09/logo_drak_theme_by_abhishek1996-370d.png" /></a>
                 <span></span>
@@ -34,19 +26,16 @@
             <div id="new-upload" class="new-upload">
                 <input id="new-upload-focus" type="text" style="height: 0px; width: 0px; border: none; position: absolute" readonly />
                 <div id="new-folder-btn">
-                    <img src="static/assets/folder-icon.svg" />
-                    New Folder
+                    <img src="static/assets/folder-icon.svg" /> New Folder
                 </div>
                 <hr />
                 <div id="file-upload-btn">
-                    <img src="static/assets/upload-icon.svg" />
-                    File Upload
+                    <img src="static/assets/upload-icon.svg" /> File Upload
                 </div>
                 <input type="file" id="fileInput" multiple style="height: 0px; width: 0px; border: none; position: absolute" />
                 <hr />
                 <div id="url-upload-btn">
-                    <img src="static/assets/link-icon.svg" />
-                    URL Upload
+                    <img src="static/assets/link-icon.svg" /> URL Upload
                 </div>
             </div>
 
@@ -57,6 +46,7 @@
         </div>
         <!-- Sidebar End -->
 
+        <button id="hamburger-menu" class="hamburger" onclick="toggleSidebar()">☰</button>
         <div id="bg-blur" class="bg-blur"></div>
 
         <!-- Create New Folder Start -->
@@ -85,7 +75,6 @@
         <div id="new-url-upload" class="create-new-folder">
             <span>Url Upload</span>
             <input type="text" id="remote-url" placeholder="Enter Direct Download Link Of File" autocomplete="off" />
-            
             <div>
                 <button id="remote-cancel">Cancel</button>
                 <button id="remote-start">Upload</button>
@@ -94,28 +83,15 @@
         <!-- Remote Upload End -->
 
         <!-- Get Password Start -->
-<!-- Get Password Start 
-<div id="get-password" class="create-new-folder">
-    <span>Admin Login</span>
-    <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
-    <div>
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAAzlMk1oTy9AbPV5"></div>
-        <button id="pass-login">Login</button>
-        <p id="error-message" style="color: red; display: none;">Maximum attempts reached. Please try again later.</p>
-    </div>
-</div>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-        Get Password End -->
-
-<div id="get-password" class="create-new-folder">
-    <span>Admin Login</span>
-    <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
-    <div>
-        <button id="pass-login">Login</button>
-        <p id="error-message" style="color: red; display: none;">Maximum attempts reached. Please try again later.</p>
-    </div>
-</div>
-<!-- File Uploader Start -->
+        <div id="get-password" class="create-new-folder">
+            <span>Admin Login</span>
+            <input type="text" id="auth-pass" placeholder="Enter ID" autocomplete="off" />
+            <div>
+                <button id="pass-login">Login</button>
+                <p id="error-message" style="color: red; display: none;">Maximum attempts reached. Please try again later.</p>
+            </div>
+        </div>
+        <!-- File U ploader Start -->
         <div id="file-uploader" class="file-uploader">
             <span class="upload-head">🚀 Uploading File...</span>
             <span id="upload-filename" class="upload-info">Filename : </span>
@@ -125,11 +101,6 @@
             <div class="progress">
                 <div class="progress-bar" id="progress-bar"></div>
             </div>
-            <div id="Pending-upload-list" class="pending-upload-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
-                <h3 id="pending-heading" style="display: none;">⏳ Pending Uploads:</h3> <!-- Initially hidden -->
-                <ul id="pending-files" style="list-style-type: none; padding: 0; margin: 0; display: none;"></ul> <!-- Initially hidden and no padding/margin -->
-            </div>
-
             <div class="btn-div">
                 <button id="cancel-file-upload">Cancel Upload</button>
             </div>
@@ -144,7 +115,6 @@
                     <form id="search-form">
                         <input id="file-search" type="text" placeholder="Search in Drive" autocomplete="off" />
                     </form>
-
                 </div>
             </div>
 
