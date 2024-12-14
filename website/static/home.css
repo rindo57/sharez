@@ -417,6 +417,7 @@ body {
 
 .main-content .header {
     width: 100%;
+    
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
@@ -425,7 +426,9 @@ body {
 
 #search-form {
     height: 100%;
+    
     width: 100%;
+
 }
 
 .search-bar {
@@ -435,10 +438,10 @@ body {
     padding: 10px;
     border-radius: 25px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-    width: 100%;
-        box-shadow: 0 0 10px 1px #ff1493;
+    width: 100%; /* Or any specific width */
+    box-shadow: 0 0 10px 1px #ff1493;
+ /* Moves the search bar to the right */
 }
-
 .search-bar img {
     margin-right: 10px;
 }
@@ -586,4 +589,50 @@ text-align: left;
     color: #ff79c6; /* Accent color */
     text-decoration: none;
     margin: 0; /* Remove margin */
+}
+.hamburger {
+    display: none; /* Hidden by default */
+    position: absolute; /* Position it absolutely */
+    top: 10px; /* Adjust the top position */
+    left: 15px; /* Adjust the left position */
+    background: none; /* No background */
+    border: none; /* No border */
+    color: #fff; /* White color for the icon */
+    font-size: 24px; /* Size of the icon */
+    cursor: pointer; /* Pointer cursor on hover */
+    z-index: 1000; /* Ensure it is above other elements */
+}
+@media (max-width: 768px) {
+    .sidebar {
+        display: none; /* Hide sidebar on mobile */
+    }
+    .hamburger {
+        display: block; /* Show the hamburger menu on mobile */
+    }
+
+    .main-content {
+        padding: 10px; /* Reduce padding on mobile */
+    }
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #25293c;
+    padding: 10px;
+    border-radius: 25px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 97%; /* Or any specific width */
+    box-shadow: 0 0 10px 1px #ff1493;
+    margin-left: 50px; /* Moves the search bar to the right */
+}
+    .file-uploader {
+        width: 90%; /* Make uploader responsive */
+    }
+
+    .directory table {
+        font-size: 14px; /* Smaller font size for mobile */
+    }
+}
+
+/* Responsive Styles */
+
 }
