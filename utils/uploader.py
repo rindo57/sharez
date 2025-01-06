@@ -61,7 +61,32 @@ class UrllibClient:
         response.data = response.read().decode('utf-8')
         return response
 
+def create_paste(api_key, source_code):
+    """
+    Create a new paste on Pastebin.
 
+    Parameters:
+    api_key (str): Your Pastebin API key.
+    source_code (str): The text to be pasted.
+
+    Returns:
+    str: The URL of the created paste.
+    """
+    # Define the API endpoint
+    API_ENDPOINT = "https://pastebin.com/api/api_post.php"  # Use HTTPS
+
+    # Prepare the data to be sent to the API
+    data = {
+        'api_dev_key': api_key,
+        'api_option': 'paste',
+        'api_paste_code': source_code,
+    }
+
+    # Send a POST request to create a new paste
+    response = requests.post(url=API_ENDPOINT, data=data)
+
+    # Return the URL of the created paste, formatted for raw access
+    return response.text.replace("pastebin.com/", "pastebin.com/raw/")
 def new(url, edit_code, text):
     client, cookie = UrllibClient(), SimpleCookie()
     cookie.load(vars(client.get('https://rentry.co'))['headers']['Set-Cookie'])
@@ -140,11 +165,17 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
     if filename.endswith(".mkv"):
         media_details = format_media_info(file_path, file_size)
         content = f"Media Info:\n\n{media_details}"
+        api_key = "mZPtsfP1kPALQDyF56Qk1_exO1dIkWcR"  # Replace with your actual API key
+        paste_url = create_paste(api_key, content)
+        print("The pastebin URL is:", paste_url)
         rentry_link = get_rentry_link(content)
         print(rentry_link)
     elif filename.endswith(".mp4"):
         media_details = format_media_info(file_path, file_size)
         content = f"Media Info:\n\n{media_details}"
+        api_key = "mZPtsfP1kPALQDyF56Qk1_exO1dIkWcR"  # Replace with your actual API key
+        paste_url = create_paste(api_key, content)
+        print("The pastebin URL is:", paste_url)
         rentry_link = get_rentry_link(content)
         print(rentry_link)
     else:
@@ -176,7 +207,7 @@ async def start_file_uploader(file_path, id, directory_path, filename, file_size
 
     filename = unquote_plus(filename)
 
-    DRIVE_DATA.new_file(directory_path, filename, message.id, size, rentry_link, uploader)
+    DRIVE_DATA.new_file(directory_path, filename, message.id, size, rentry_link, paste_url, uploader)
     PROGRESS_CACHE[id] = ("completed", size, size)
 
     if os.path.exists(file_path):
