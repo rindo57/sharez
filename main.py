@@ -365,7 +365,7 @@ async def generate_link_page(request: Request):
     filesize = convert_size(file.size)  # Convert to MB/GB/etc.
     views = stats["views"] + 1  # Increment view for this request
     downloads = stats["downloads"]
-    media_info = file.rentry_link
+    media_info = file.paste_url
     uploader = file.uploader
     return HTMLResponse(content=f"""
 <!DOCTYPE html>
