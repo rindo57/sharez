@@ -50,6 +50,7 @@ class File:
         size: int,
         path: str,
         rentry_link: str, 
+        paste_url: str,
         uploader: str
     ) -> None:
         self.name = name
@@ -62,6 +63,7 @@ class File:
         self.path = path[:-1] if path[-1] == "/" else path
         self.upload_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.rentry_link = rentry_link
+        self.paste_url = paste_url
         self.uploader = uploader
         
 
@@ -94,10 +96,10 @@ class NewDriveData:
 
         self.save()
 
-    def new_file(self, path: str, name: str, file_id: int, size: int, rentry_link: str, uploader: str) -> None:
+    def new_file(self, path: str, name: str, file_id: int, size: int, rentry_link: str, paste_url: str, uploader: str) -> None:
         logger.info(f"Creating new file {name} in {path} by {uploader}")
 
-        file = File(name, file_id, size, path, rentry_link, uploader)
+        file = File(name, file_id, size, path, rentry_link, paste_url, uploader)
         if path == "/":
             directory_folder: Folder = self.contents[path]
             directory_folder.contents[file.id] = file
