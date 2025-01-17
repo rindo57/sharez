@@ -146,14 +146,15 @@ function hideMoreColumnIfSharedPath() {
     }
 }
 async function getCurrentDirectory() {
-    let path = getSharePathx();
+    let path = getSharePath();
     if (path === 'redirect') {
         return;
     }
     try {
         const auth = getFolderAuthFromPath();
+        const share = getShareFromPath();
         const query = getFolderQueryFromPath();
-        const data = { 'path': path, 'auth': auth, 'query': query };
+        const data = { 'path': path, 'share': share, 'auth': auth, 'query': query };
         const json = await postJson('/api/getDirectory', data);
 
         if (json.status === 'ok') {
