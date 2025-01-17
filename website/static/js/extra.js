@@ -1,10 +1,10 @@
 function getCurrentPath() {
     const url = new URL(window.location.href);
     const path = url.searchParams.get('path')
-    if (path === null) {
-        window.location.href = '/?path=/'
-        return 'redirect'
-    }
+  //  if (path === null) {
+      //  window.location.href = '/?path=/'
+     //   return 'redirect'
+    //}
     return path
 }
 
