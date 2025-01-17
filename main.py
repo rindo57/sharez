@@ -815,40 +815,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
         print("folder data: ", folder_data)
 
-"""    elif "/share_" in data["path"]:
-        print("data[path]", data["path"])
-        if query:
 
-            path = data["path"].split("_", 1)[1]
-            print("query: ", query)
-               # auth = data["path"].split('=')[1].split('/')[0] 
-            print("THIS AUTH", auth)
-            fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
-            print("fdata: ", fdata)
-            print("auth home path: ", auth_home_path)
-            auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
-
-            folder = convert_class_to_dict(fdata, isObject=True, showtrash=False)
-
-            def traverse_directory(folder, query):
-                search_results = {}
-                for item in folder.values():
-                    if query.lower() in item["name"].lower():
-                        search_results[item['id']] = item
-             #       if item['type'] == "folder":
-                     #   search_results.update(traverse_directory(item["contents"], query))
-                return search_results
-
-            search_data = traverse_directory(folder['contents'], query)
-
-            finaldata =  {"contents": search_data}
-            print("share seach folder data:", finaldata)
-            
-           
-            return JSONResponse(
-                {"status": "ok", "data": finaldata, "auth_home_path": auth_home_path}
-            )
-    """
     
     elif "share" in data["path"]:
         print("SHARE data[path]", share)
