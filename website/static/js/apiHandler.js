@@ -166,7 +166,7 @@ async function getCurrentDirectory() {
                 } else {
                     sections[0].setAttribute('class', 'unselected-item');
                 }
-                sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
+                sections[0].href = `/?share=/${removeSlash(json['auth_home_path'])}&auth=${auth}`;
                 hideMoreColumnIfSharedPath(); 
                 console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`)
             }// else if (getCurrentPath().includes('/search_')) {
