@@ -8,6 +8,18 @@ function getCurrentPath() {
     return path
 }
 
+function getSharePath() {
+    const url = new URL(window.location.href);
+    const path = url.searchParams.get('share')
+    return url
+}
+
+function getSharePathx() {
+    const url = new URL(window.location.href);
+    const path = url.searchParams.get('share')
+    return path
+}
+
 function getFolderAuthFromPath() {
     const url = new URL(window.location.href);
     const auth = url.searchParams.get('auth')
