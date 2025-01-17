@@ -146,7 +146,7 @@ function hideMoreColumnIfSharedPath() {
     }
 }
 async function getCurrentDirectory() {
-    let path = getCurrentPath();
+    let path = getSharePathx();
     if (path === 'redirect') {
         return;
     }
@@ -157,7 +157,7 @@ async function getCurrentDirectory() {
         const json = await postJson('/api/getDirectory', data);
 
         if (json.status === 'ok') {
-            if (getCurrentPath().startsWith('/share')) {
+            if (getSharePath().includes('share')) {
                 const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a');
 
                 if (removeSlash(json['auth_home_path']) === removeSlash(path.split('_')[1])) {
