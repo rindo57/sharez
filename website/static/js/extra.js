@@ -26,6 +26,12 @@ function getFolderAuthFromPath() {
     return auth
 }
 
+function getShareFromPath() {
+    const url = new URL(window.location.href);
+    const share = url.searchParams.get('share')
+    return share
+}
+
 function getFolderQueryFromPath() {
     const url = new URL(window.location.href);
     const query = url.searchParams.get('query')
