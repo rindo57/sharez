@@ -789,7 +789,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
 
     #auth = data.get("auth")
     auth = data.get("auth")
-
+    share = data.get("share")
     query = data.get("query")
     if auth:
         auth = auth.split('/')[0]
@@ -815,7 +815,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
         print("folder data: ", folder_data)
 
-    elif "/share_" in data["path"]:
+"""    elif "/share_" in data["path"]:
         print("data[path]", data["path"])
         if query:
 
@@ -848,12 +848,13 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
             return JSONResponse(
                 {"status": "ok", "data": finaldata, "auth_home_path": auth_home_path}
             )
+    """
     
-    elif data["share"]:
-        print("SHARE data[path]", data["path"])
+    elif "share" in data["path"]:
+        print("SHARE data[path]", share)
         if query:
 
-            path = data["path"]
+            path = share
             print("query: ", query)
                # auth = data["path"].split('=')[1].split('/')[0] 
             print("THIS AUTH", auth)
@@ -883,7 +884,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
                 {"status": "ok", "data": finaldata, "auth_home_path": auth_home_path}
             )
         else:
-            path = data["path"].split("_", 1)[1]
+            path = share
             folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
             print("folder share data - ", folder_data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
