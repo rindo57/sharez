@@ -10,7 +10,7 @@ function getCurrentPath() {
 
 function getSharePath() {
     const url = new URL(window.location.href);
-    const path = url.searchParams.get('share')
+   // const path = url.searchParams.get('share')
     return url
 }
 
