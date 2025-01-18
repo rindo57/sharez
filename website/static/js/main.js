@@ -2,7 +2,7 @@ function showDirectory(data) {
     data = data['contents'];
     document.getElementById('directory-data').innerHTML = '';
     const isTrash = getCurrentPath().startsWith('/trash');
-    const isShare = getSharePath().includes('share'); // Check if path starts with /share
+    const isShare = getCurrentPath().includes('share'); // Check if path starts with /share
 
     let html = '';
 
