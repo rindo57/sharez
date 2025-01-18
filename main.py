@@ -789,7 +789,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
 
     #auth = data.get("auth")
     auth = data.get("auth")
-    share = data.get("share")
+    #share = data.get("share")
     query = data.get("query")
     if auth:
         auth = auth.split('/')[0]
@@ -818,10 +818,10 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
 
     
     elif "share" in data["path"]:
-        print("SHARE data[path]", share)
+        print("SHARE data[path]", data['path'])
         if query:
 
-            path = share
+            path = data["path"]
             print("query: ", query)
                # auth = data["path"].split('=')[1].split('/')[0] 
             print("THIS AUTH", auth)
