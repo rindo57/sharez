@@ -1,27 +1,10 @@
 function getCurrentPath() {
     const url = new URL(window.location.href);
     const path = url.searchParams.get('path')
-    if (url.searchParams.get('path')) {
-        const path = url.searchParams.get('path')
-    } else if (url.searchParams.get('share')) {
-        const path = url
+    if (path === null) {
+        window.location.href = '/?path=/'
+        return 'redirect'
     }
-  //  if (path === null) {
-      //  window.location.href = '/?path=/'
-     //   return 'redirect'
-    //}
-    return path
-}
-
-function getSharePath() {
-    const url = new URL(window.location.href);
-   // const path = url.searchParams.get('share')
-    return url
-}
-
-function getSharePathx() {
-    const url = new URL(window.location.href);
-    const path = url.searchParams.get('share')
     return path
 }
 
@@ -29,12 +12,6 @@ function getFolderAuthFromPath() {
     const url = new URL(window.location.href);
     const auth = url.searchParams.get('auth')
     return auth
-}
-
-function getShareFromPath() {
-    const url = new URL(window.location.href);
-    const share = url.searchParams.get('share')
-    return share
 }
 
 function getFolderQueryFromPath() {
