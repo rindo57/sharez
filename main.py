@@ -775,6 +775,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
+    print("THIS IS DATA 1 ", data)
     is_admin = False
     if session:
         try:
@@ -814,6 +815,91 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
         print("folder data: ", folder_data)
 
     elif "/share_" in data["path"]:
+        print("data[path]", data["path"])
+        if query:
+
+            path = data["path"].split("_", 1)[1]
+            print("query: ", query)
+               # auth = data["path"].split('=')[1].split('/')[0] 
+            print("THIS AUTH", auth)
+            fdata, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
+            print("fdata: ", fdata)
+            print("auth home path: ", auth_home_path)
+            auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
+
+            folder = convert_class_to_dict(fdata, isObject=True, showtrash=False)
+
+            def traverse_directory(folder, query):
+                search_results = {}
+                for item in folder.values():
+                    if query.lower() in item["name"].lower():
+                        search_results[item['id']] = item
+             #       if item['type'] == "folder":
+                     #   search_results.update(traverse_directory(item["contents"], query))
+                return search_results
+
+            search_data = traverse_directory(folder['contents'], query)
+
+            finaldata =  {"contents": search_data}
+            print("share seach folder data:", finaldata)
+            
+           
+            return JSONResponse(
+                {"status": "ok", "data": finaldata, "auth_home_path": auth_home_path}
+            )
+        
+        else:
+            path = data["path"].split("_", 1)[1]
+            folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
+            print("folder share data - ", folder_data)
+            auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
+            folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
+            print("final folder: ", folder_data)
+            return JSONResponse(
+                {"status": "ok", "data": folder_data, "auth_home_path": auth_home_path}
+            )
+
+    else:
+        
+        folder_data = DRIVE_DATA.get_directory(data["path"])
+        print("FOLDER DATA:" , folder_data)
+        folder_data = convert_class_to_dict(folder_data, isObject=True, showtrash=False)
+        print("FOLDER DATA 2", folder_data)
+    return JSONResponse({"status": "ok", "data": folder_data, "auth_home_path": None})
+
+
+@app.post("/api/getShareDirectory")
+async def api_get_directory(request: Request,  session: str = Cookie(None)):
+    from utils.directoryHandler import DRIVE_DATA
+
+    data = await request.json()
+    print("THIS IS DATA ", data)
+    is_admin = False
+    if session:
+        try:
+            payload = jwt.decode(session, JWT_SECRET, algorithms=["HS256"])
+            is_admin = True  # Validate payload if necessary
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=403, detail="Session expired")
+        except jwt.InvalidTokenError:
+            raise HTTPException(status_code=403, detail="Invalid session token")
+
+    #auth = data.get("auth")
+    auth = data.get("auth")
+
+    query = data.get("query")
+    if auth:
+        auth = auth.split('/')[0]
+        data["auth"] = auth
+    else:
+        auth = None
+
+    print("THIS IS AUTH: ", auth)
+    logger.info(f"getFolder {data}")
+
+
+
+    if "/share_" in data["path"]:
         print("data[path]", data["path"])
         if query:
 
