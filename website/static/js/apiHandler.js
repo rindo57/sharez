@@ -146,7 +146,7 @@ function hideMoreColumnIfSharedPath() {
     }
 }
 async function getCurrentDirectory() {
-    let path = getSharePath();
+    let path = getCurrentPath();
     if (path === 'redirect') {
         return;
     }
