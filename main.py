@@ -775,8 +775,6 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
     from utils.directoryHandler import DRIVE_DATA
 
     data = await request.json()
-
-    print("THIS IS DATA: ", data)
     is_admin = False
     if session:
         try:
@@ -789,7 +787,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
 
     #auth = data.get("auth")
     auth = data.get("auth")
-    #share = data.get("share")
+
     query = data.get("query")
     if auth:
         auth = auth.split('/')[0]
@@ -804,7 +802,7 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
         data = {"contents": DRIVE_DATA.get_trashed_files_folders()}
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=True)
 
-    
+
     elif "/search_" in data["path"]:
         query = urllib.parse.unquote(data["path"].split("_", 1)[1])
         segments = data["path"].split('/')
@@ -815,13 +813,11 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
         folder_data = convert_class_to_dict(data, isObject=False, showtrash=False)
         print("folder data: ", folder_data)
 
-
-    
-    elif "share" in data["path"]:
-        print("SHARE data[path]", data['path'])
+    elif "/share_" in data["path"]:
+        print("data[path]", data["path"])
         if query:
 
-            path = data["path"]
+            path = data["path"].split("_", 1)[1]
             print("query: ", query)
                # auth = data["path"].split('=')[1].split('/')[0] 
             print("THIS AUTH", auth)
@@ -850,8 +846,9 @@ async def api_get_directory(request: Request,  session: str = Cookie(None)):
             return JSONResponse(
                 {"status": "ok", "data": finaldata, "auth_home_path": auth_home_path}
             )
+        
         else:
-            path = share
+            path = data["path"].split("_", 1)[1]
             folder_data, auth_home_path = DRIVE_DATA.get_directory(path, is_admin, auth)
             print("folder share data - ", folder_data)
             auth_home_path= auth_home_path.replace("//", "/") if auth_home_path else None
@@ -1252,5 +1249,4 @@ async def admin(session: str = Cookie(None)):
         raise HTTPException(status_code=403, detail="Invalid session token")
 
     return JSONResponse({"status": "ok"})
-
 
