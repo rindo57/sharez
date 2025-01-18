@@ -152,13 +152,12 @@ async function getCurrentDirectory() {
     }
     try {
         const auth = getFolderAuthFromPath();
-        //const share = getShareFromPath();
         const query = getFolderQueryFromPath();
         const data = { 'path': path, 'auth': auth, 'query': query };
         const json = await postJson('/api/getDirectory', data);
 
         if (json.status === 'ok') {
-            if (getSharePath().includes('share')) {
+            if (getCurrentPath().startsWith('/share')) {
                 const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a');
 
                 if (removeSlash(json['auth_home_path']) === removeSlash(path.split('_')[1])) {
@@ -166,7 +165,7 @@ async function getCurrentDirectory() {
                 } else {
                     sections[0].setAttribute('class', 'unselected-item');
                 }
-                sections[0].href = `/?share=/${removeSlash(json['auth_home_path'])}&auth=${auth}`;
+                sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
                 hideMoreColumnIfSharedPath(); 
                 console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`)
             }// else if (getCurrentPath().includes('/search_')) {
