@@ -1,6 +1,10 @@
 function getCurrentPath() {
     const url = new URL(window.location.href);
     const path = url.searchParams.get('path')
+    if (url.searchParams.get('path')) {
+        const path = url.searchParams.get('path')
+    } else if (url.searchParams.get('share')) {
+        const path = url
   //  if (path === null) {
       //  window.location.href = '/?path=/'
      //   return 'redirect'
