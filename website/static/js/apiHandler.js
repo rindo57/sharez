@@ -185,45 +185,7 @@ async function getCurrentDirectory() {
     }
 }
 
-async function getCurrentShareDirectory() {
-    let path = getSharePath();
-    if (path === 'redirect') {
-        return;
-    }
-    try {
-        const auth = getFolderAuthFromPath();
-        const query = getFolderQueryFromPath();
-        const data = { 'path': path, 'auth': auth, 'query': query };
-        const json = await postJson('/api/getShareDirectory', data);
 
-        if (json.status === 'ok') {
-            if (getCurrentPath().startsWith('/share')) {
-                const sections = document.querySelector('.sidebar-menu').getElementsByTagName('a');
-
-                if (removeSlash(json['auth_home_path']) === removeSlash(path.split('_')[1])) {
-                    sections[0].setAttribute('class', 'selected-item');
-                } else {
-                    sections[0].setAttribute('class', 'unselected-item');
-                }
-                sections[0].href = `/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`;
-                hideMoreColumnIfSharedPath(); 
-                console.log(`/?path=/share_${removeSlash(json['auth_home_path'])}&auth=${auth}`)
-            }// else if (getCurrentPath().includes('/search_')) {
-                //const sidebarmenu = document.querySelector('.sidebar-menu');
-              //  if (sidebarmenu) {
-                   // sidebarmenu.style.display = 'none';
-                //}
-          //  }
-            console.log(json)
-            showShareDirectory(json['data']);
-        } else {
-            alert('404 Current Directory Not Found');
-        }
-    }
-    catch (err) {
-        alert('404 Current Directory Not Found');
-    }
-}
 
 async function createNewFolder() {
     const folderName = document.getElementById('new-folder-name').value;
